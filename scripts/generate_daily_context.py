@@ -53,7 +53,7 @@ def main():
         for q in tm[tid]["part3"][:2]: lines.append(f"- {q}")
     if recent:
         lines.extend(["", "## 上次反馈，今天优先修正", "", f"- 日期：{recent.get('date','—')}", f"- 重点：{recent.get('next_focus') or recent.get('corrections') or '保持稳定输出'}"])
-    lines.extend(["", "## 练习结束后请输出", "", "1. 四项分数及总分估计", "2. 三处原句 → 改进句", "3. 5 个可迁移表达", "4. 下一次只需改进的一件事", "5. 已完成题号（如 P2-01, P2-17）", ""])
+    lines.extend(["", "## 练习结束后请输出", "", "1. 四项分数及总分估计", "2. 三处原句 → 改进句", "3. 10 个可迁移表达，每行严格使用：英文表达 | 中文含义 | 英文例句 | 发音或使用提示", "4. 下一次只需改进的一件事", "5. 已完成题号（如 P2-01, P2-17）", ""])
     out = "\n".join(lines)
     folder = ROOT / "daily-context"; folder.mkdir(exist_ok=True)
     (folder / f"{target}.md").write_text(out, encoding="utf-8")
