@@ -86,6 +86,7 @@
   $('#addListeningWords').addEventListener('click',()=>{const existing=new Set(listening.map(x=>norm(x.word))),custom=JSON.parse(localStorage.getItem(customKey)||'[]');let added=0;for(const line of $('#listeningImport').value.splitlines?.()||$('#listeningImport').value.split('\n')){const p=line.split(/[|｜]/).map(x=>x.trim());if(p.length<3||!p[0]||existing.has(norm(p[0])))continue;const card={id:`LC-${Date.now()}-${added}`,word:p[0],meaning:p[1],example:p[2]};custom.push(card);listening.push(card);existing.add(norm(p[0]));added++}localStorage.setItem(customKey,JSON.stringify(custom));$('#listeningImport').value='';buildListenQueue();alert(`已加入 ${added} 张听力反应卡。`) });
 
   // ---------- Reading vocabulary and expression cards ----------
+  if(!window.readingModuleReady){
   const readingCustomKey='ielts-reading-custom-v1',readingStateKey='ielts-reading-state-v1';
   let readingCards=[],readingState={},readingQueue=[],readingCurrent=null,readingReviewed=0,readingInitial=0;
   const readingKey=s=>s.toLowerCase().replace(/[^a-z0-9]/g,'');
@@ -99,4 +100,5 @@
   $('#addReadingCards').addEventListener('click',()=>{const existing=new Set(readingCards.map(x=>readingKey(x.front))),custom=JSON.parse(localStorage.getItem(readingCustomKey)||'[]'),newCards=[];let skipped=0;for(const line of $('#readingImport').value.split('\n')){const p=line.split(/[|｜\t]/).map(x=>x.trim()),front=p[0]||'';if(!front)continue;if(existing.has(readingKey(front))){skipped++;continue}const card={id:`RC-${Date.now()}-${newCards.length}`,front,meaning:p[1]||'中文含义待补充',example:p[2]||'原文例句待补充',note:p[3]||'来自阅读生词积累'};custom.push(card);readingCards.push(card);newCards.push(card);existing.add(readingKey(front))}if(!newCards.length){alert(skipped?'这些单词已经在卡片库里了。':'请至少输入一个英文单词。');return}localStorage.setItem(readingCustomKey,JSON.stringify(custom));$('#readingImport').value='';readingQueue=[...newCards];readingInitial=newCards.length;readingReviewed=0;showReading();alert(`已加入 ${newCards.length} 张阅读卡${skipped?`，另有 ${skipped} 张重复卡已跳过`:''}。新卡已显示在右侧。`) });
   $('#resetReadingSession').addEventListener('click',()=>buildReadingQueue(true));
   $('#exportReading').addEventListener('click',async()=>{const text=readingCards.map(c=>`${c.front} | ${c.meaning} | ${c.example||''} | ${c.note||''}`).join('\n');await navigator.clipboard.writeText(text);alert(`已复制 ${readingCards.length} 张阅读卡。`)});
+  }
 })();
