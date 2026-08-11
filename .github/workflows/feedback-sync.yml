@@ -1,0 +1,32 @@
+name: Sync ChatGPT Live feedback
+on:
+  issues:
+    types: [opened, edited]
+permissions:
+  contents: write
+  issues: write
+jobs:
+  sync:
+    if: startsWith(github.event.issue.title, '[Practice Feedback]')
+    runs-on: ubuntu-latest
+    concurrency: feedback-sync
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: "3.12"}
+      - name: Update feedback and progress
+        env:
+          ISSUE_BODY: ${{ github.event.issue.body }}
+          ISSUE_NUMBER: ${{ github.event.issue.number }}
+        run: python scripts/sync_feedback_issue.py
+      - name: Commit progress
+        run: |
+          git config user.name "ielts-speaking-bot"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data daily-context
+          git diff --cached --quiet || git commit -m "Sync practice feedback #${{ github.event.issue.number }}"
+          git push
+      - name: Confirm sync
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh issue comment "${{ github.event.issue.number }}" --body "✅ Feedback and progress synced to the dashboard."
