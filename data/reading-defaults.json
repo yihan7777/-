@@ -1,0 +1,14 @@
+[
+  {"id":"R01","front":"underwhelmed","meaning":"感到失望的；觉得没有预期中好","example":"Many visitors felt underwhelmed by the exhibition.","note":"常用搭配：feel/be underwhelmed by"},
+  {"id":"R02","front":"hyperfixation","meaning":"过度专注；对某事异常沉迷","example":"A hyperfixation on minor details may reduce efficiency.","note":"常见于心理与行为类文章"},
+  {"id":"R03","front":"coexist with others","meaning":"与其他人或事物共存","example":"Wildlife must learn to coexist with expanding cities.","note":"coexist with，不是 coexist together"},
+  {"id":"R04","front":"social stimulation","meaning":"社会互动带来的刺激","example":"Older people can benefit from regular social stimulation.","note":"健康、老龄化与社区主题"},
+  {"id":"R05","front":"microplastic particles","meaning":"微塑料颗粒","example":"Microplastic particles have been detected in marine environments.","note":"环境与科学主题"},
+  {"id":"R06","front":"reforestation","meaning":"重新造林；森林恢复","example":"Reforestation can help restore damaged ecosystems.","note":"词根：re- + forest + -ation"},
+  {"id":"R07","front":"metabolism","meaning":"新陈代谢","example":"Temperature can affect an animal's metabolism.","note":"生物与健康主题"},
+  {"id":"R08","front":"availability","meaning":"可获得性；供应情况","example":"The availability of public transport affects where people live.","note":"常用结构：the availability of"},
+  {"id":"R09","front":"accommodate","meaning":"容纳；满足需要；提供住宿","example":"The building can accommodate up to five hundred visitors.","note":"根据语境判断具体含义"},
+  {"id":"R10","front":"evidence suggests that","meaning":"证据表明……","example":"Evidence suggests that handwriting may improve memory.","note":"学术文章高频引证结构"},
+  {"id":"R11","front":"retain and process information","meaning":"记住并处理信息","example":"Students need time to retain and process new information.","note":"认知与教育主题"},
+  {"id":"R12","front":"on either side of","meaning":"在……的两侧","example":"Tall trees grew on either side of the narrow channel.","note":"either side 在这里表示两边各一侧"}
+]
