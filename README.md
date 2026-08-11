@@ -8,12 +8,14 @@
 2. 点击 **复制今日 Context**，全文复制给 ChatGPT，然后开启 Live 语音。
 3. 完成 Part 1 → Part 2 → Part 3 练习，等 ChatGPT 输出评分和反馈摘要。
 4. 点击 **提交 Live 反馈**，把摘要填入 Issue；GitHub Actions 会自动更新 `data/feedback.json`、`data/progress.json` 和下一轮 Context。
+5. 在 **词汇记忆卡片** 中先回忆再翻面，根据真实掌握程度选择“忘了 / 困难 / 掌握 / 简单”；手机会保存复习进度并自动安排下次出现时间。
 
 ## 自动化
 
 - 每天北京时间 08:00 生成 `daily-context/latest.md`。
 - 新建带 `practice-feedback` 标签的反馈 Issue 后，自动同步练习记录。
 - `main` 分支更新后自动部署 GitHub Pages。
+- 内置 36 张个性化表达卡片，覆盖旅行、固定句型、Part 3 逻辑、学习成长和重点发音。
 
 ## 计划原则
 
