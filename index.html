@@ -10,7 +10,7 @@
 </head>
 <body>
   <header class="hero">
-    <nav><span class="brand">IELTS LAB</span><div class="nav-links"><a href="#typing">作文打字</a><a href="#listening">听力反应</a><a href="#library">49 题迁移库</a></div></nav>
+    <nav><span class="brand">IELTS LAB</span><div class="nav-links"><a href="#typing">作文打字</a><a href="#listening">听力反应</a><a href="#reading">阅读卡片</a><a href="#library">49 题迁移库</a></div></nav>
     <div class="hero-grid">
       <div>
         <p class="eyebrow">2026 · MAY–AUG QUESTION BANK</p>
@@ -148,6 +148,42 @@
             <button data-audio-grade="hard"><b>反应较慢</b><small>10 分钟后</small></button>
             <button data-audio-grade="good"><b>反应出来</b><small>明天</small></button>
             <button data-audio-grade="easy"><b>非常熟悉</b><small>4 天后</small></button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section tool-section" id="reading">
+      <div class="section-head">
+        <div><p class="kicker">READING VOCABULARY</p><h2>阅读生词与表达卡</h2></div>
+        <p class="aside">把阅读中真正影响理解的生词、搭配和表达放进语境里复习，不背孤立词表。</p>
+      </div>
+      <div class="reading-layout">
+        <aside class="reading-import">
+          <p class="deck-label">添加阅读生词或表达</p>
+          <textarea id="readingImport" placeholder="每行一个：expression | 中文 | 原文例句 | 使用提示"></textarea>
+          <button class="button primary" id="addReadingCards">加入阅读卡</button>
+          <small>例句和提示可以暂时不填；至少需要英文和中文。</small>
+          <div class="reading-tools"><button id="exportReading">复制全部卡片</button><button id="resetReadingSession">重新学习今日卡片</button></div>
+          <div class="reading-count"><strong id="readingDue">—</strong><span>张待复习</span></div>
+        </aside>
+        <div class="reading-stage">
+          <button class="reading-card" id="readingCard">
+            <span class="card-tag" id="readingTag">READING</span>
+            <span class="card-hint">先回忆含义，再点击翻面</span>
+            <strong id="readingFront">Loading…</strong>
+            <div class="reading-back hidden" id="readingBack">
+              <b id="readingMeaning"></b>
+              <p id="readingExample"></p>
+              <small id="readingNote"></small>
+            </div>
+          </button>
+          <div class="reading-card-tools"><button id="readExpression">🔊 听表达</button><span id="readingCounter"></span></div>
+          <div class="rating reading-rating" id="readingRating">
+            <button data-reading-grade="again"><b>忘了</b><small>本轮重现</small></button>
+            <button data-reading-grade="hard"><b>模糊</b><small>10 分钟后</small></button>
+            <button data-reading-grade="good"><b>认识</b><small>明天</small></button>
+            <button data-reading-grade="easy"><b>熟练</b><small>4 天后</small></button>
           </div>
         </div>
       </div>
