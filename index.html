@@ -6,10 +6,11 @@
   <meta name="theme-color" content="#122018">
   <title>IELTS Speaking · 9.1 冲刺面板</title>
   <link rel="stylesheet" href="assets/style.css">
+  <link rel="stylesheet" href="assets/training.css">
 </head>
 <body>
   <header class="hero">
-    <nav><span class="brand">SPEAKING LAB</span><a href="#library">49 题迁移库</a></nav>
+    <nav><span class="brand">IELTS LAB</span><div class="nav-links"><a href="#typing">作文打字</a><a href="#listening">听力反应</a><a href="#library">49 题迁移库</a></div></nav>
     <div class="hero-grid">
       <div>
         <p class="eyebrow">2026 · MAY–AUG QUESTION BANK</p>
@@ -84,6 +85,74 @@
       </div>
     </section>
 
+    <section class="section tool-section" id="typing">
+      <div class="section-head">
+        <div><p class="kicker">WRITING MUSCLE MEMORY</p><h2>作文打字训练</h2></div>
+        <p class="aside">粘贴优秀范文，逐句准确复刻。完成后自动归纳拼写错误、漏词、多打词，并筛选值得积累的表达与句式。</p>
+      </div>
+      <div class="typing-setup" id="typingSetup">
+        <label><span>① 粘贴范文</span><textarea id="essaySource" placeholder="Paste a model IELTS essay here…"></textarea></label>
+        <div class="setup-actions"><button class="button primary" id="startTyping">开始打字训练</button><button class="button" id="loadEssayDraft">恢复上次范文</button></div>
+      </div>
+      <div class="typing-workspace hidden" id="typingWorkspace">
+        <div class="typing-metrics">
+          <article><span>速度</span><strong id="typingWpm">0</strong><small>WPM</small></article>
+          <article><span>准确率</span><strong id="typingAccuracy">100%</strong></article>
+          <article><span>进度</span><strong id="typingProgress">0%</strong></article>
+          <article><span>时间</span><strong id="typingTime">00:00</strong></article>
+        </div>
+        <div class="typing-grid">
+          <article class="reference-pane"><span class="pane-label">范文原文</span><div id="typingReference"></div></article>
+          <label class="typing-pane"><span class="pane-label">你的输入</span><textarea id="typingInput" spellcheck="false" autocomplete="off" autocapitalize="off" placeholder="Start typing here…"></textarea></label>
+        </div>
+        <div class="setup-actions"><button class="button primary" id="finishTyping">完成并分析</button><button class="button" id="restartTyping">重新开始</button></div>
+      </div>
+      <div class="typing-report hidden" id="typingReport">
+        <div class="section-head compact"><div><p class="kicker">SESSION REPORT</p><h3>本次打字报告</h3></div><button class="button" id="copyWritingContext">复制给 ChatGPT 深度分析</button></div>
+        <div class="report-grid">
+          <article><h4>拼写或替换错误</h4><div id="wrongWords"></div></article>
+          <article><h4>漏打的词</h4><div id="missingWords"></div></article>
+          <article><h4>多打的词</h4><div id="extraWords"></div></article>
+          <article class="wide"><h4>自动提取的表达与句式</h4><div id="writingExpressions"></div></article>
+          <article class="wide"><h4>累计易错词库</h4><div id="typingErrorBank"></div></article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section tool-section" id="listening">
+      <div class="section-head">
+        <div><p class="kicker">AUDIO REACTION</p><h2>听力单词反应卡</h2></div>
+        <p class="aside">正面不显示拼写。只听声音，立刻反应意思并写下单词，然后翻面核对。</p>
+      </div>
+      <div class="listening-layout">
+        <aside class="listening-library">
+          <p class="deck-label">添加今天没反应出的词</p>
+          <textarea id="listeningImport" placeholder="每行一个：word | 中文 | English example"></textarea>
+          <button class="button primary" id="addListeningWords">加入反应卡</button>
+          <small>也可以把单词发给我，我整理好后加入默认卡组。</small>
+          <div class="listening-count"><strong id="listeningDue">—</strong><span>张待复习</span></div>
+        </aside>
+        <div class="audio-stage">
+          <div class="audio-card" id="audioCard">
+            <span class="card-tag">AUDIO ONLY</span>
+            <div class="sound-actions">
+              <button id="playWord"><span>▶</span><b>播放单词</b></button>
+              <button id="playExample"><span>▶</span><b>播放例句</b></button>
+            </div>
+            <label class="heard-answer"><span>你听到的拼写</span><input id="heardAnswer" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="输入后再翻面"></label>
+            <button class="reveal-audio" id="revealAudio">翻面查看答案</button>
+            <div class="audio-answer hidden" id="audioAnswer"><strong id="listenWord"></strong><b id="listenMeaning"></b><p id="listenExample"></p><small id="listenResult"></small></div>
+          </div>
+          <div class="rating audio-rating" id="audioRating">
+            <button data-audio-grade="again"><b>没反应</b><small>马上重复</small></button>
+            <button data-audio-grade="hard"><b>反应较慢</b><small>10 分钟后</small></button>
+            <button data-audio-grade="good"><b>反应出来</b><small>明天</small></button>
+            <button data-audio-grade="easy"><b>非常熟悉</b><small>4 天后</small></button>
+          </div>
+        </div>
+      </div>
+    </section>
+
     <section class="section timeline-wrap">
       <div class="section-head"><div><p class="kicker">EBBINGHAUS PLAN</p><h2>8.11 → 9.1 路线图</h2></div><div class="legend"><i></i>首轮 <i></i>复习 <i></i>模考</div></div>
       <div class="timeline" id="timeline"></div>
@@ -98,5 +167,6 @@
 
   <footer><span>IELTS SPEAKING 2026</span><p>GitHub 每日生成 Context → ChatGPT Live → 反馈同步 → 下一轮复习</p></footer>
   <script src="assets/app.js" defer></script>
+  <script src="assets/training.js" defer></script>
 </body>
 </html>
