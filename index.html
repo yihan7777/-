@@ -6,7 +6,7 @@
   <meta name="theme-color" content="#122018">
   <title>IELTS Speaking · 9.1 冲刺面板</title>
   <link rel="stylesheet" href="assets/style.css">
-  <link rel="stylesheet" href="assets/training.css">
+  <link rel="stylesheet" href="assets/training.css?v=3">
 </head>
 <body>
   <header class="hero">
@@ -164,6 +164,7 @@
           <textarea id="readingImport" placeholder="最简单：每行只写一个英文单词\n完整格式：expression | 中文 | 原文例句 | 使用提示"></textarea>
           <button class="button primary" id="addReadingCards">加入阅读卡</button>
           <small>只写英文也能添加；中文和例句会显示“待补充”。新添加的卡会立刻出现在右侧。</small>
+          <p id="readingStatus" aria-live="polite">阅读卡模块正在加载…</p>
           <div class="reading-tools"><button id="exportReading">复制全部卡片</button><button id="resetReadingSession">重新学习今日卡片</button></div>
           <div class="reading-count"><strong id="readingDue">—</strong><span>张待复习</span></div>
         </aside>
@@ -202,7 +203,8 @@
   </main>
 
   <footer><span>IELTS SPEAKING 2026</span><p>GitHub 每日生成 Context → ChatGPT Live → 反馈同步 → 下一轮复习</p></footer>
-  <script src="assets/app.js" defer></script>
-  <script src="assets/training.js" defer></script>
+  <script src="assets/app.js?v=3" defer></script>
+  <script src="assets/reading.js?v=3" defer></script>
+  <script src="assets/training.js?v=3" defer></script>
 </body>
 </html>
