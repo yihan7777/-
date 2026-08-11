@@ -49,6 +49,41 @@
       <div class="cluster-grid" id="clusterGrid"></div>
     </section>
 
+    <section class="section memory" id="memory">
+      <div class="section-head">
+        <div><p class="kicker">SPACED REPETITION</p><h2>词汇记忆卡片</h2></div>
+        <p class="aside">一次只记一张。先回忆，再翻面；系统会让困难的表达更快重新出现。</p>
+      </div>
+      <div class="memory-layout">
+        <aside class="deck-panel">
+          <p class="deck-label">今日复习</p><strong id="dueCards">—</strong><span>张到期卡片</span>
+          <div class="memory-progress"><i id="memoryBar"></i></div>
+          <p id="memoryStatus">正在准备今天的卡片…</p>
+          <div class="deck-filters" id="deckFilters"></div>
+          <button class="reset-memory" id="resetMemory">重新学习本组</button>
+        </aside>
+        <div class="card-stage">
+          <button class="flashcard" id="flashcard" aria-label="点击翻面">
+            <span class="card-tag" id="cardTag">固定表达</span>
+            <span class="card-hint">点击卡片查看答案</span>
+            <strong id="cardFront">Loading…</strong>
+            <div class="card-back" id="cardBack">
+              <b id="cardMeaning"></b>
+              <p id="cardExample"></p>
+              <small id="cardNote"></small>
+            </div>
+          </button>
+          <div class="card-tools"><button id="speakCard">🔊 听发音</button><span id="cardCounter"></span></div>
+          <div class="rating" id="rating">
+            <button data-grade="again"><b>忘了</b><small>马上重复</small></button>
+            <button data-grade="hard"><b>困难</b><small>10 分钟后</small></button>
+            <button data-grade="good"><b>掌握</b><small>明天</small></button>
+            <button data-grade="easy"><b>简单</b><small>4 天后</small></button>
+          </div>
+        </div>
+      </div>
+    </section>
+
     <section class="section timeline-wrap">
       <div class="section-head"><div><p class="kicker">EBBINGHAUS PLAN</p><h2>8.11 → 9.1 路线图</h2></div><div class="legend"><i></i>首轮 <i></i>复习 <i></i>模考</div></div>
       <div class="timeline" id="timeline"></div>
