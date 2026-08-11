@@ -33,7 +33,8 @@ body:
     validations: {required: true}
   - type: textarea
     id: expressions
-    attributes: {label: 可迁移表达, description: "粘贴今天积累的 5 个表达"}
+    attributes: {label: 可迁移表达, description: "粘贴 10 行，每行格式：英文表达 | 中文含义 | 英文例句 | 发音或使用提示。提交后会自动去重并生成记忆卡片。"}
+    validations: {required: true}
   - type: textarea
     id: focus
     attributes: {label: 下一次只改进这一件事}
