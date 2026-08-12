@@ -127,9 +127,10 @@
       <div class="listening-layout">
         <aside class="listening-library">
           <p class="deck-label">添加今天没反应出的词</p>
-          <textarea id="listeningImport" placeholder="每行一个：word | 中文 | English example"></textarea>
+          <textarea id="listeningImport" placeholder="直接粘贴多个词：可用换行、逗号、顿号或分号分隔\n例如：metabolism, reforestation, accommodate"></textarea>
           <button class="button primary" id="addListeningWords">加入反应卡</button>
-          <small>也可以把单词发给我，我整理好后加入默认卡组。</small>
+          <small>系统会自动拆分、清理编号并去重。也支持：word | 中文 | English example。</small>
+          <p id="listeningStatus" aria-live="polite">听力卡模块正在加载…</p>
           <div class="listening-count"><strong id="listeningDue">—</strong><span>张待复习</span></div>
         </aside>
         <div class="audio-stage">
@@ -203,8 +204,9 @@
   </main>
 
   <footer><span>IELTS SPEAKING 2026</span><p>GitHub 每日生成 Context → ChatGPT Live → 反馈同步 → 下一轮复习</p></footer>
-  <script src="assets/app.js?v=3" defer></script>
-  <script src="assets/reading.js?v=3" defer></script>
-  <script src="assets/training.js?v=3" defer></script>
+  <script src="assets/app.js?v=4" defer></script>
+  <script src="assets/reading.js?v=4" defer></script>
+  <script src="assets/listening.js?v=4" defer></script>
+  <script src="assets/training.js?v=4" defer></script>
 </body>
 </html>
