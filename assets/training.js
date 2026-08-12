@@ -73,6 +73,7 @@
   $('#copyWritingContext').addEventListener('click',async()=>{if(!lastReport)return;const d=lastReport.diff;const prompt=`你是我的 IELTS Writing 教练。请分析下面的范文和打字训练结果：\n\n【范文】\n${lastReport.source}\n\n【我的输入】\n${lastReport.typed}\n\n【拼写/替换】\n${d.wrong.map(x=>x.typed+' → '+x.expected).join('\n')}\n【漏词】${d.missing.join(', ')}\n【多词】${d.extra.join(', ')}\n\n请：1. 归纳我反复拼错的规律；2. 提取10个最值得背的表达；3. 提取5个可迁移句式并拆解；4. 每个表达给中文和新例句；5. 最后按“英文表达 | 中文含义 | 英文例句 | 使用提示”的格式输出卡片。`;await navigator.clipboard.writeText(prompt);alert('已复制。现在粘贴给 ChatGPT 即可。')});
 
   // ---------- Audio-only listening reaction cards ----------
+  if(!window.listeningModuleReady){
   const customKey='ielts-listening-custom-v1', stateKey='ielts-listening-state-v1';let listening=[],listenState={},listenQueue=[],listenCurrent=null,revealed=false;
   const norm=s=>s.toLowerCase().replace(/[^a-z]/g,'');
   function speak(text,rate=.78){speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(text);u.lang='en-GB';u.rate=rate;speechSynthesis.speak(u)}
@@ -84,6 +85,7 @@
   $('#playWord').addEventListener('click',()=>listenCurrent&&speak(listenCurrent.word,.68));$('#playExample').addEventListener('click',()=>listenCurrent&&speak(listenCurrent.example,.78));$('#revealAudio').addEventListener('click',revealListen);$('#heardAnswer').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();revealListen()}});
   $('#audioRating').addEventListener('click',e=>{const b=e.target.closest('[data-audio-grade]');if(!b||!revealed||!listenCurrent)return;const grade=b.dataset.audioGrade,old=listenState[listenCurrent.id]||{interval:0,reps:0};let delay=0,interval=old.interval;if(grade==='again'){old.reps=0;listenQueue.splice(Math.min(3,listenQueue.length),0,listenCurrent)}if(grade==='hard'){delay=10*60*1000;interval=Math.max(.01,old.interval*.7)}if(grade==='good'){interval=old.interval?Math.max(1,old.interval*2):1;delay=interval*86400000;old.reps++}if(grade==='easy'){interval=old.interval?Math.max(4,old.interval*2.5):4;delay=interval*86400000;old.reps++}listenState[listenCurrent.id]={due:Date.now()+delay,interval,reps:old.reps,lastGrade:grade};saveListen();showListen()});
   $('#addListeningWords').addEventListener('click',()=>{const existing=new Set(listening.map(x=>norm(x.word))),custom=JSON.parse(localStorage.getItem(customKey)||'[]');let added=0;for(const line of $('#listeningImport').value.splitlines?.()||$('#listeningImport').value.split('\n')){const p=line.split(/[|｜]/).map(x=>x.trim());if(p.length<3||!p[0]||existing.has(norm(p[0])))continue;const card={id:`LC-${Date.now()}-${added}`,word:p[0],meaning:p[1],example:p[2]};custom.push(card);listening.push(card);existing.add(norm(p[0]));added++}localStorage.setItem(customKey,JSON.stringify(custom));$('#listeningImport').value='';buildListenQueue();alert(`已加入 ${added} 张听力反应卡。`) });
+  }
 
   // ---------- Reading vocabulary and expression cards ----------
   if(!window.readingModuleReady){
