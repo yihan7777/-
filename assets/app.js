@@ -1,15 +1,27 @@
 const $ = s => document.querySelector(s);
-const fmt = d => new Intl.DateTimeFormat('zh-CN',{month:'numeric',day:'numeric',weekday:'short'}).format(new Date(d+'T12:00:00'));
+const dateParts = value => {
+  const parts=String(value).split('-').map(Number);
+  return {year:parts[0],month:parts[1],day:parts[2]};
+};
+const fmt = value => {
+  const d=dateParts(value),weekdays=['周日','周一','周二','周三','周四','周五','周六'];
+  const weekday=new Date(Date.UTC(d.year,d.month-1,d.day,12)).getUTCDay();
+  return `${d.month}月${d.day}日 ${weekdays[weekday]}`;
+};
+const shanghaiToday = () => {
+  const shifted=new Date(Date.now()+8*60*60*1000);
+  return `${shifted.getUTCFullYear()}-${String(shifted.getUTCMonth()+1).padStart(2,'0')}-${String(shifted.getUTCDate()).padStart(2,'0')}`;
+};
 const list = (items, empty='今天无此项') => items.length ? `<ul>${items.map(x=>`<li>${x}</li>`).join('')}</ul>` : `<p>${empty}</p>`;
 
-Promise.all(['data/plan.json','data/topics.json','data/part1.json','data/progress.json','data/vocabulary.json','data/story-materials.json'].map(x=>fetch(x).then(r=>r.json()))).then(([plan,topics,part1,progress,vocabulary,storyMaterials])=>{
-  const todayISO = new Date().toLocaleDateString('en-CA',{timeZone:'Asia/Shanghai'});
-  const today = plan.days.find(d=>d.date===todayISO) || plan.days.find(d=>d.date>=todayISO) || plan.days.at(-1);
+Promise.all(['data/plan.json','data/topics.json','data/part1.json','data/progress.json','data/vocabulary.json','data/story-materials.json'].map(x=>fetch(`${x}?v=5`,{cache:'no-store'}).then(r=>{if(!r.ok)throw new Error(`${x} (${r.status})`);return r.json()}))).then(([plan,topics,part1,progress,vocabulary,storyMaterials])=>{
+  const todayISO = shanghaiToday();
+  const today = plan.days.find(d=>d.date===todayISO) || plan.days.find(d=>d.date>=todayISO) || plan.days[plan.days.length-1];
   const topicMap = Object.fromEntries(topics.map(t=>[t.id,t]));
   const p1Map = Object.fromEntries(part1.map(t=>[t.id,t]));
-  const exam = new Date(plan.exam_date+'T12:00:00+08:00');
-  const now = new Date();
-  $('#daysLeft').textContent = Math.max(0,Math.ceil((exam-now)/86400000));
+  const examParts=dateParts(plan.exam_date),todayParts=dateParts(todayISO);
+  const examDay=Date.UTC(examParts.year,examParts.month-1,examParts.day),currentDay=Date.UTC(todayParts.year,todayParts.month-1,todayParts.day);
+  $('#daysLeft').textContent = Math.max(0,Math.round((examDay-currentDay)/86400000));
   $('#phase').textContent = today.phase;
   $('#minutes').textContent = `${today.minutes} 分钟`;
   $('#newCount').textContent = `${today.new_part2.length} 题`;
@@ -25,7 +37,7 @@ Promise.all(['data/plan.json','data/topics.json','data/part1.json','data/progres
   topics.forEach(t=>{ clusterMeta[t.cluster] ||= {name:t.cluster_name,anchor:t.anchor,count:0}; clusterMeta[t.cluster].count++; });
   $('#clusterGrid').innerHTML = Object.entries(clusterMeta).map(([k,c])=>`<article class="cluster"><span class="letter">${k}</span><h3>${c.name}</h3><p>${c.anchor}</p><small>${c.count} 道题共用</small></article>`).join('');
   $('#materialsLibrary').innerHTML=storyMaterials.map(module=>`<details class="material-module"><summary><span>${module.id}</span><b>${module.name}</b><small>${module.topic_ids.length} 道题 · 点击查看素材</small></summary><div class="material-body">${module.sections.map(section=>`<section><h3>${section.title}</h3>${section.items.map(item=>`<article><b>${item[0]}</b><p>${item[1]}</p></article>`).join('')}</section>`).join('')}</div></details>`).join('');
-  $('#timeline').innerHTML = plan.days.map(d=>`<article class="day ${d.date===today.date?'today':''}"><span class="date">${fmt(d.date).replace('星期','周')}</span><div class="dots">${d.new_part2.length?'<i class="dot new"></i>':''}${d.review_part2.length?'<i class="dot review"></i>':''}${d.mock?'<i class="dot mock"></i>':''}</div><small>${d.phase}<br>${d.minutes} min</small></article>`).join('');
+  $('#timeline').innerHTML = plan.days.map(d=>`<article class="day ${d.date===today.date?'today':''}"><span class="date">${fmt(d.date)}</span><div class="dots">${d.new_part2.length?'<i class="dot new"></i>':''}${d.review_part2.length?'<i class="dot review"></i>':''}${d.mock?'<i class="dot mock"></i>':''}</div><small>${d.phase}<br>${d.minutes} min</small></article>`).join('');
 
   const filters = ['ALL',...Object.keys(clusterMeta)]; let active='ALL';
   $('#filters').innerHTML = filters.map(x=>`<button class="filter ${x==='ALL'?'active':''}" data-filter="${x}">${x==='ALL'?'全部':x+' · '+clusterMeta[x].name}</button>`).join('');
@@ -48,4 +60,4 @@ Promise.all(['data/plan.json','data/topics.json','data/part1.json','data/progres
   $('#deckFilters').addEventListener('click',e=>{if(!e.target.dataset.deck)return;deck=e.target.dataset.deck;document.querySelectorAll('.deck-filter').forEach(x=>x.classList.toggle('active',x===e.target));buildQueue()});
   $('#resetMemory').addEventListener('click',()=>{if(!confirm(`重新学习“${deck}”中的卡片吗？`))return;vocabulary.filter(inDeck).forEach(c=>delete memoryState[c.id]);saveMemory();buildQueue()});
   buildQueue();
-}).catch(err=>{document.body.insertAdjacentHTML('afterbegin',`<p style="padding:12px;background:#ff795f">数据加载失败：${err.message}</p>`)});
+}).catch(err=>{document.body.insertAdjacentHTML('afterbegin',`<p style="padding:12px;background:#ff795f">数据加载失败：${err.name||'Error'} · ${err.message}</p>`)});
