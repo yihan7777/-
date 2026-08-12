@@ -2,7 +2,7 @@ const $ = s => document.querySelector(s);
 const fmt = d => new Intl.DateTimeFormat('zh-CN',{month:'numeric',day:'numeric',weekday:'short'}).format(new Date(d+'T12:00:00'));
 const list = (items, empty='今天无此项') => items.length ? `<ul>${items.map(x=>`<li>${x}</li>`).join('')}</ul>` : `<p>${empty}</p>`;
 
-Promise.all(['data/plan.json','data/topics.json','data/part1.json','data/progress.json','data/vocabulary.json'].map(x=>fetch(x).then(r=>r.json()))).then(([plan,topics,part1,progress,vocabulary])=>{
+Promise.all(['data/plan.json','data/topics.json','data/part1.json','data/progress.json','data/vocabulary.json','data/story-materials.json'].map(x=>fetch(x).then(r=>r.json()))).then(([plan,topics,part1,progress,vocabulary,storyMaterials])=>{
   const todayISO = new Date().toLocaleDateString('en-CA',{timeZone:'Asia/Shanghai'});
   const today = plan.days.find(d=>d.date===todayISO) || plan.days.find(d=>d.date>=todayISO) || plan.days.at(-1);
   const topicMap = Object.fromEntries(topics.map(t=>[t.id,t]));
@@ -24,6 +24,7 @@ Promise.all(['data/plan.json','data/topics.json','data/part1.json','data/progres
   const clusterMeta = {};
   topics.forEach(t=>{ clusterMeta[t.cluster] ||= {name:t.cluster_name,anchor:t.anchor,count:0}; clusterMeta[t.cluster].count++; });
   $('#clusterGrid').innerHTML = Object.entries(clusterMeta).map(([k,c])=>`<article class="cluster"><span class="letter">${k}</span><h3>${c.name}</h3><p>${c.anchor}</p><small>${c.count} 道题共用</small></article>`).join('');
+  $('#materialsLibrary').innerHTML=storyMaterials.map(module=>`<details class="material-module"><summary><span>${module.id}</span><b>${module.name}</b><small>${module.topic_ids.length} 道题 · 点击查看素材</small></summary><div class="material-body">${module.sections.map(section=>`<section><h3>${section.title}</h3>${section.items.map(item=>`<article><b>${item[0]}</b><p>${item[1]}</p></article>`).join('')}</section>`).join('')}</div></details>`).join('');
   $('#timeline').innerHTML = plan.days.map(d=>`<article class="day ${d.date===today.date?'today':''}"><span class="date">${fmt(d.date).replace('星期','周')}</span><div class="dots">${d.new_part2.length?'<i class="dot new"></i>':''}${d.review_part2.length?'<i class="dot review"></i>':''}${d.mock?'<i class="dot mock"></i>':''}</div><small>${d.phase}<br>${d.minutes} min</small></article>`).join('');
 
   const filters = ['ALL',...Object.keys(clusterMeta)]; let active='ALL';
