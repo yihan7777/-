@@ -34,70 +34,70 @@
 
 ## Part 2 新题
 
-### P2-02 明智的重要决定 · 大学成长线
+### P2-02 明智的重要决定 · 事件/经历/计划类
 Describe a time you made an important decision and were happy with the result.
 - What the decision was
 - Why you chose to make this decision
 - Is it easy or difficult to make this decision
 - And explain why you were happy with the result.
-- 迁移骨架：备考雅思与申请大学：决定、目标、理想工作、独立学习与改变观点
+- 迁移骨架：学业压力与心理治愈、长期志向、计划改变、运动休闲、家庭节日与成长
 
-### P2-12 一直以来的追求 · 大学成长线
+### P2-12 一直以来的追求 · 事件/经历/计划类
 Describe an ambition you have had for a long time
 - What it was
 - Why you want to achieve it
 - When you think you will achieve it
 - And explain why you have had this ambition for such a long time.
-- 迁移骨架：备考雅思与申请大学：决定、目标、理想工作、独立学习与改变观点
+- 迁移骨架：学业压力与心理治愈、长期志向、计划改变、运动休闲、家庭节日与成长
 
-### P2-16 改变重要观点的时刻 · 大学成长线
+### P2-16 改变重要观点的时刻 · 事件/经历/计划类
 Describe a time when you changed your opinion about something important.
 - When it was
 - What your original opinion was
 - Why you changed this opinion
 - And explain what the result was.
-- 迁移骨架：备考雅思与申请大学：决定、目标、理想工作、独立学习与改变观点
+- 迁移骨架：学业压力与心理治愈、长期志向、计划改变、运动休闲、家庭节日与成长
 
-### P2-24 擅长学习语言的人 · 大学成长线
+### P2-24 擅长学习语言的人 · 人物类
 Describe a person who is good at learning languages
 - Who it is
 - How you knew him/her
 - What languages he/she has learnt
 - How this person learned to speak these languages
 - And explain why you think he/she is good at learning languages
-- 迁移骨架：备考雅思与申请大学：决定、目标、理想工作、独立学习与改变观点
+- 迁移骨架：闺蜜 Lily、爷爷、妹妹、爸爸、暗恋学长、宠物博主、兽医学姐
 
-### P2-27 完美的工作 · 大学成长线
+### P2-27 完美的工作 · 事件/经历/计划类
 Describe a perfect job you would like to have in the future
 - What thejob is
 - How you knew it
 - What skills you need for this job
 - And explain why it would be the perfect job for you.
-- 迁移骨架：备考雅思与申请大学：决定、目标、理想工作、独立学习与改变观点
+- 迁移骨架：学业压力与心理治愈、长期志向、计划改变、运动休闲、家庭节日与成长
 
-### P2-33 发挥想象力的时刻 · 大学成长线
+### P2-33 发挥想象力的时刻 · 事件/经历/计划类
 Describe a time you needed to use your imagination.
 - What you needed to do
 - Why you had to use your imagination
 - Is it easy or difficult to do this
 - And explain how you felt about it
-- 迁移骨架：备考雅思与申请大学：决定、目标、理想工作、独立学习与改变观点
+- 迁移骨架：学业压力与心理治愈、长期志向、计划改变、运动休闲、家庭节日与成长
 
-### P2-36 校外学到技能的人 · 大学成长线
+### P2-36 校外学到技能的人 · 人物类
 Describe a person who learned something new without a teacher.
 - Who he/she is and how you know him/her
 - What he/she learned
 - Is it easy to learn this skill
 - And explain why you feel about him/her
-- 迁移骨架：备考雅思与申请大学：决定、目标、理想工作、独立学习与改变观点
+- 迁移骨架：闺蜜 Lily、爷爷、妹妹、爸爸、暗恋学长、宠物博主、兽医学姐
 
-### P2-37 擅长做计划的人 · 大学成长线
+### P2-37 擅长做计划的人 · 人物类
 Describe a person who you think is good at planning things.
 - Who he/she is and how you know him/her
 - What this person usually plans
 - What this person does to plan things
 - And explain why you think this person is good at planning things.
-- 迁移骨架：备考雅思与申请大学：决定、目标、理想工作、独立学习与改变观点
+- 迁移骨架：闺蜜 Lily、爷爷、妹妹、爸爸、暗恋学长、宠物博主、兽医学姐
 
 ## 到期复习
 
