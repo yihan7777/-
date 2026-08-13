@@ -6,9 +6,20 @@
   const formatTime = seconds => `${String(Math.floor(seconds/60)).padStart(2,'0')}:${String(seconds%60).padStart(2,'0')}`;
 
   // ---------- Essay typing trainer ----------
-  let source='', startedAt=0, timer=null, lastReport=null;
-  const draftKey='ielts-typing-draft-v1', typoKey='ielts-typing-typos-v1', historyKey='ielts-typing-history-v1';
+  let source='', essayTitle='', startedAt=0, timer=null, lastReport=null;
+  const draftKey='ielts-typing-draft-v1', titleKey='ielts-typing-title-v1', typoKey='ielts-typing-typos-v1', historyKey='ielts-typing-history-v1', archiveKey='ielts-essay-archive-v1';
   $('#essaySource').value=localStorage.getItem(draftKey)||'';
+  $('#essayTitle').value=localStorage.getItem(titleKey)||'';
+
+  function getArchive(){try{return JSON.parse(localStorage.getItem(archiveKey)||'[]')}catch(_){return[]}}
+  function shortDate(value){const d=new Date(value);return `${d.getFullYear()}.${d.getMonth()+1}.${d.getDate()}`}
+  function renderEssayArchive(){
+    const archive=getArchive();$('#essayArchiveCount').textContent=archive.length;
+    $('#essayArchive').innerHTML=archive.length?archive.map(item=>{
+      const latest=item.sessions[item.sessions.length-1]||{};
+      return `<details class="essay-record"><summary><div><b>${esc(item.title)}</b><small>练习 ${item.sessions.length} 次 · 最近 ${latest.date?shortDate(latest.date):'—'}</small></div><span>${latest.wpm||0} WPM · ${latest.accuracy??0}%</span></summary><div class="essay-record-body"><div class="essay-history">${item.sessions.slice().reverse().map((s,i)=>`<article><b>第 ${item.sessions.length-i} 次</b><span>${shortDate(s.date)} · ${s.wpm} WPM · 准确率 ${s.accuracy}% · ${s.errors} 处错误</span></article>`).join('')}</div><details class="essay-source"><summary>展开查看范文</summary><p>${esc(item.source)}</p></details><div class="setup-actions"><button class="button primary repeat-essay" data-essay-id="${item.id}">再次练习</button><button class="button remove-essay" data-essay-id="${item.id}">删除档案</button></div></div></details>`;
+    }).join(''):'<p class="empty-report">完成第一篇打字训练后，作文会自动保存在这里。</p>';
+  }
 
   function commonPrefix(a,b){let i=0;while(i<a.length&&i<b.length&&a[i]===b[i])i++;return i}
   function renderReference(){
@@ -24,8 +35,8 @@
     $('#typingTime').textContent=formatTime(seconds);renderReference();
   }
   function beginTyping(){
-    source=$('#essaySource').value.trim();if(words(source).length<20){alert('请先粘贴一篇完整范文（至少 20 个英文单词）。');return}
-    localStorage.setItem(draftKey,source);$('#typingSetup').classList.add('hidden');$('#typingWorkspace').classList.remove('hidden');$('#typingReport').classList.add('hidden');
+    essayTitle=$('#essayTitle').value.trim();source=$('#essaySource').value.trim();if(!essayTitle){alert('请先填写作文题目，方便以后按题目找到它。');return}if(words(source).length<20){alert('请先粘贴一篇完整范文（至少 20 个英文单词）。');return}
+    localStorage.setItem(titleKey,essayTitle);localStorage.setItem(draftKey,source);$('#typingSetup').classList.add('hidden');$('#typingWorkspace').classList.remove('hidden');$('#typingReport').classList.add('hidden');
     $('#typingInput').value='';startedAt=Date.now();clearInterval(timer);timer=setInterval(liveMetrics,1000);renderReference();$('#typingInput').focus();
   }
   function wordDiff(expected,actual){
@@ -60,17 +71,20 @@
   function finishTyping(){
     clearInterval(timer);liveMetrics();const typed=$('#typingInput').value, diff=wordDiff(source,typed), expressions=extractExpressions(source);
     const bank=JSON.parse(localStorage.getItem(typoKey)||'{}');diff.wrong.forEach(x=>{const key=`${x.typed}→${x.expected}`;bank[key]=(bank[key]||0)+1});diff.missing.forEach(x=>{const key=`漏:${x}`;bank[key]=(bank[key]||0)+1});localStorage.setItem(typoKey,JSON.stringify(bank));
-    const seconds=Math.max(1,Math.round((Date.now()-startedAt)/1000));lastReport={source,typed,diff,expressions,seconds,bank};
-    const history=JSON.parse(localStorage.getItem(historyKey)||'[]');history.push({date:new Date().toISOString(),wpm:Math.round(words(typed).length/(seconds/60)),accuracy:Math.round((1-diff.distance/Math.max(1,diff.total))*100),errors:diff.wrong.length+diff.missing.length+diff.extra.length});localStorage.setItem(historyKey,JSON.stringify(history.slice(-30)));
+    const seconds=Math.max(1,Math.round((Date.now()-startedAt)/1000)),session={date:new Date().toISOString(),wpm:Math.round(words(typed).length/(seconds/60)),accuracy:Math.max(0,Math.round((1-diff.distance/Math.max(1,diff.total))*100)),errors:diff.wrong.length+diff.missing.length+diff.extra.length,wrong:diff.wrong,missing:diff.missing,extra:diff.extra};lastReport={essayTitle,source,typed,diff,expressions,seconds,bank};
+    const history=JSON.parse(localStorage.getItem(historyKey)||'[]');history.push(session);localStorage.setItem(historyKey,JSON.stringify(history.slice(-30)));
+    const archive=getArchive(),archiveId=`essay-${[...essayTitle].reduce((n,c)=>(n*31+c.charCodeAt(0))>>>0,7)}-${source.length}`;let record=archive.find(x=>x.id===archiveId);if(!record){record={id:archiveId,title:essayTitle,source,sessions:[]};archive.unshift(record)}record.title=essayTitle;record.source=source;record.sessions.push(session);localStorage.setItem(archiveKey,JSON.stringify(archive));renderEssayArchive();
     $('#wrongWords').innerHTML=diff.wrong.length?diff.wrong.map(x=>`<span class="error-chip"><del>${esc(x.typed)}</del><ins>${esc(x.expected)}</ins><small>累计 ${bank[`${x.typed}→${x.expected}`]} 次</small></span>`).join(''):'<p class="empty-report">没有拼写或替换错误。</p>';
     $('#missingWords').innerHTML=chips(unique(diff.missing));$('#extraWords').innerHTML=chips(unique(diff.extra));
     $('#writingExpressions').innerHTML=expressions.length?expressions.map(x=>`<span class="expression-chip"><b>${esc(x)}</b><small>来自范文；复制给 ChatGPT 后可获得中文、结构拆解和迁移例句。</small></span>`).join(''):'<p class="empty-report">未命中内置句式规则，建议复制给 ChatGPT 做语义分析。</p>';
     $('#typingErrorBank').innerHTML=Object.entries(bank).sort((a,b)=>b[1]-a[1]).slice(0,30).map(([x,n])=>`<span class="error-chip"><b>${esc(x)}</b><small>累计 ${n} 次</small></span>`).join('')||'<p class="empty-report">还没有累计错词。</p>';
     $('#typingReport').classList.remove('hidden');$('#typingReport').scrollIntoView({behavior:'smooth'});
   }
-  $('#startTyping').addEventListener('click',beginTyping);$('#loadEssayDraft').addEventListener('click',()=>{$('#essaySource').value=localStorage.getItem(draftKey)||''});
+  $('#startTyping').addEventListener('click',beginTyping);$('#loadEssayDraft').addEventListener('click',()=>{$('#essayTitle').value=localStorage.getItem(titleKey)||'';$('#essaySource').value=localStorage.getItem(draftKey)||''});
   $('#typingInput').addEventListener('input',liveMetrics);$('#finishTyping').addEventListener('click',finishTyping);$('#restartTyping').addEventListener('click',()=>{startedAt=Date.now();$('#typingInput').value='';$('#typingReport').classList.add('hidden');renderReference();$('#typingInput').focus()});
   $('#copyWritingContext').addEventListener('click',async()=>{if(!lastReport)return;const d=lastReport.diff;const prompt=`你是我的 IELTS Writing 教练。请分析下面的范文和打字训练结果：\n\n【范文】\n${lastReport.source}\n\n【我的输入】\n${lastReport.typed}\n\n【拼写/替换】\n${d.wrong.map(x=>x.typed+' → '+x.expected).join('\n')}\n【漏词】${d.missing.join(', ')}\n【多词】${d.extra.join(', ')}\n\n请：1. 归纳我反复拼错的规律；2. 提取10个最值得背的表达；3. 提取5个可迁移句式并拆解；4. 每个表达给中文和新例句；5. 最后按“英文表达 | 中文含义 | 英文例句 | 使用提示”的格式输出卡片。`;await navigator.clipboard.writeText(prompt);alert('已复制。现在粘贴给 ChatGPT 即可。')});
+  $('#essayArchive').addEventListener('click',e=>{const repeat=e.target.closest('.repeat-essay'),remove=e.target.closest('.remove-essay'),id=(repeat||remove)?.dataset.essayId;if(!id)return;const archive=getArchive(),record=archive.find(x=>x.id===id);if(repeat&&record){$('#essayTitle').value=record.title;$('#essaySource').value=record.source;$('#typingSetup').classList.remove('hidden');$('#typingWorkspace').classList.add('hidden');$('#typingReport').classList.add('hidden');$('#typing').scrollIntoView({behavior:'smooth'});setTimeout(beginTyping,350)}if(remove&&record&&confirm(`删除“${record.title}”的练习档案吗？`)){localStorage.setItem(archiveKey,JSON.stringify(archive.filter(x=>x.id!==id)));renderEssayArchive()}});
+  renderEssayArchive();
 
   // ---------- Audio-only listening reaction cards ----------
   if(!window.listeningModuleReady){
