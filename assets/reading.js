@@ -33,6 +33,7 @@
   };
 
   function saveState() { setStore(stateKey, state); }
+  function updateArchived() { $('#readingArchivedCount').textContent = cards.filter(c => state[c.id]?.archived).length; }
   function show() {
     current = queue.shift();
     $('#readingCard').classList.remove('flipped');
@@ -53,9 +54,9 @@
     $('#readingCounter').textContent = `本轮 ${reviewed + 1} / ${Math.max(initial, reviewed + queue.length + 1)}`;
   }
   function build(force = false) {
-    queue = cards.filter(c => force || (state[c.id]?.due || 0) <= Date.now());
-    if (!queue.length) queue = [...cards].sort((a,b) => (state[a.id]?.due || 0) - (state[b.id]?.due || 0)).slice(0, 5);
-    initial = queue.length; reviewed = 0; show();
+    queue = cards.filter(c => !state[c.id]?.archived && (force || (state[c.id]?.due || 0) <= Date.now()));
+    if (!queue.length) queue = cards.filter(c => !state[c.id]?.archived).sort((a,b) => (state[a.id]?.due || 0) - (state[b.id]?.due || 0)).slice(0, 5);
+    initial = queue.length; reviewed = 0; updateArchived(); show();
   }
   function addCards() {
     try {
@@ -110,6 +111,17 @@
     saveState(); reviewed++; show();
   });
   $('#resetReadingSession').addEventListener('click', () => build(true));
+  $('#archiveReading').addEventListener('click', () => {
+    if (!current) return;
+    state[current.id] = {...(state[current.id] || {}), archived:true, archivedAt:Date.now()};
+    saveState(); reviewed++; updateArchived(); status(`“${current.front}”已移出学习，可随时恢复。`); show();
+  });
+  $('#restoreReading').addEventListener('click', () => {
+    const ids = cards.filter(c => state[c.id]?.archived).map(c => c.id);
+    if (!ids.length) { status('没有已移出的阅读词。', false); return; }
+    if (!confirm(`恢复 ${ids.length} 个已移出的阅读词吗？`)) return;
+    ids.forEach(id => { state[id].archived=false; state[id].due=0; }); saveState(); build(); status(`已恢复 ${ids.length} 个阅读词。`);
+  });
   $('#exportReading').addEventListener('click', async () => {
     const text = cards.map(c => `${c.front} | ${c.meaning} | ${c.example || ''} | ${c.note || ''}`).join('\n');
     try { await navigator.clipboard.writeText(text); status(`已复制 ${cards.length} 张阅读卡。`); }
@@ -118,7 +130,7 @@
 
   state = getStore(stateKey, {});
   const custom = getStore(customKey, []);
-  fetch('data/reading-defaults.json?v=3', {cache:'no-store'})
+  fetch('data/reading-defaults.json?v=6', {cache:'no-store'})
     .then(r => r.ok ? r.json() : [])
     .catch(() => [])
     .then(defaults => {
