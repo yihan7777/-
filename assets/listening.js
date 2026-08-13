@@ -31,10 +31,11 @@
     speechSynthesis.speak(u);
   }
   function build() {
-    queue = cards.filter(c => (state[c.id]?.due || 0) <= Date.now());
-    if (!queue.length) queue = [...cards].sort((a,b) => (state[a.id]?.due || 0) - (state[b.id]?.due || 0)).slice(0, 5);
-    show();
+    queue = cards.filter(c => !state[c.id]?.archived && (state[c.id]?.due || 0) <= Date.now());
+    if (!queue.length) queue = cards.filter(c => !state[c.id]?.archived).sort((a,b) => (state[a.id]?.due || 0) - (state[b.id]?.due || 0)).slice(0, 5);
+    updateArchived(); show();
   }
+  function updateArchived() { $('#listeningArchivedCount').textContent = cards.filter(c => state[c.id]?.archived).length; }
   function show() {
     current = queue.shift(); revealed = false;
     $('#audioAnswer').classList.add('hidden'); $('#audioRating').classList.remove('ready');
@@ -100,9 +101,20 @@
     if (grade === 'easy') { interval = old.interval ? Math.max(4,old.interval*2.5) : 4; delay=interval*86400000; old.reps++; }
     state[current.id] = {due:Date.now()+delay,interval,reps:old.reps,lastGrade:grade}; setStore(stateKey,state); show();
   });
+  $('#archiveListening').addEventListener('click', () => {
+    if (!current) return;
+    state[current.id] = {...(state[current.id] || {}), archived:true, archivedAt:Date.now()};
+    setStore(stateKey,state); updateArchived(); setStatus(`当前词已移出听力学习，可随时恢复。`); show();
+  });
+  $('#restoreListening').addEventListener('click', () => {
+    const ids=cards.filter(c => state[c.id]?.archived).map(c => c.id);
+    if (!ids.length) { setStatus('没有已移出的听力词。', false); return; }
+    if (!confirm(`恢复 ${ids.length} 个已移出的听力词吗？`)) return;
+    ids.forEach(id => { state[id].archived=false; state[id].due=0; }); setStore(stateKey,state); build(); setStatus(`已恢复 ${ids.length} 个听力词。`);
+  });
 
   state = getStore(stateKey, {}); const custom = getStore(customKey, []);
-  fetch('data/listening-defaults.json?v=4', {cache:'no-store'}).then(r => r.ok ? r.json() : []).catch(() => []).then(defaults => {
+  fetch('data/listening-defaults.json?v=6', {cache:'no-store'}).then(r => r.ok ? r.json() : []).catch(() => []).then(defaults => {
     cards = [...defaults, ...custom]; build(); setStatus(`听力卡模块已就绪，共 ${cards.length} 张卡。`);
   });
 })();
