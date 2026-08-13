@@ -174,3 +174,4 @@
 .nav-links a:nth-child(3){display:none}
 }
 .module-status{margin:2px 0 4px;padding:9px 10px;border-radius:9px;font-size:12px;line-height:1.45}.module-status.success{background:#d9f3df;color:#205d31}.module-status.error{background:#ffe1db;color:#923925}
+.archive-card,.restore-cards{border:1px solid currentColor;border-radius:999px;background:transparent;padding:8px 11px;font-size:11px;cursor:pointer}.archive-card{color:#fff}.card-tools .archive-card{color:#fff}.archive-card.standalone{display:block;margin:10px auto 0;color:#fff}.restore-cards{color:var(--ink);text-align:left;margin-top:4px}.card-tools{gap:10px;align-items:center}.reading-card-tools{gap:10px;align-items:center}
