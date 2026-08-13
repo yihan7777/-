@@ -93,7 +93,8 @@
         <p class="aside">粘贴优秀范文，逐句准确复刻。完成后自动归纳拼写错误、漏词、多打词，并筛选值得积累的表达与句式。</p>
       </div>
       <div class="typing-setup" id="typingSetup">
-        <label><span>① 粘贴范文</span><textarea id="essaySource" placeholder="Paste a model IELTS essay here…"></textarea></label>
+        <label class="essay-title-field"><span>① 作文题目</span><textarea id="essayTitle" placeholder="例如：Some students choose to work or travel before university…"></textarea></label>
+        <label><span>② 粘贴范文</span><textarea id="essaySource" placeholder="Paste a model IELTS essay here…"></textarea></label>
         <div class="setup-actions"><button class="button primary" id="startTyping">开始打字训练</button><button class="button" id="loadEssayDraft">恢复上次范文</button></div>
       </div>
       <div class="typing-workspace hidden" id="typingWorkspace">
@@ -118,6 +119,10 @@
           <article class="wide"><h4>自动提取的表达与句式</h4><div id="writingExpressions"></div></article>
           <article class="wide"><h4>累计易错词库</h4><div id="typingErrorBank"></div></article>
         </div>
+      </div>
+      <div class="essay-memory">
+        <div class="section-head compact"><div><p class="kicker">ESSAY MEMORY</p><h3>作文练习档案</h3></div><p class="aside"><span id="essayArchiveCount">0</span> 篇已保存 · 按作文题目展开</p></div>
+        <div id="essayArchive"><p class="empty-report">完成第一篇打字训练后，作文会自动保存在这里。</p></div>
       </div>
     </section>
 
@@ -212,6 +217,6 @@
   <script src="assets/app.js?v=6" defer></script>
   <script src="assets/reading.js?v=6" defer></script>
   <script src="assets/listening.js?v=6" defer></script>
-  <script src="assets/training.js?v=6" defer></script>
+  <script src="assets/training.js?v=7" defer></script>
 </body>
 </html>
