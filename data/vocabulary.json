@@ -910,5 +910,357 @@
     "meaning": "电子设备可能突然故障并给生活带来不便",
     "example": "适用模块：物品/法律/食物/规则类 · 科技产品",
     "note": "6.5分难度；先完整说出，再迁移到对应 Part 2 题目。"
+  },
+  {
+    "id": "AI-JOB-001",
+    "category": "AI与工作·替代",
+    "front": "AI is becoming increasingly capable",
+    "meaning": "AI 变得越来越强大",
+    "example": "AI is becoming increasingly capable, so it can handle a wider range of tasks.",
+    "note": "Part 3：AI 是否会取代工作"
+  },
+  {
+    "id": "AI-JOB-002",
+    "category": "AI与工作·替代",
+    "front": "some jobs can be automated",
+    "meaning": "一些工作可以被自动化",
+    "example": "Some jobs can be automated, especially those involving predictable procedures.",
+    "note": "automate / automated"
+  },
+  {
+    "id": "AI-JOB-003",
+    "category": "AI与工作·替代",
+    "front": "work around the clock",
+    "meaning": "全天候工作",
+    "example": "Unlike human workers, machines can work around the clock.",
+    "note": "around the clock = 24小时不停"
+  },
+  {
+    "id": "AI-JOB-004",
+    "category": "AI与工作·替代",
+    "front": "without getting tired",
+    "meaning": "不会感到疲惫",
+    "example": "AI can process large amounts of data without getting tired.",
+    "note": "可与 work around the clock 连用"
+  },
+  {
+    "id": "AI-JOB-005",
+    "category": "AI与工作·替代",
+    "front": "routine and repetitive tasks",
+    "meaning": "常规且重复性的任务",
+    "example": "AI is particularly suitable for routine and repetitive tasks.",
+    "note": "routine and repetitive 连读练习"
+  },
+  {
+    "id": "AI-JOB-006",
+    "category": "AI与工作·替代",
+    "front": "take over certain jobs or tasks",
+    "meaning": "接替某些工作或任务",
+    "example": "In the future, AI may take over certain jobs or tasks.",
+    "note": "take over = 接管、接替"
+  },
+  {
+    "id": "AI-JOB-007",
+    "category": "AI与工作·替代",
+    "front": "be more efficient and productive",
+    "meaning": "更高效、更有生产力",
+    "example": "Businesses use AI to become more efficient and productive.",
+    "note": "efficient 强调效率；productive 强调产出"
+  },
+  {
+    "id": "AI-JOB-008",
+    "category": "AI与工作·替代",
+    "front": "be cost-effective for employers",
+    "meaning": "对雇主来说更具成本效益",
+    "example": "Automation can be cost-effective for employers in the long run.",
+    "note": "cost-effective = 划算的"
+  },
+  {
+    "id": "AI-JOB-009",
+    "category": "AI与工作·替代",
+    "front": "reduce labour costs",
+    "meaning": "降低人工成本",
+    "example": "One reason companies adopt AI is to reduce labour costs.",
+    "note": "英式拼写 labour"
+  },
+  {
+    "id": "AI-JOB-010",
+    "category": "AI与工作·替代",
+    "front": "increase profits",
+    "meaning": "增加利润",
+    "example": "Greater efficiency may help companies increase profits.",
+    "note": "profit 常用复数 profits"
+  },
+  {
+    "id": "AI-JOB-011",
+    "category": "AI与工作·替代",
+    "front": "require human judgment and empathy",
+    "meaning": "需要人的判断力和同理心",
+    "example": "Medical and teaching jobs require human judgment and empathy.",
+    "note": "反方核心理由"
+  },
+  {
+    "id": "AI-JOB-012",
+    "category": "AI与工作·替代",
+    "front": "be much harder to replace",
+    "meaning": "更难被替代",
+    "example": "People-facing professions are much harder to replace.",
+    "note": "harder to replace 比 cannot replace 更客观"
+  },
+  {
+    "id": "AI-JOB-013",
+    "category": "AI与工作·替代",
+    "front": "at least for now",
+    "meaning": "至少目前如此",
+    "example": "AI cannot fully understand human emotions, at least for now.",
+    "note": "用于限制观点，表达更严谨"
+  },
+  {
+    "id": "AI-NEW-001",
+    "category": "AI与工作·创造",
+    "front": "jobs related to the AI industry",
+    "meaning": "与 AI 行业相关的工作",
+    "example": "More jobs related to the AI industry are likely to appear.",
+    "note": "Part 3：AI 是否创造就业"
+  },
+  {
+    "id": "AI-NEW-002",
+    "category": "AI与工作·创造",
+    "front": "become increasingly important",
+    "meaning": "变得越来越重要",
+    "example": "Digital skills will become increasingly important in the workplace.",
+    "note": "趋势类高频表达"
+  },
+  {
+    "id": "AI-NEW-003",
+    "category": "AI与工作·创造",
+    "front": "develop AI systems",
+    "meaning": "开发 AI 系统",
+    "example": "Software engineers are needed to develop AI systems.",
+    "note": "develop systems"
+  },
+  {
+    "id": "AI-NEW-004",
+    "category": "AI与工作·创造",
+    "front": "maintain AI systems",
+    "meaning": "维护 AI 系统",
+    "example": "Skilled workers will be required to maintain AI systems.",
+    "note": "maintain /meɪnˈteɪn/"
+  },
+  {
+    "id": "AI-NEW-005",
+    "category": "AI与工作·创造",
+    "front": "monitor AI systems",
+    "meaning": "监控 AI 系统",
+    "example": "Human employees still need to monitor AI systems.",
+    "note": "monitor 作动词"
+  },
+  {
+    "id": "AI-NEW-006",
+    "category": "AI与工作·创造",
+    "front": "oversee how AI operates",
+    "meaning": "监督 AI 如何运行",
+    "example": "Specialists should oversee how AI operates in sensitive fields.",
+    "note": "oversee = supervise"
+  },
+  {
+    "id": "AI-NEW-007",
+    "category": "AI与工作·创造",
+    "front": "AI can still make mistakes",
+    "meaning": "AI 仍然会犯错",
+    "example": "AI can still make mistakes, so human supervision is necessary.",
+    "note": "可自然引出人工监督"
+  },
+  {
+    "id": "AI-NEW-008",
+    "category": "AI与工作·创造",
+    "front": "break down from time to time",
+    "meaning": "偶尔出故障",
+    "example": "Even advanced machines can break down from time to time.",
+    "note": "break down = 出故障"
+  },
+  {
+    "id": "AI-NEW-009",
+    "category": "AI与工作·创造",
+    "front": "maintain and repair systems",
+    "meaning": "维护和修理系统",
+    "example": "Technicians are employed to maintain and repair systems.",
+    "note": "两个并列动词"
+  },
+  {
+    "id": "AI-NEW-010",
+    "category": "AI与工作·创造",
+    "front": "make sure something is working properly",
+    "meaning": "确保某物正常运行",
+    "example": "Human technicians make sure the technology is working properly.",
+    "note": "口语化万能表达"
+  },
+  {
+    "id": "AI-NEW-011",
+    "category": "AI与工作·创造",
+    "front": "the demand for these jobs is likely to increase",
+    "meaning": "对这些工作的需求可能会上升",
+    "example": "As AI spreads, the demand for these jobs is likely to increase.",
+    "note": "the demand for + 名词"
+  },
+  {
+    "id": "AI-NEW-012",
+    "category": "AI与工作·创造",
+    "front": "data management",
+    "meaning": "数据管理",
+    "example": "AI development will create opportunities in data management.",
+    "note": "工作领域名词"
+  },
+  {
+    "id": "AI-NEW-013",
+    "category": "AI与工作·创造",
+    "front": "system maintenance",
+    "meaning": "系统维护",
+    "example": "System maintenance will remain an important area of employment.",
+    "note": "maintenance /ˈmeɪntənəns/"
+  },
+  {
+    "id": "AI-NEW-014",
+    "category": "AI与工作·创造",
+    "front": "ethical oversight",
+    "meaning": "伦理监督",
+    "example": "Ethical oversight is necessary when AI affects people's lives.",
+    "note": "适用于隐私、公平、医疗等话题"
+  },
+  {
+    "id": "AI-NEW-015",
+    "category": "AI与工作·创造",
+    "front": "create new opportunities",
+    "meaning": "创造新的机会",
+    "example": "Although AI may remove some jobs, it can also create new opportunities.",
+    "note": "让步转折句核心搭配"
+  },
+  {
+    "id": "AI-GOV-001",
+    "category": "AI与工作·政府援助",
+    "front": "have a responsibility to do something",
+    "meaning": "有责任做某事",
+    "example": "Governments have a responsibility to support displaced workers.",
+    "note": "responsibility 后接 to do"
+  },
+  {
+    "id": "AI-GOV-002",
+    "category": "AI与工作·政府援助",
+    "front": "have an obligation to do something",
+    "meaning": "有义务做某事",
+    "example": "Governments have an obligation to protect vulnerable citizens.",
+    "note": "比 responsibility 语气更强"
+  },
+  {
+    "id": "AI-GOV-003",
+    "category": "AI与工作·政府援助",
+    "front": "be supposed to serve the public",
+    "meaning": "应当服务公众",
+    "example": "After all, governments are supposed to serve the public.",
+    "note": "适合补充政府责任理由"
+  },
+  {
+    "id": "AI-GOV-004",
+    "category": "AI与工作·政府援助",
+    "front": "support people in need",
+    "meaning": "帮助有需要的人",
+    "example": "Public funds should be used to support people in need.",
+    "note": "people in need = 困难人群"
+  },
+  {
+    "id": "AI-GOV-005",
+    "category": "AI与工作·政府援助",
+    "front": "support themselves financially",
+    "meaning": "在经济上养活自己",
+    "example": "Unemployed workers may struggle to support themselves financially.",
+    "note": "financially 作副词"
+  },
+  {
+    "id": "AI-GOV-006",
+    "category": "AI与工作·政府援助",
+    "front": "make a living",
+    "meaning": "谋生",
+    "example": "People need practical skills to make a living in a changing economy.",
+    "note": "自然口语表达"
+  },
+  {
+    "id": "AI-GOV-007",
+    "category": "AI与工作·政府援助",
+    "front": "meet their basic needs",
+    "meaning": "满足基本生活需求",
+    "example": "Temporary aid can help families meet their basic needs.",
+    "note": "meet needs = 满足需求"
+  },
+  {
+    "id": "AI-GOV-008",
+    "category": "AI与工作·政府援助",
+    "front": "be under severe financial pressure",
+    "meaning": "承受严重经济压力",
+    "example": "People who suddenly lose their jobs may be under severe financial pressure.",
+    "note": "under pressure 固定搭配"
+  },
+  {
+    "id": "AI-GOV-009",
+    "category": "AI与工作·政府援助",
+    "front": "maintain social stability",
+    "meaning": "维护社会稳定",
+    "example": "Supporting unemployed people can help maintain social stability.",
+    "note": "政府措施的社会层面结果"
+  },
+  {
+    "id": "AI-GOV-010",
+    "category": "AI与工作·政府援助",
+    "front": "social problems caused by unemployment",
+    "meaning": "失业造成的社会问题",
+    "example": "Financial support may reduce social problems caused by unemployment.",
+    "note": "caused by 作后置修饰"
+  },
+  {
+    "id": "AI-GOV-011",
+    "category": "AI与工作·政府援助",
+    "front": "turn to crime",
+    "meaning": "走上犯罪道路",
+    "example": "Without support, a small number of people may turn to crime.",
+    "note": "避免绝对化，用 may / a small number of"
+  },
+  {
+    "id": "AI-GOV-012",
+    "category": "AI与工作·政府援助",
+    "front": "consider individual circumstances",
+    "meaning": "考虑个人具体情况",
+    "example": "Governments should consider individual circumstances before offering aid.",
+    "note": "circumstances 常用复数"
+  },
+  {
+    "id": "AI-GOV-013",
+    "category": "AI与工作·政府援助",
+    "front": "provide targeted support",
+    "meaning": "提供有针对性的帮助",
+    "example": "Authorities should provide targeted support instead of using one solution for everyone.",
+    "note": "targeted = 有针对性的"
+  },
+  {
+    "id": "AI-GOV-014",
+    "category": "AI与工作·政府援助",
+    "front": "temporary financial assistance",
+    "meaning": "临时经济援助",
+    "example": "Temporary financial assistance can give workers time to retrain.",
+    "note": "assistance 不可数"
+  },
+  {
+    "id": "AI-GOV-015",
+    "category": "AI与工作·政府援助",
+    "front": "retraining programs",
+    "meaning": "再培训项目",
+    "example": "Governments could offer retraining programs in growing industries.",
+    "note": "英式也可拼 programmes"
+  },
+  {
+    "id": "AI-GOV-016",
+    "category": "AI与工作·政府援助",
+    "front": "help people transition into new jobs",
+    "meaning": "帮助人们过渡到新的工作",
+    "example": "Training can help people transition into new jobs more smoothly.",
+    "note": "transition into = 过渡到"
   }
 ]
