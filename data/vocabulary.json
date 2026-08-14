@@ -913,7 +913,7 @@
   },
   {
     "id": "AI-JOB-001",
-    "category": "AI与工作·替代",
+    "category": "AI与工作",
     "front": "AI is becoming increasingly capable",
     "meaning": "AI 变得越来越强大",
     "example": "AI is becoming increasingly capable, so it can handle a wider range of tasks.",
@@ -921,7 +921,7 @@
   },
   {
     "id": "AI-JOB-002",
-    "category": "AI与工作·替代",
+    "category": "AI与工作",
     "front": "some jobs can be automated",
     "meaning": "一些工作可以被自动化",
     "example": "Some jobs can be automated, especially those involving predictable procedures.",
@@ -929,7 +929,7 @@
   },
   {
     "id": "AI-JOB-003",
-    "category": "AI与工作·替代",
+    "category": "AI与工作",
     "front": "work around the clock",
     "meaning": "全天候工作",
     "example": "Unlike human workers, machines can work around the clock.",
@@ -937,7 +937,7 @@
   },
   {
     "id": "AI-JOB-004",
-    "category": "AI与工作·替代",
+    "category": "AI与工作",
     "front": "without getting tired",
     "meaning": "不会感到疲惫",
     "example": "AI can process large amounts of data without getting tired.",
@@ -945,7 +945,7 @@
   },
   {
     "id": "AI-JOB-005",
-    "category": "AI与工作·替代",
+    "category": "AI与工作",
     "front": "routine and repetitive tasks",
     "meaning": "常规且重复性的任务",
     "example": "AI is particularly suitable for routine and repetitive tasks.",
@@ -953,7 +953,7 @@
   },
   {
     "id": "AI-JOB-006",
-    "category": "AI与工作·替代",
+    "category": "AI与工作",
     "front": "take over certain jobs or tasks",
     "meaning": "接替某些工作或任务",
     "example": "In the future, AI may take over certain jobs or tasks.",
@@ -961,7 +961,7 @@
   },
   {
     "id": "AI-JOB-007",
-    "category": "AI与工作·替代",
+    "category": "AI与工作",
     "front": "be more efficient and productive",
     "meaning": "更高效、更有生产力",
     "example": "Businesses use AI to become more efficient and productive.",
@@ -969,7 +969,7 @@
   },
   {
     "id": "AI-JOB-008",
-    "category": "AI与工作·替代",
+    "category": "AI与工作",
     "front": "be cost-effective for employers",
     "meaning": "对雇主来说更具成本效益",
     "example": "Automation can be cost-effective for employers in the long run.",
@@ -977,7 +977,7 @@
   },
   {
     "id": "AI-JOB-009",
-    "category": "AI与工作·替代",
+    "category": "AI与工作",
     "front": "reduce labour costs",
     "meaning": "降低人工成本",
     "example": "One reason companies adopt AI is to reduce labour costs.",
@@ -985,7 +985,7 @@
   },
   {
     "id": "AI-JOB-010",
-    "category": "AI与工作·替代",
+    "category": "AI与工作",
     "front": "increase profits",
     "meaning": "增加利润",
     "example": "Greater efficiency may help companies increase profits.",
@@ -993,7 +993,7 @@
   },
   {
     "id": "AI-JOB-011",
-    "category": "AI与工作·替代",
+    "category": "AI与工作",
     "front": "require human judgment and empathy",
     "meaning": "需要人的判断力和同理心",
     "example": "Medical and teaching jobs require human judgment and empathy.",
@@ -1001,7 +1001,7 @@
   },
   {
     "id": "AI-JOB-012",
-    "category": "AI与工作·替代",
+    "category": "AI与工作",
     "front": "be much harder to replace",
     "meaning": "更难被替代",
     "example": "People-facing professions are much harder to replace.",
@@ -1009,7 +1009,7 @@
   },
   {
     "id": "AI-JOB-013",
-    "category": "AI与工作·替代",
+    "category": "AI与工作",
     "front": "at least for now",
     "meaning": "至少目前如此",
     "example": "AI cannot fully understand human emotions, at least for now.",
@@ -1017,7 +1017,7 @@
   },
   {
     "id": "AI-NEW-001",
-    "category": "AI与工作·创造",
+    "category": "AI与工作",
     "front": "jobs related to the AI industry",
     "meaning": "与 AI 行业相关的工作",
     "example": "More jobs related to the AI industry are likely to appear.",
@@ -1025,7 +1025,7 @@
   },
   {
     "id": "AI-NEW-002",
-    "category": "AI与工作·创造",
+    "category": "AI与工作",
     "front": "become increasingly important",
     "meaning": "变得越来越重要",
     "example": "Digital skills will become increasingly important in the workplace.",
@@ -1033,7 +1033,7 @@
   },
   {
     "id": "AI-NEW-003",
-    "category": "AI与工作·创造",
+    "category": "AI与工作",
     "front": "develop AI systems",
     "meaning": "开发 AI 系统",
     "example": "Software engineers are needed to develop AI systems.",
@@ -1041,7 +1041,7 @@
   },
   {
     "id": "AI-NEW-004",
-    "category": "AI与工作·创造",
+    "category": "AI与工作",
     "front": "maintain AI systems",
     "meaning": "维护 AI 系统",
     "example": "Skilled workers will be required to maintain AI systems.",
@@ -1049,7 +1049,7 @@
   },
   {
     "id": "AI-NEW-005",
-    "category": "AI与工作·创造",
+    "category": "AI与工作",
     "front": "monitor AI systems",
     "meaning": "监控 AI 系统",
     "example": "Human employees still need to monitor AI systems.",
@@ -1057,7 +1057,7 @@
   },
   {
     "id": "AI-NEW-006",
-    "category": "AI与工作·创造",
+    "category": "AI与工作",
     "front": "oversee how AI operates",
     "meaning": "监督 AI 如何运行",
     "example": "Specialists should oversee how AI operates in sensitive fields.",
@@ -1065,7 +1065,7 @@
   },
   {
     "id": "AI-NEW-007",
-    "category": "AI与工作·创造",
+    "category": "AI与工作",
     "front": "AI can still make mistakes",
     "meaning": "AI 仍然会犯错",
     "example": "AI can still make mistakes, so human supervision is necessary.",
@@ -1073,7 +1073,7 @@
   },
   {
     "id": "AI-NEW-008",
-    "category": "AI与工作·创造",
+    "category": "AI与工作",
     "front": "break down from time to time",
     "meaning": "偶尔出故障",
     "example": "Even advanced machines can break down from time to time.",
@@ -1081,7 +1081,7 @@
   },
   {
     "id": "AI-NEW-009",
-    "category": "AI与工作·创造",
+    "category": "AI与工作",
     "front": "maintain and repair systems",
     "meaning": "维护和修理系统",
     "example": "Technicians are employed to maintain and repair systems.",
@@ -1089,7 +1089,7 @@
   },
   {
     "id": "AI-NEW-010",
-    "category": "AI与工作·创造",
+    "category": "AI与工作",
     "front": "make sure something is working properly",
     "meaning": "确保某物正常运行",
     "example": "Human technicians make sure the technology is working properly.",
@@ -1097,7 +1097,7 @@
   },
   {
     "id": "AI-NEW-011",
-    "category": "AI与工作·创造",
+    "category": "AI与工作",
     "front": "the demand for these jobs is likely to increase",
     "meaning": "对这些工作的需求可能会上升",
     "example": "As AI spreads, the demand for these jobs is likely to increase.",
@@ -1105,7 +1105,7 @@
   },
   {
     "id": "AI-NEW-012",
-    "category": "AI与工作·创造",
+    "category": "AI与工作",
     "front": "data management",
     "meaning": "数据管理",
     "example": "AI development will create opportunities in data management.",
@@ -1113,7 +1113,7 @@
   },
   {
     "id": "AI-NEW-013",
-    "category": "AI与工作·创造",
+    "category": "AI与工作",
     "front": "system maintenance",
     "meaning": "系统维护",
     "example": "System maintenance will remain an important area of employment.",
@@ -1121,7 +1121,7 @@
   },
   {
     "id": "AI-NEW-014",
-    "category": "AI与工作·创造",
+    "category": "AI与工作",
     "front": "ethical oversight",
     "meaning": "伦理监督",
     "example": "Ethical oversight is necessary when AI affects people's lives.",
@@ -1129,7 +1129,7 @@
   },
   {
     "id": "AI-NEW-015",
-    "category": "AI与工作·创造",
+    "category": "AI与工作",
     "front": "create new opportunities",
     "meaning": "创造新的机会",
     "example": "Although AI may remove some jobs, it can also create new opportunities.",
@@ -1137,7 +1137,7 @@
   },
   {
     "id": "AI-GOV-001",
-    "category": "AI与工作·政府援助",
+    "category": "AI与工作",
     "front": "have a responsibility to do something",
     "meaning": "有责任做某事",
     "example": "Governments have a responsibility to support displaced workers.",
@@ -1145,7 +1145,7 @@
   },
   {
     "id": "AI-GOV-002",
-    "category": "AI与工作·政府援助",
+    "category": "AI与工作",
     "front": "have an obligation to do something",
     "meaning": "有义务做某事",
     "example": "Governments have an obligation to protect vulnerable citizens.",
@@ -1153,7 +1153,7 @@
   },
   {
     "id": "AI-GOV-003",
-    "category": "AI与工作·政府援助",
+    "category": "AI与工作",
     "front": "be supposed to serve the public",
     "meaning": "应当服务公众",
     "example": "After all, governments are supposed to serve the public.",
@@ -1161,7 +1161,7 @@
   },
   {
     "id": "AI-GOV-004",
-    "category": "AI与工作·政府援助",
+    "category": "AI与工作",
     "front": "support people in need",
     "meaning": "帮助有需要的人",
     "example": "Public funds should be used to support people in need.",
@@ -1169,7 +1169,7 @@
   },
   {
     "id": "AI-GOV-005",
-    "category": "AI与工作·政府援助",
+    "category": "AI与工作",
     "front": "support themselves financially",
     "meaning": "在经济上养活自己",
     "example": "Unemployed workers may struggle to support themselves financially.",
@@ -1177,7 +1177,7 @@
   },
   {
     "id": "AI-GOV-006",
-    "category": "AI与工作·政府援助",
+    "category": "AI与工作",
     "front": "make a living",
     "meaning": "谋生",
     "example": "People need practical skills to make a living in a changing economy.",
@@ -1185,7 +1185,7 @@
   },
   {
     "id": "AI-GOV-007",
-    "category": "AI与工作·政府援助",
+    "category": "AI与工作",
     "front": "meet their basic needs",
     "meaning": "满足基本生活需求",
     "example": "Temporary aid can help families meet their basic needs.",
@@ -1193,7 +1193,7 @@
   },
   {
     "id": "AI-GOV-008",
-    "category": "AI与工作·政府援助",
+    "category": "AI与工作",
     "front": "be under severe financial pressure",
     "meaning": "承受严重经济压力",
     "example": "People who suddenly lose their jobs may be under severe financial pressure.",
@@ -1201,7 +1201,7 @@
   },
   {
     "id": "AI-GOV-009",
-    "category": "AI与工作·政府援助",
+    "category": "AI与工作",
     "front": "maintain social stability",
     "meaning": "维护社会稳定",
     "example": "Supporting unemployed people can help maintain social stability.",
@@ -1209,7 +1209,7 @@
   },
   {
     "id": "AI-GOV-010",
-    "category": "AI与工作·政府援助",
+    "category": "AI与工作",
     "front": "social problems caused by unemployment",
     "meaning": "失业造成的社会问题",
     "example": "Financial support may reduce social problems caused by unemployment.",
@@ -1217,7 +1217,7 @@
   },
   {
     "id": "AI-GOV-011",
-    "category": "AI与工作·政府援助",
+    "category": "AI与工作",
     "front": "turn to crime",
     "meaning": "走上犯罪道路",
     "example": "Without support, a small number of people may turn to crime.",
@@ -1225,7 +1225,7 @@
   },
   {
     "id": "AI-GOV-012",
-    "category": "AI与工作·政府援助",
+    "category": "AI与工作",
     "front": "consider individual circumstances",
     "meaning": "考虑个人具体情况",
     "example": "Governments should consider individual circumstances before offering aid.",
@@ -1233,7 +1233,7 @@
   },
   {
     "id": "AI-GOV-013",
-    "category": "AI与工作·政府援助",
+    "category": "AI与工作",
     "front": "provide targeted support",
     "meaning": "提供有针对性的帮助",
     "example": "Authorities should provide targeted support instead of using one solution for everyone.",
@@ -1241,7 +1241,7 @@
   },
   {
     "id": "AI-GOV-014",
-    "category": "AI与工作·政府援助",
+    "category": "AI与工作",
     "front": "temporary financial assistance",
     "meaning": "临时经济援助",
     "example": "Temporary financial assistance can give workers time to retrain.",
@@ -1249,7 +1249,7 @@
   },
   {
     "id": "AI-GOV-015",
-    "category": "AI与工作·政府援助",
+    "category": "AI与工作",
     "front": "retraining programs",
     "meaning": "再培训项目",
     "example": "Governments could offer retraining programs in growing industries.",
@@ -1257,7 +1257,7 @@
   },
   {
     "id": "AI-GOV-016",
-    "category": "AI与工作·政府援助",
+    "category": "AI与工作",
     "front": "help people transition into new jobs",
     "meaning": "帮助人们过渡到新的工作",
     "example": "Training can help people transition into new jobs more smoothly.",
