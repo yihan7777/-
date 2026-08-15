@@ -6,7 +6,7 @@
   <meta name="theme-color" content="#122018">
   <title>IELTS Speaking · 9.1 冲刺面板</title>
   <link rel="stylesheet" href="assets/style.css">
-  <link rel="stylesheet" href="assets/training.css?v=4">
+  <link rel="stylesheet" href="assets/training.css?v=5">
 </head>
 <body>
   <header class="hero">
@@ -85,19 +85,11 @@
           </div>
         </div>
       </div>
-    </section>
-
-    <section class="section memory-overview" id="memoryOverview">
-      <div class="section-head">
-        <div><p class="kicker">MEMORY ACTIVITY</p><h2>记忆卡片活动概览</h2></div>
-        <button class="button" id="refreshMemoryOverview">刷新概览</button>
-      </div>
-      <div class="overview-grid" id="memoryOverviewGrid">
-        <article><span>词汇记忆卡</span><strong>—</strong><small>正在统计</small></article>
-        <article><span>听力反应卡</span><strong>—</strong><small>正在统计</small></article>
-        <article><span>阅读生词卡</span><strong>—</strong><small>正在统计</small></article>
-        <article><span>答案词听写</span><strong>—</strong><small>正在统计</small></article>
-      </div>
+      <details class="module-activity" data-card-overview="memory">
+        <summary><b>卡片活动概览</b><small data-overview-count>点击展开查看在线学习与剔除学习</small></summary>
+        <div class="overview-tabs"><button class="active" data-overview-tab="active">在线学习</button><button data-overview-tab="archived">剔除学习</button></div>
+        <div class="overview-strip" data-overview-strip></div>
+      </details>
     </section>
 
     <section class="section tool-section" id="typing">
@@ -174,6 +166,11 @@
           </div>
         </div>
       </div>
+      <details class="module-activity" data-card-overview="listening">
+        <summary><b>卡片活动概览</b><small data-overview-count>点击展开查看在线学习与剔除学习</small></summary>
+        <div class="overview-tabs"><button class="active" data-overview-tab="active">在线学习</button><button data-overview-tab="archived">剔除学习</button></div>
+        <div class="overview-strip" data-overview-strip></div>
+      </details>
     </section>
 
     <section class="section tool-section" id="dictation">
@@ -208,6 +205,11 @@
           <div class="dictation-actions"><button id="archiveDictation" disabled>✓ 熟词剔除</button><button id="nextDictation" disabled>下一个 →</button></div>
         </div>
       </div>
+      <details class="module-activity" data-card-overview="dictation">
+        <summary><b>卡片活动概览</b><small data-overview-count>点击展开查看在线学习与剔除学习</small></summary>
+        <div class="overview-tabs"><button class="active" data-overview-tab="active">在线学习</button><button data-overview-tab="archived">剔除学习</button></div>
+        <div class="overview-strip" data-overview-strip></div>
+      </details>
     </section>
 
     <section class="section tool-section" id="reading">
@@ -246,6 +248,11 @@
           </div>
         </div>
       </div>
+      <details class="module-activity" data-card-overview="reading">
+        <summary><b>卡片活动概览</b><small data-overview-count>点击展开查看在线学习与剔除学习</small></summary>
+        <div class="overview-tabs"><button class="active" data-overview-tab="active">在线学习</button><button data-overview-tab="archived">剔除学习</button></div>
+        <div class="overview-strip" data-overview-strip></div>
+      </details>
     </section>
 
     <section class="section timeline-wrap">
@@ -265,7 +272,7 @@
   <script src="assets/reading.js?v=6" defer></script>
   <script src="assets/listening.js?v=6" defer></script>
   <script src="assets/dictation.js?v=2" defer></script>
-  <script src="assets/overview.js?v=1" defer></script>
+  <script src="assets/overview.js?v=2" defer></script>
   <script src="assets/training.js?v=7" defer></script>
 </body>
 </html>
