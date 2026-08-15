@@ -87,6 +87,19 @@
       </div>
     </section>
 
+    <section class="section memory-overview" id="memoryOverview">
+      <div class="section-head">
+        <div><p class="kicker">MEMORY ACTIVITY</p><h2>记忆卡片活动概览</h2></div>
+        <button class="button" id="refreshMemoryOverview">刷新概览</button>
+      </div>
+      <div class="overview-grid" id="memoryOverviewGrid">
+        <article><span>词汇记忆卡</span><strong>—</strong><small>正在统计</small></article>
+        <article><span>听力反应卡</span><strong>—</strong><small>正在统计</small></article>
+        <article><span>阅读生词卡</span><strong>—</strong><small>正在统计</small></article>
+        <article><span>答案词听写</span><strong>—</strong><small>正在统计</small></article>
+      </div>
+    </section>
+
     <section class="section tool-section" id="typing">
       <div class="section-head">
         <div><p class="kicker">WRITING MUSCLE MEMORY</p><h2>作文打字训练</h2></div>
@@ -176,9 +189,11 @@
           <p id="dictationStatus" class="module-status">尚未导入题库。</p>
           <label class="dictation-select"><span>② 选择文章</span><select id="dictationArticle" disabled><option>请先导入题库</option></select></label>
           <div class="dictation-modes">
-            <button class="active" data-dictation-mode="all">本篇全部</button>
-            <button data-dictation-mode="wrong">只练错词</button>
+            <button class="active" data-dictation-mode="articleAll">本篇全部</button>
+            <button data-dictation-mode="articleWrong">本篇错词</button>
+            <button data-dictation-mode="allWrong">全部错词</button>
           </div>
+          <label class="wrong-threshold"><span>按累计错误次数听写</span><select id="dictationWrongThreshold"><option value="1">错 1 次以上</option><option value="2">错 2 次以上</option><option value="3">错 3 次以上</option><option value="5">错 5 次以上</option></select></label>
           <button class="restore-cards" id="restoreDictation">恢复已剔除熟词（<span id="dictationArchivedCount">0</span>）</button>
           <div class="dictation-bank-stats"><span><b id="dictationArticleCount">0</b> 篇文章</span><span><b id="dictationWrongTotal">0</b> 个错词</span></div>
         </aside>
@@ -249,7 +264,8 @@
   <script src="assets/app.js?v=6" defer></script>
   <script src="assets/reading.js?v=6" defer></script>
   <script src="assets/listening.js?v=6" defer></script>
-  <script src="assets/dictation.js?v=1" defer></script>
+  <script src="assets/dictation.js?v=2" defer></script>
+  <script src="assets/overview.js?v=1" defer></script>
   <script src="assets/training.js?v=7" defer></script>
 </body>
 </html>
