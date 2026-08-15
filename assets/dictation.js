@@ -10,7 +10,8 @@
   const fallback = {};
   let bank = load(bankKey, null);
   let state = load(stateKey, {});
-  let mode = 'all';
+  let mode = 'articleAll';
+  let wrongThreshold = 1;
   let queue = [];
   let current = null;
   let checked = false;
@@ -66,16 +67,19 @@
   function buildQueue() {
     const article = selectedArticle();
     if (!article) { emptyCard(); return; }
-    queue = article.answers.filter(a => {
+    const source = mode === 'allWrong'
+      ? bank.articles.flatMap(item => item.answers.map(answer => ({...answer, articleTitle:item.title})))
+      : article.answers.map(answer => ({...answer, articleTitle:article.title}));
+    queue = source.filter(a => {
       const s = answerState(a.id);
-      return !s.archived && (mode === 'all' || s.wrongCount > 0);
+      return !s.archived && (mode === 'articleAll' || s.wrongCount >= wrongThreshold);
     });
     if (!queue.length) {
       current = null;
-      $('#dictationTitle').textContent = article.title;
-      $('#dictationCounter').textContent = mode === 'wrong' ? '本篇暂无错词' : '本篇已无待练词';
+      $('#dictationTitle').textContent = mode === 'allWrong' ? '全部文章错词' : article.title;
+      $('#dictationCounter').textContent = mode === 'articleAll' ? '本篇已无待练词' : `暂无错 ${wrongThreshold} 次以上的词`;
       $('#dictationCorrectAnswer').textContent = '';
-      $('#dictationFeedback').textContent = mode === 'wrong' ? '先练“本篇全部”，拼错的词会自动进入错词听写。' : '本篇单词均已剔除，可点击左侧恢复。';
+      $('#dictationFeedback').textContent = mode === 'articleAll' ? '本篇单词均已剔除，可点击左侧恢复。' : '先进行全部听写；拼错的词会自动进入错词题库。';
       $('#dictationResult').classList.remove('hidden');
       toggleControls(false);
       updateStats();
@@ -87,7 +91,7 @@
     const article = selectedArticle();
     current = queue.shift() || null;
     checked = false;
-    $('#dictationTitle').textContent = article?.title || '听力答案词听写';
+    $('#dictationTitle').textContent = current?.articleTitle || article?.title || '听力答案词听写';
     $('#dictationInput').value = '';
     $('#dictationResult').classList.add('hidden');
     if (!current) {
@@ -133,12 +137,17 @@
     s.attempts += 1;
     const correct = norm(typed) === norm(current.answer);
     if (correct) s.correctCount += 1;
-    else s.wrongCount += 1;
+    else {
+      s.wrongCount += 1;
+      queue.push(current);
+    }
     save(stateKey, state);
     $('#dictationCorrectAnswer').textContent = current.answer;
     $('#dictationFeedback').textContent = correct ? '✓ 拼写正确' : `✕ 你写的是：${typed}`;
     $('#dictationFeedback').className = correct ? 'listen-correct' : 'listen-wrong';
-    $('#dictationMistakes').textContent = `这个答案累计拼错 ${s.wrongCount} 次 · 共练习 ${s.attempts} 次`;
+    $('#dictationMistakes').textContent = correct
+      ? `本轮已过关 · 累计拼错 ${s.wrongCount} 次 · 共练习 ${s.attempts} 次`
+      : `累计拼错 ${s.wrongCount} 次 · 本轮稍后会再次出现，必须拼对才过关`;
     $('#dictationResult').classList.remove('hidden');
     $('#dictationInput').disabled = true;
     $('#checkDictation').disabled = true;
@@ -186,12 +195,26 @@
     document.querySelectorAll('[data-dictation-mode]').forEach(x => x.classList.toggle('active', x === button));
     buildQueue();
   }));
+  $('#dictationWrongThreshold').addEventListener('change', event => {
+    wrongThreshold = Number(event.target.value) || 1;
+    if (mode === 'articleAll') {
+      mode = 'articleWrong';
+      document.querySelectorAll('[data-dictation-mode]').forEach(x => x.classList.toggle('active', x.dataset.dictationMode === mode));
+    }
+    buildQueue();
+  });
   $('#playDictation').addEventListener('click', () => current && speak(current.answer));
   $('#checkDictation').addEventListener('click', check);
   $('#dictationInput').addEventListener('keydown', e => {
     if (e.key !== 'Enter') return;
     e.preventDefault();
+    e.stopPropagation();
     checked ? showNext() : check();
+  });
+  document.addEventListener('keydown', event => {
+    if (!checked || !current || (event.key !== 'Enter' && event.code !== 'Space')) return;
+    event.preventDefault();
+    showNext();
   });
   $('#nextDictation').addEventListener('click', showNext);
   $('#archiveDictation').addEventListener('click', archive);
