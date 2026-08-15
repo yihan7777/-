@@ -3,14 +3,15 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <meta name="theme-color" content="#122018">
+  <meta name="theme-color" content="#eaf7f0">
   <title>IELTS Speaking · 9.1 冲刺面板</title>
   <link rel="stylesheet" href="assets/style.css">
   <link rel="stylesheet" href="assets/training.css?v=5">
+  <link rel="stylesheet" href="assets/ui.css?v=1">
 </head>
 <body>
   <header class="hero">
-    <nav><span class="brand">IELTS LAB</span><div class="nav-links"><a href="#typing">作文打字</a><a href="#listening">听力反应</a><a href="#dictation">答案词听写</a><a href="#reading">阅读卡片</a><a href="#library">49 题迁移库</a></div></nav>
+    <nav><span class="brand">IELTS LAB</span><span class="hero-note">9.1 IELTS SPRINT</span></nav>
     <div class="hero-grid">
       <div>
         <p class="eyebrow">2026 · MAY–AUG QUESTION BANK</p>
@@ -21,15 +22,29 @@
     </div>
   </header>
 
+  <div class="app-tabs-shell">
+    <nav class="app-tabs" aria-label="学习板块切换">
+      <button class="active" data-page="home">今日</button>
+      <button data-page="stories">串题</button>
+      <button data-page="vocabulary">词汇</button>
+      <button data-page="writing">作文</button>
+      <button data-page="listening">听力反应</button>
+      <button data-page="dictation">答案词听写</button>
+      <button data-page="reading">阅读</button>
+      <button data-page="plan">计划</button>
+      <button data-page="library">题库</button>
+    </nav>
+  </div>
+
   <main>
-    <section class="stats" aria-label="学习概览">
+    <section class="stats" aria-label="学习概览" data-page-section="home">
       <article><span>今日阶段</span><strong id="phase">加载中</strong></article>
       <article><span>今日时长</span><strong id="minutes">—</strong></article>
       <article><span>今日新题</span><strong id="newCount">—</strong></article>
       <article><span>今日复习</span><strong id="reviewCount">—</strong></article>
     </section>
 
-    <section class="today section">
+    <section class="today section" data-page-section="home">
       <div class="section-head">
         <div><p class="kicker">TODAY / <span id="todayDate"></span></p><h2>今天只做这些</h2></div>
         <div class="actions">
@@ -45,13 +60,13 @@
       </div>
     </section>
 
-    <section class="section" id="clusters">
+    <section class="section" id="clusters" data-page-section="stories" hidden>
       <div class="section-head"><div><p class="kicker">TRANSFER SYSTEM</p><h2>4 大串题素材模块</h2></div><p class="aside">人物、地点、经历和物品四条主线。先掌握自己的真实素材，再根据题眼迁移。</p></div>
       <div class="cluster-grid" id="clusterGrid"></div>
       <div class="materials-library" id="materialsLibrary"></div>
     </section>
 
-    <section class="section memory" id="memory">
+    <section class="section memory" id="memory" data-page-section="vocabulary" hidden>
       <div class="section-head">
         <div><p class="kicker">SPACED REPETITION</p><h2>词汇记忆卡片</h2></div>
         <p class="aside">一次只记一张。先回忆，再翻面；系统会让困难的表达更快重新出现。</p>
@@ -92,7 +107,7 @@
       </details>
     </section>
 
-    <section class="section tool-section" id="typing">
+    <section class="section tool-section" id="typing" data-page-section="writing" hidden>
       <div class="section-head">
         <div><p class="kicker">WRITING MUSCLE MEMORY</p><h2>作文打字训练</h2></div>
         <p class="aside">粘贴优秀范文，逐句准确复刻。完成后自动归纳拼写错误、漏词、多打词，并筛选值得积累的表达与句式。</p>
@@ -131,7 +146,7 @@
       </div>
     </section>
 
-    <section class="section tool-section" id="listening">
+    <section class="section tool-section" id="listening" data-page-section="listening" hidden>
       <div class="section-head">
         <div><p class="kicker">AUDIO REACTION</p><h2>听力单词反应卡</h2></div>
         <p class="aside">正面不显示拼写。只听声音，立刻反应意思并写下单词，然后翻面核对。</p>
@@ -173,7 +188,7 @@
       </details>
     </section>
 
-    <section class="section tool-section" id="dictation">
+    <section class="section tool-section" id="dictation" data-page-section="dictation" hidden>
       <div class="section-head">
         <div><p class="kicker">ANSWER WORD DICTATION</p><h2>听力答案词听写</h2></div>
         <p class="aside">按文章题目建立题库。只听发音再拼写；系统自动累计错词与错误次数，也可以只练错词或剔除熟词。</p>
@@ -212,7 +227,7 @@
       </details>
     </section>
 
-    <section class="section tool-section" id="reading">
+    <section class="section tool-section" id="reading" data-page-section="reading" hidden>
       <div class="section-head">
         <div><p class="kicker">READING VOCABULARY</p><h2>阅读生词与表达卡</h2></div>
         <p class="aside">把阅读中真正影响理解的生词、搭配和表达放进语境里复习，不背孤立词表。</p>
@@ -255,12 +270,12 @@
       </details>
     </section>
 
-    <section class="section timeline-wrap">
+    <section class="section timeline-wrap" data-page-section="plan" hidden>
       <div class="section-head"><div><p class="kicker">EBBINGHAUS PLAN</p><h2>8.11 → 9.1 路线图</h2></div><div class="legend"><i></i>首轮 <i></i>复习 <i></i>模考</div></div>
       <div class="timeline" id="timeline"></div>
     </section>
 
-    <section class="section" id="library">
+    <section class="section" id="library" data-page-section="library" hidden>
       <div class="section-head"><div><p class="kicker">QUESTION LIBRARY</p><h2>Part 2 & 3 题库</h2></div><input id="search" type="search" placeholder="搜索中文题名或英文题目…"></div>
       <div class="filters" id="filters"></div>
       <div class="topic-list" id="topicList"></div>
@@ -273,6 +288,7 @@
   <script src="assets/listening.js?v=6" defer></script>
   <script src="assets/dictation.js?v=2" defer></script>
   <script src="assets/overview.js?v=2" defer></script>
+  <script src="assets/ui.js?v=1" defer></script>
   <script src="assets/training.js?v=7" defer></script>
 </body>
 </html>
