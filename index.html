@@ -6,11 +6,11 @@
   <meta name="theme-color" content="#122018">
   <title>IELTS Speaking · 9.1 冲刺面板</title>
   <link rel="stylesheet" href="assets/style.css">
-  <link rel="stylesheet" href="assets/training.css?v=3">
+  <link rel="stylesheet" href="assets/training.css?v=4">
 </head>
 <body>
   <header class="hero">
-    <nav><span class="brand">IELTS LAB</span><div class="nav-links"><a href="#typing">作文打字</a><a href="#listening">听力反应</a><a href="#reading">阅读卡片</a><a href="#library">49 题迁移库</a></div></nav>
+    <nav><span class="brand">IELTS LAB</span><div class="nav-links"><a href="#typing">作文打字</a><a href="#listening">听力反应</a><a href="#dictation">答案词听写</a><a href="#reading">阅读卡片</a><a href="#library">49 题迁移库</a></div></nav>
     <div class="hero-grid">
       <div>
         <p class="eyebrow">2026 · MAY–AUG QUESTION BANK</p>
@@ -163,6 +163,38 @@
       </div>
     </section>
 
+    <section class="section tool-section" id="dictation">
+      <div class="section-head">
+        <div><p class="kicker">ANSWER WORD DICTATION</p><h2>听力答案词听写</h2></div>
+        <p class="aside">按文章题目建立题库。只听发音再拼写；系统自动累计错词与错误次数，也可以只练错词或剔除熟词。</p>
+      </div>
+      <div class="dictation-layout">
+        <aside class="dictation-library">
+          <p class="deck-label">① 导入私人题库</p>
+          <label class="dictation-file"><input type="file" id="dictationFile" accept="application/json,.json"><span>选择题库文件</span></label>
+          <small>只需首次导入，题库会保存在这台设备中，不会上传到公开网页。</small>
+          <p id="dictationStatus" class="module-status">尚未导入题库。</p>
+          <label class="dictation-select"><span>② 选择文章</span><select id="dictationArticle" disabled><option>请先导入题库</option></select></label>
+          <div class="dictation-modes">
+            <button class="active" data-dictation-mode="all">本篇全部</button>
+            <button data-dictation-mode="wrong">只练错词</button>
+          </div>
+          <button class="restore-cards" id="restoreDictation">恢复已剔除熟词（<span id="dictationArchivedCount">0</span>）</button>
+          <div class="dictation-bank-stats"><span><b id="dictationArticleCount">0</b> 篇文章</span><span><b id="dictationWrongTotal">0</b> 个错词</span></div>
+        </aside>
+        <div class="dictation-stage">
+          <div class="dictation-card" id="dictationCard">
+            <div class="dictation-topline"><span id="dictationTitle">请先导入题库</span><small id="dictationCounter">—</small></div>
+            <button class="dictation-play" id="playDictation" disabled><span>▶</span><b>播放答案词</b></button>
+            <label class="dictation-answer"><span>输入你听到的答案</span><input id="dictationInput" autocomplete="off" autocapitalize="off" spellcheck="false" disabled placeholder="Type what you hear"></label>
+            <button class="button primary" id="checkDictation" disabled>检查拼写</button>
+            <div class="dictation-result hidden" id="dictationResult"><strong id="dictationCorrectAnswer"></strong><p id="dictationFeedback"></p><small id="dictationMistakes"></small></div>
+          </div>
+          <div class="dictation-actions"><button id="archiveDictation" disabled>✓ 熟词剔除</button><button id="nextDictation" disabled>下一个 →</button></div>
+        </div>
+      </div>
+    </section>
+
     <section class="section tool-section" id="reading">
       <div class="section-head">
         <div><p class="kicker">READING VOCABULARY</p><h2>阅读生词与表达卡</h2></div>
@@ -217,6 +249,7 @@
   <script src="assets/app.js?v=6" defer></script>
   <script src="assets/reading.js?v=6" defer></script>
   <script src="assets/listening.js?v=6" defer></script>
+  <script src="assets/dictation.js?v=1" defer></script>
   <script src="assets/training.js?v=7" defer></script>
 </body>
 </html>
