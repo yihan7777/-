@@ -11,6 +11,7 @@
   <link rel="stylesheet" href="assets/mnemonic.css?v=1">
   <link rel="stylesheet" href="assets/listening-hub.css?v=1">
   <link rel="stylesheet" href="assets/private-bank.css?v=1">
+  <link rel="stylesheet" href="assets/listening-review.css?v=1">
 </head>
 <body>
   <header class="hero">
@@ -267,7 +268,7 @@
       </div>
       <div class="cause-panel hidden" id="causePanel">
         <div class="section-head compact"><div><p class="kicker">ERROR REVIEW</p><h3>本次错因复盘</h3></div><strong id="practiceScore"></strong></div>
-        <p>为每道错题选择最主要的原因，保存后会进入长期统计。</p>
+        <p>每道错题先选主要错因，再补充次要错因、原文定位和同义替换。长内容默认折叠，不会挤满屏幕。</p>
         <div id="causeQuestions"></div>
         <button class="button primary" id="saveTestAnalysis">保存本次复盘</button>
       </div>
@@ -275,6 +276,11 @@
 
     <section class="section tool-section listening-analysis" id="listeningAnalysis" data-page-section="listening-hub" data-listening-view="analysis" hidden>
       <div class="section-head"><div><p class="kicker">PERFORMANCE REVIEW</p><h2>听力成绩与错因分析</h2></div><button class="button" id="clearListeningHistory">清空统计</button></div>
+      <div class="review-focus-grid">
+        <article><span>今日待复盘</span><strong id="dueReviewCount">0</strong><small>D+1 / D+3 / D+7</small></article>
+        <article class="wide"><span>当前最需要解决</span><strong id="topListeningProblem">完成一次复盘后生成</strong><small id="topListeningAdvice">系统会根据重复错因给出训练建议</small></article>
+      </div>
+      <div class="due-review-panel"><h3>今日复盘任务</h3><div id="dueReviewList"></div></div>
       <div class="analysis-part-grid" id="analysisPartGrid"></div>
       <div class="analysis-grid"><article><h3>高频错因</h3><div id="causeRanking"></div></article><article><h3>近期练习</h3><div id="attemptHistory"></div></article></div>
     </section>
@@ -340,7 +346,7 @@
   <script src="assets/listening.js?v=6" defer></script>
   <script src="assets/dictation.js?v=2" defer></script>
   <script src="assets/mnemonic.js?v=3" defer></script>
-  <script src="assets/listening-hub.js?v=2" defer></script>
+  <script src="assets/listening-hub.js?v=3" defer></script>
   <script src="assets/overview.js?v=2" defer></script>
   <script src="assets/ui.js?v=1" defer></script>
   <script src="assets/training.js?v=7" defer></script>

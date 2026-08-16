@@ -50,6 +50,21 @@
   function esc(value) { return String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
   function loadHistory() { try { return JSON.parse(localStorage.getItem(historyKey) || '[]'); } catch (_) { return []; } }
   function saveHistory(items) { try { localStorage.setItem(historyKey, JSON.stringify(items)); } catch (_) {} }
+  function dayStamp(offset=0) {
+    const date = new Date(); date.setHours(0,0,0,0); date.setDate(date.getDate()+offset);
+    return date.toISOString().slice(0,10);
+  }
+  function causeOptions() { return causes.map(c => '<option>' + c + '</option>').join(''); }
+  function reviewCard(q) {
+    return '<details class="wrong-review-card" data-wrong-q="' + esc(q) + '"><summary><b>第 ' + esc(q) + ' 题</b><span>展开填写完整复盘 ↓</span></summary><div class="wrong-review-body">' +
+      '<label>主要错因<select data-primary-cause>' + causeOptions() + '</select></label>' +
+      '<div class="secondary-causes">' + causes.map(c => '<label><input type="checkbox" data-secondary-cause value="' + esc(c) + '">' + esc(c) + '</label>').join('') + '</div>' +
+      '<label>题型<select data-question-type><option>填空题</option><option>单选题</option><option>多选题</option><option>匹配题</option><option>地图题</option></select></label>' +
+      '<label>原文定位句<textarea data-evidence placeholder="粘贴真正决定答案的原文，不用粘整段"></textarea></label>' +
+      '<label>题干 ⇄ 原文同义替换<input data-synonym placeholder="例如：keep an open mind = be flexible"></label>' +
+      '<label>下次看到什么要警觉？<input data-reminder placeholder="例如：听到 but 后等待最终观点"></label>' +
+      '</div></details>';
+  }
   function activate(name) {
     if (!tabs.some(x => x.dataset.listeningPage === name)) name = 'reaction';
     tabs.forEach(x => x.classList.toggle('active', x.dataset.listeningPage === name));
@@ -145,17 +160,27 @@
   });
   window.addEventListener('message', event => {
     if (event.data?.type !== 'ielts-test-result') return;
-    pendingResult = {...event.data, date:new Date().toISOString(), causes:{}};
+    pendingResult = {...event.data, id:'attempt-' + Date.now(), date:new Date().toISOString(), reviews:{}, reviewPlan:[{label:'D+1',due:dayStamp(1),done:false},{label:'D+3',due:dayStamp(3),done:false},{label:'D+7',due:dayStamp(7),done:false}]};
     const wrong = pendingResult.wrongQuestions || [];
     const rate = pendingResult.total ? Math.round(wrong.length / pendingResult.total * 100) : 0;
     $('#practiceScore').textContent = pendingResult.correct + '/' + pendingResult.total + ' · 错误率 ' + rate + '%';
-    $('#causeQuestions').innerHTML = wrong.length ? wrong.map(q => '<label class="cause-row"><b>第 ' + esc(q) + ' 题</b><select data-cause-q="' + esc(q) + '">' + causes.map(c => '<option>' + c + '</option>').join('') + '</select></label>').join('') : '<p>本篇全部正确，无需标记错因。</p>';
+    $('#causeQuestions').innerHTML = wrong.length ? wrong.map(reviewCard).join('') : '<p>本篇全部正确，无需标记错因。</p>';
     $('#causePanel').classList.remove('hidden');
     $('#causePanel').scrollIntoView({behavior:'smooth',block:'start'});
   });
   $('#saveTestAnalysis')?.addEventListener('click', () => {
     if (!pendingResult) return;
-    document.querySelectorAll('[data-cause-q]').forEach(select => pendingResult.causes[select.dataset.causeQ] = select.value);
+    document.querySelectorAll('[data-wrong-q]').forEach(card => {
+      const q = card.dataset.wrongQ;
+      pendingResult.reviews[q] = {
+        primary:card.querySelector('[data-primary-cause]').value,
+        secondary:[...card.querySelectorAll('[data-secondary-cause]:checked')].map(x=>x.value),
+        questionType:card.querySelector('[data-question-type]').value,
+        evidence:card.querySelector('[data-evidence]').value.trim(),
+        synonym:card.querySelector('[data-synonym]').value.trim(),
+        reminder:card.querySelector('[data-reminder]').value.trim()
+      };
+    });
     const items = loadHistory();
     items.unshift(pendingResult);
     saveHistory(items.slice(0,200));
@@ -173,10 +198,38 @@
       return '<article class="part-stat"><span>' + part + ' · ' + rows.length + ' 篇</span><strong>' + rate + '%</strong><small>错误率 · ' + (total-wrong) + '/' + total + ' 题正确</small></article>';
     }).join('');
     const counts = {};
-    items.forEach(x => Object.values(x.causes || {}).forEach(c => counts[c] = (counts[c] || 0) + 1));
+    items.forEach(x => {
+      if (x.reviews) Object.values(x.reviews).forEach(r => {
+        if (r.primary) counts[r.primary] = (counts[r.primary] || 0) + 1;
+        (r.secondary || []).forEach(c => counts[c] = (counts[c] || 0) + .35);
+      });
+      else Object.values(x.causes || {}).forEach(c => counts[c] = (counts[c] || 0) + 1);
+    });
     const ranked = Object.entries(counts).sort((a,b) => b[1]-a[1]);
-    $('#causeRanking').innerHTML = ranked.length ? ranked.map(x => '<div class="cause-rank"><span>' + esc(x[0]) + '</span><b>' + x[1] + ' 次</b></div>').join('') : '<p class="empty-analysis">完成并保存一次真题复盘后显示。</p>';
-    $('#attemptHistory').innerHTML = items.length ? items.slice(0,20).map(x => '<div class="attempt-row"><span><b>' + esc(x.part) + '</b> · ' + esc(x.title) + '</span><b>' + x.correct + '/' + x.total + '</b></div>').join('') : '<p class="empty-analysis">暂无练习记录。</p>';
+    $('#causeRanking').innerHTML = ranked.length ? ranked.map(x => '<div class="cause-rank"><span>' + esc(x[0]) + '</span><b>' + Math.round(x[1]) + ' 次</b></div>').join('') : '<p class="empty-analysis">完成并保存一次真题复盘后显示。</p>';
+    const top = ranked[0];
+    $('#topListeningProblem').textContent = top ? top[0] + '（约 ' + Math.round(top[1]) + ' 次）' : '完成一次复盘后生成';
+    const adviceMap={'定位失败':'先读题预测定位词，再做10–20秒答案片段重听','同义替换没反应':'优先复习题干⇄原文同义替换卡','没听出答案词':'进入单词反应卡，练到听音能立即反应','拼写或单复数错误':'进入答案词听写，拼对后才过关','审题或字数限制':'提交前检查题目限定词和字数','走神导致跟丢':'练短片段复述，并抓转折后的最终观点','选项干扰':'逐项写清“出现了但为什么不能选”'};
+    $('#topListeningAdvice').textContent = top ? (adviceMap[top[0]] || '重新听答案片段，并写一句下次提醒') : '系统会根据重复错因给出训练建议';
+    const today=dayStamp(), due=[];
+    items.forEach(item => (item.reviewPlan||[]).forEach((plan,index) => { if(!plan.done && plan.due<=today) due.push({item,plan,index}); }));
+    $('#dueReviewCount').textContent = due.length;
+    $('#dueReviewList').innerHTML = due.length ? due.map(x => '<div class="due-review-item"><i>' + esc(x.plan.label) + '</i><span><b>' + esc(x.item.part) + '</b> · ' + esc(x.item.title) + '</span><button data-review-open="' + esc(x.item.title) + '">重新做</button><button data-review-done="' + esc(x.item.id||'') + '" data-plan-index="' + x.index + '">已复习</button></div>').join('') : '<p class="empty-analysis">今天没有到期任务。完成新错题后会自动生成 D+1、D+3、D+7。</p>';
+    document.querySelectorAll('[data-review-done]').forEach(btn => btn.onclick = () => {
+      const all=loadHistory(), item=all.find(x=>x.id===btn.dataset.reviewDone);
+      if(item?.reviewPlan?.[Number(btn.dataset.planIndex)]) item.reviewPlan[Number(btn.dataset.planIndex)].done=true;
+      saveHistory(all); renderAnalysis();
+    });
+    document.querySelectorAll('[data-review-open]').forEach(btn => btn.onclick = async () => {
+      const record=(await dbAll()).find(x=>x.title===btn.dataset.reviewOpen);
+      if(!record) return alert('这篇题目尚未保存在本机私人题库，请先重新导入题库文件夹。');
+      activate('practice'); await launchTest(record.html,record.audio,record.title,record.part);
+    });
+    $('#attemptHistory').innerHTML = items.length ? items.slice(0,20).map(x => {
+      const reviews=x.reviews||{};
+      const details=Object.entries(reviews).map(([q,r]) => '<div class="attempt-wrong"><b>第 '+esc(q)+'题 · '+esc(r.primary||'未标记')+'</b><span>'+esc(r.synonym||r.evidence||r.reminder||'暂无补充分析')+'</span></div>').join('');
+      return '<details class="attempt-details"><summary><span><b>'+esc(x.part)+'</b> · '+esc(x.title)+'</span><b>'+x.correct+'/'+x.total+'</b></summary><div class="attempt-wrong-list">'+(details||'<p class="empty-analysis">旧记录暂无逐题详情。</p>')+'</div></details>';
+    }).join('') : '<p class="empty-analysis">暂无练习记录。</p>';
   }
   $('#clearListeningHistory')?.addEventListener('click', () => {
     if (!confirm('确认清空全部听力真题统计吗？')) return;
