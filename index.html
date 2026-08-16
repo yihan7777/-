@@ -10,6 +10,7 @@
   <link rel="stylesheet" href="assets/ui.css?v=2">
   <link rel="stylesheet" href="assets/mnemonic.css?v=1">
   <link rel="stylesheet" href="assets/listening-hub.css?v=1">
+  <link rel="stylesheet" href="assets/private-bank.css?v=1">
 </head>
 <body>
   <header class="hero">
@@ -248,11 +249,17 @@
     <section class="section tool-section listening-practice" id="listeningPractice" data-page-section="listening-hub" data-listening-view="practice" hidden>
       <div class="section-head"><div><p class="kicker">REAL TEST PRACTICE</p><h2>听力真题做题平台</h2></div><p class="aside">题目和音频只在当前设备打开，不上传公开网站。交卷后自动统计，并让你给每道错题标记原因。</p></div>
       <div class="practice-import">
+        <label class="folder-import"><span>推荐：一次导入整个私人题库文件夹</span><input id="practiceFolder" type="file" webkitdirectory directory multiple></label>
         <label><span>① 选择题目网页（.html）</span><input id="practiceHtmlFile" type="file" accept=".html,text/html"></label>
         <label><span>② 选择同篇音频（audio.mp3）</span><input id="practiceAudioFile" type="file" accept=".mp3,audio/mpeg,audio/*"></label>
         <label><span>③ 所属部分</span><select id="practicePart"><option>P1</option><option>P2</option><option>P3</option><option>P4</option></select></label>
         <button class="button primary" id="openListeningTest">打开真题</button>
         <p id="practiceImportStatus">请从解压后的同一篇文件夹中选择 HTML 和 audio.mp3。</p>
+      </div>
+      <div class="private-test-bank">
+        <div class="private-bank-head"><div><b>我的私人真题库</b><small id="privateBankCount">尚未导入</small></div><button id="clearPrivateBank">清除本机题库</button></div>
+        <div class="private-part-tabs" id="privatePartTabs"></div>
+        <div class="private-test-list" id="privateTestList"><p>选择上方整个解压文件夹后，篇目会自动出现在这里。</p></div>
       </div>
       <div class="practice-frame-wrap hidden" id="practiceFrameWrap">
         <div class="practice-frame-head"><b id="practiceTitle">真题练习</b><button id="closeListeningTest">关闭题目</button></div>
@@ -333,7 +340,7 @@
   <script src="assets/listening.js?v=6" defer></script>
   <script src="assets/dictation.js?v=2" defer></script>
   <script src="assets/mnemonic.js?v=3" defer></script>
-  <script src="assets/listening-hub.js?v=1" defer></script>
+  <script src="assets/listening-hub.js?v=2" defer></script>
   <script src="assets/overview.js?v=2" defer></script>
   <script src="assets/ui.js?v=1" defer></script>
   <script src="assets/training.js?v=7" defer></script>

@@ -10,6 +10,43 @@
   let activeUrl = null;
   let activeAudioUrl = null;
   let pendingResult = null;
+  let privatePart = 'P1';
+  const dbName = 'ielts-private-listening-bank-v1';
+  function openDb() {
+    return new Promise((resolve,reject) => {
+      const request = indexedDB.open(dbName, 1);
+      request.onupgradeneeded = () => {
+        const store = request.result.createObjectStore('tests', {keyPath:'id'});
+        store.createIndex('part', 'part');
+      };
+      request.onsuccess = () => resolve(request.result);
+      request.onerror = () => reject(request.error);
+    });
+  }
+  async function dbPut(record) {
+    const db = await openDb();
+    return new Promise((resolve,reject) => {
+      const tx = db.transaction('tests','readwrite');
+      tx.objectStore('tests').put(record);
+      tx.oncomplete = resolve; tx.onerror = () => reject(tx.error);
+    });
+  }
+  async function dbAll() {
+    const db = await openDb();
+    return new Promise((resolve,reject) => {
+      const request = db.transaction('tests').objectStore('tests').getAll();
+      request.onsuccess = () => resolve(request.result || []);
+      request.onerror = () => reject(request.error);
+    });
+  }
+  async function dbClear() {
+    const db = await openDb();
+    return new Promise((resolve,reject) => {
+      const tx = db.transaction('tests','readwrite');
+      tx.objectStore('tests').clear();
+      tx.oncomplete = resolve; tx.onerror = () => reject(tx.error);
+    });
+  }
   function esc(value) { return String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
   function loadHistory() { try { return JSON.parse(localStorage.getItem(historyKey) || '[]'); } catch (_) { return []; } }
   function saveHistory(items) { try { localStorage.setItem(historyKey, JSON.stringify(items)); } catch (_) {} }
@@ -37,23 +74,70 @@
     el.textContent = text;
     el.style.color = bad ? '#b64535' : '';
   }
-  $('#openListeningTest')?.addEventListener('click', async () => {
-    const htmlFile = $('#practiceHtmlFile').files?.[0];
-    const audioFile = $('#practiceAudioFile').files?.[0];
-    if (!htmlFile || !audioFile) { status('需要同时选择同一篇的 HTML 题目和 audio.mp3。', true); return; }
+  function frequencyFromPath(path) {
+    if (path.includes('/次高频/')) return '次高频';
+    if (path.includes('/非高频/')) return '非高频';
+    return '高频';
+  }
+  async function launchTest(htmlText, audioBlob, title, part) {
     if (activeUrl) URL.revokeObjectURL(activeUrl);
     if (activeAudioUrl) URL.revokeObjectURL(activeAudioUrl);
-    activeAudioUrl = URL.createObjectURL(audioFile);
-    const title = htmlFile.name.replace(/\.html$/i,'');
-    const part = inferPart(title);
+    activeAudioUrl = URL.createObjectURL(audioBlob);
     $('#practicePart').value = part;
-    const source = injectBridge(await htmlFile.text(), activeAudioUrl, title, part);
+    const source = injectBridge(htmlText, activeAudioUrl, title, part);
     activeUrl = URL.createObjectURL(new Blob([source], {type:'text/html'}));
     $('#practiceFrame').src = activeUrl;
     $('#practiceTitle').textContent = part + ' · ' + title;
     $('#practiceFrameWrap').classList.remove('hidden');
     $('#causePanel').classList.add('hidden');
+    $('#practiceFrameWrap').scrollIntoView({behavior:'smooth',block:'start'});
+  }
+  async function renderPrivateBank() {
+    const records = await dbAll();
+    $('#privateBankCount').textContent = records.length ? records.length + ' 篇已保存在本机' : '尚未导入';
+    $('#privatePartTabs').innerHTML = ['P1','P2','P3','P4'].map(part => '<button class="' + (part === privatePart ? 'active' : '') + '" data-private-part="' + part + '">' + part + '（' + records.filter(x=>x.part===part).length + '）</button>').join('');
+    document.querySelectorAll('[data-private-part]').forEach(btn => btn.onclick = () => { privatePart = btn.dataset.privatePart; renderPrivateBank(); });
+    const filtered = records.filter(x => x.part === privatePart).sort((a,b) => (a.frequency+a.title).localeCompare(b.frequency+b.title));
+    $('#privateTestList').innerHTML = filtered.length ? filtered.map(x => '<button class="private-test-item" data-private-test="' + esc(x.id) + '"><span><b>' + esc(x.title) + '</b><small>' + esc(x.frequency) + '</small></span><em>开始 →</em></button>').join('') : '<p>这个部分还没有导入篇目。</p>';
+    document.querySelectorAll('[data-private-test]').forEach(btn => btn.onclick = async () => {
+      const record = (await dbAll()).find(x => x.id === btn.dataset.privateTest);
+      if (record) launchTest(record.html, record.audio, record.title, record.part);
+    });
+  }
+  $('#practiceFolder')?.addEventListener('change', async event => {
+    const files = [...(event.target.files || [])].filter(file => !(file.webkitRelativePath || '').startsWith('__MACOSX/') && !/\.DS_Store$/.test(file.name));
+    const htmlFiles = files.filter(file => /\.html$/i.test(file.name));
+    if (!htmlFiles.length) { status('这个文件夹中没有找到 HTML 题目文件。', true); return; }
+    let imported = 0, skipped = 0;
+    for (const htmlFile of htmlFiles) {
+      const path = htmlFile.webkitRelativePath || htmlFile.name;
+      const dir = path.slice(0, path.lastIndexOf('/') + 1);
+      const audioFile = files.find(file => (file.webkitRelativePath || file.name) === dir + 'audio.mp3');
+      if (!audioFile) { skipped++; continue; }
+      const part = inferPart(path);
+      const title = htmlFile.name.replace(/\.html$/i,'');
+      status('正在导入 ' + (imported + 1) + '/' + htmlFiles.length + '：' + title);
+      await dbPut({id:path,part,title,frequency:frequencyFromPath(path),html:await htmlFile.text(),audio:audioFile,updatedAt:Date.now()});
+      imported++;
+    }
+    status('✓ 已导入 ' + imported + ' 篇私人真题' + (skipped ? '，另有 ' + skipped + ' 篇缺少 audio.mp3' : '') + '。');
+    event.target.value = '';
+    await renderPrivateBank();
+  });
+  $('#openListeningTest')?.addEventListener('click', async () => {
+    const htmlFile = $('#practiceHtmlFile').files?.[0];
+    const audioFile = $('#practiceAudioFile').files?.[0];
+    if (!htmlFile || !audioFile) { status('需要同时选择同一篇的 HTML 题目和 audio.mp3。', true); return; }
+    const title = htmlFile.name.replace(/\.html$/i,'');
+    const part = inferPart(title);
+    await launchTest(await htmlFile.text(), audioFile, title, part);
     status('✓ 题目已在本机打开。完成后请点击题目页面底部的 Finish。');
+  });
+  $('#clearPrivateBank')?.addEventListener('click', async () => {
+    if (!confirm('确认删除保存在本机的全部私人真题吗？练习成绩统计不会被删除。')) return;
+    await dbClear();
+    await renderPrivateBank();
+    status('本机私人题库已清除。');
   });
   $('#closeListeningTest')?.addEventListener('click', () => {
     $('#practiceFrameWrap').classList.add('hidden');
@@ -101,6 +185,7 @@
   });
   let initial = 'reaction';
   try { initial = localStorage.getItem(pageKey) || initial; } catch (_) {}
+  renderPrivateBank().catch(() => status('当前浏览器无法读取私人题库存储。', true));
   activate(initial);
   setTimeout(() => { if (location.hash === '#listening-hub') activate(initial); }, 0);
 })();
