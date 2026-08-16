@@ -10,6 +10,7 @@
   let activeUrl = null;
   let activeAudioUrl = null;
   let pendingResult = null;
+  let editingAttemptId = null;
   let privatePart = 'P1';
   const dbName = 'ielts-private-listening-bank-v1';
   function openDb() {
@@ -136,15 +137,61 @@
   }
   async function renderPrivateBank() {
     const records = await dbAll();
+    const history = loadHistory();
     $('#privateBankCount').textContent = records.length ? records.length + ' 篇已保存在本机' : '尚未导入';
     $('#privatePartTabs').innerHTML = ['P1','P2','P3','P4'].map(part => '<button class="' + (part === privatePart ? 'active' : '') + '" data-private-part="' + part + '">' + part + '（' + records.filter(x=>x.part===part).length + '）</button>').join('');
     document.querySelectorAll('[data-private-part]').forEach(btn => btn.onclick = () => { privatePart = btn.dataset.privatePart; renderPrivateBank(); });
     const filtered = records.filter(x => x.part === privatePart).sort((a,b) => (a.frequency+a.title).localeCompare(b.frequency+b.title));
-    $('#privateTestList').innerHTML = filtered.length ? filtered.map(x => '<button class="private-test-item" data-private-test="' + esc(x.id) + '"><span><b>' + esc(x.title) + '</b><small>' + esc(x.frequency) + '</small></span><em>开始 →</em></button>').join('') : '<p>这个部分还没有导入篇目。</p>';
+    $('#privateTestList').innerHTML = filtered.length ? filtered.map(x => {
+      const attempts=history.filter(a=>a.title===x.title);
+      const attemptHtml=attempts.length?attempts.map(a=>{
+        const wrong=Object.entries(a.reviews||{}).map(([q,r])=>esc('Q'+q+' '+(r.primary||'未标记')+(r.synonym?' · '+r.synonym:''))).join('<br>');
+        return '<div class="private-attempt"><div class="private-attempt-head"><span>'+esc(new Date(a.date).toLocaleDateString())+' · '+a.correct+'/'+a.total+'</span><button class="edit-attempt" data-edit-attempt="'+esc(a.id||'')+'">重新编辑</button></div><div class="private-attempt-errors">'+(wrong||'本次没有逐题复盘记录')+'</div></div>';
+      }).join(''):'<p class="no-private-errors">完成这篇并保存复盘后，错题会显示在这里。</p>';
+      return '<details class="private-test-entry"><summary><span><b>'+esc(x.title)+'</b><small>'+esc(x.frequency)+' · '+attempts.length+' 次练习</small></span><em>展开 ↓</em></summary><div class="private-test-body"><div class="private-test-actions"><button data-private-test="'+esc(x.id)+'">开始做题</button><button class="chatgpt-review" data-chatgpt-title="'+esc(x.title)+'">复制复盘并打开 ChatGPT</button></div>'+attemptHtml+'</div></details>';
+    }).join('') : '<p>这个部分还没有导入篇目。</p>';
     document.querySelectorAll('[data-private-test]').forEach(btn => btn.onclick = async () => {
       const record = (await dbAll()).find(x => x.id === btn.dataset.privateTest);
       if (record) launchTest(record.html, record.audio, record.title, record.part);
     });
+    document.querySelectorAll('[data-edit-attempt]').forEach(btn=>btn.onclick=()=>openAttemptEditor(btn.dataset.editAttempt));
+    document.querySelectorAll('[data-chatgpt-title]').forEach(btn=>btn.onclick=()=>openChatGPTReview(btn.dataset.chatgptTitle));
+  }
+  function openAttemptEditor(id) {
+    const attempt=loadHistory().find(x=>x.id===id);if(!attempt)return;
+    editingAttemptId=id;pendingResult=JSON.parse(JSON.stringify(attempt));
+    const wrong=pendingResult.wrongQuestions||[];
+    $('#practiceScore').textContent=pendingResult.correct+'/'+pendingResult.total+' · 重新编辑';
+    $('#causeQuestions').innerHTML='<div class="edit-review-banner"><span>正在重新编辑已保存的错题复盘</span><button id="cancelReviewEdit">取消</button></div>'+wrong.map(q=>reviewCard(q,pendingResult.questionDetails?.[q]||{})).join('');
+    wrong.forEach(q=>{
+      const card=document.querySelector('[data-wrong-q="'+CSS.escape(String(q))+'"]'),r=pendingResult.reviews?.[q];if(!card||!r)return;
+      card.querySelector('[data-primary-cause]').value=r.primary||causes[0];
+      card.querySelector('[data-question-type]').value=r.questionType||'填空题';
+      card.querySelector('[data-evidence]').value=r.evidence||'';
+      card.querySelector('[data-synonym]').value=r.synonym||'';
+      card.querySelector('[data-new-words]').value=r.newWords||'';
+      card.querySelector('[data-reminder]').value=r.reminder||'';
+      card.querySelectorAll('[data-secondary-cause]').forEach(x=>x.checked=(r.secondary||[]).includes(x.value));
+      card.querySelector('[data-add-words]').checked=false;card.querySelector('[data-add-phrase]').checked=false;
+    });
+    $('#causePanel').classList.remove('hidden');$('#causePanel').scrollIntoView({behavior:'smooth',block:'start'});
+    $('#cancelReviewEdit').onclick=()=>{editingAttemptId=null;pendingResult=null;$('#causePanel').classList.add('hidden')};
+  }
+  function chatGPTPrompt(title) {
+    const attempts=loadHistory().filter(x=>x.title===title);
+    const lines=attempts.flatMap(a=>Object.entries(a.reviews||{}).map(([q,r])=>{
+      const d=a.questionDetails?.[q]||{};
+      return ['Q'+q,'我的答案：'+(d.userAnswer||'未记录'),'正确答案：'+(d.correctAnswer||'未记录'),'主要错因：'+(r.primary||'未标记'),'次要错因：'+(r.secondary||[]).join('、'),'原文定位：'+(r.evidence||d.transcript||'未补充'),'已有同义替换：'+(r.synonym||'未补充'),'生词：'+(r.newWords||'未补充'),'下次提醒：'+(r.reminder||'未补充')].join('\n');
+    }));
+    return '你是我的雅思听力复盘老师。下面是我在《'+title+'》中的错题复盘，请完成：\n1. 按题号检查我的错因是否准确；\n2. 提取“题干表达 ⇄ 原文表达”的同义替换；\n3. 整理值得加入听力反应卡的生词，并给出中文和简短例句；\n4. 整理值得加入记忆卡的短语；\n5. 总结我反复出现的问题，并给下一次做题前的3条提醒。\n不要编造原文中没有的信息。\n\n'+(lines.join('\n\n')||'这篇暂时没有保存错题，请先提醒我完成复盘。');
+  }
+  async function openChatGPTReview(title) {
+    const prompt=chatGPTPrompt(title);
+    const chatWindow=window.open('https://chatgpt.com/','_blank','noopener');
+    try { await navigator.clipboard.writeText(prompt); }
+    catch (_) { const area=document.createElement('textarea');area.value=prompt;document.body.append(area);area.select();document.execCommand('copy');area.remove(); }
+    alert('这篇复盘内容已经复制。打开 ChatGPT 后直接粘贴发送即可。');
+    if(!chatWindow)location.href='https://chatgpt.com/';
   }
   $('#practiceFolder')?.addEventListener('change', async event => {
     const files = [...(event.target.files || [])].filter(file => !(file.webkitRelativePath || '').startsWith('__MACOSX/') && !/\.DS_Store$/.test(file.name));
@@ -197,6 +244,7 @@
   document.addEventListener('fullscreenchange',()=>{ if(!document.fullscreenElement) $('#practiceFrameWrap')?.classList.remove('fullscreen-test'); });
   window.addEventListener('message', event => {
     if (event.data?.type !== 'ielts-test-result') return;
+    editingAttemptId = null;
     pendingResult = {...event.data, id:'attempt-' + Date.now(), date:new Date().toISOString(), reviews:{}, reviewPlan:[{label:'D+1',due:dayStamp(1),done:false},{label:'D+3',due:dayStamp(3),done:false},{label:'D+7',due:dayStamp(7),done:false}]};
     const wrong = pendingResult.wrongQuestions || [];
     const rate = pendingResult.total ? Math.round(wrong.length / pendingResult.total * 100) : 0;
@@ -225,12 +273,16 @@
     });
     pendingResult.cardsAdded={words:wordsAdded,phrases:phrasesAdded};
     const items = loadHistory();
-    items.unshift(pendingResult);
+    if(editingAttemptId){
+      const index=items.findIndex(x=>x.id===editingAttemptId);
+      if(index>=0)items[index]=pendingResult;else items.unshift(pendingResult);
+    }else items.unshift(pendingResult);
     saveHistory(items.slice(0,200));
     $('#causePanel').classList.add('hidden');
-    pendingResult = null;
+    const wasEditing=Boolean(editingAttemptId);editingAttemptId=null;pendingResult = null;
     activate('analysis');
-    alert('复盘已保存：加入 '+wordsAdded+' 张反应卡、'+phrasesAdded+' 张短语卡。');
+    renderPrivateBank();
+    alert((wasEditing?'修改已保存':'复盘已保存')+'：加入 '+wordsAdded+' 张反应卡、'+phrasesAdded+' 张短语卡。');
   });
   function renderAnalysis() {
     const items = loadHistory();
