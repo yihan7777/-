@@ -12,6 +12,7 @@
   let pendingResult = null;
   let editingAttemptId = null;
   let privatePart = 'P1';
+  let privateVipOnly = false;
   const dbName = 'ielts-private-listening-bank-v1';
   function openDb() {
     return new Promise((resolve,reject) => {
@@ -160,6 +161,11 @@
     if (path.includes('/非高频/')) return '非高频';
     return '高频';
   }
+  function isVipTest(record) { return /\(\s*VIP\s*\)/i.test(String(record?.title || '')); }
+  function testOrder(record) {
+    const match = String(record?.title || '').match(/^\s*(\d+)/);
+    return match ? Number(match[1]) : Number.MAX_SAFE_INTEGER;
+  }
   async function launchTest(htmlText, audioBlob, title, part) {
     if (activeUrl) URL.revokeObjectURL(activeUrl);
     if (activeAudioUrl) URL.revokeObjectURL(activeAudioUrl);
@@ -177,17 +183,23 @@
     const records = await dbAll();
     const history = loadHistory();
     $('#privateBankCount').textContent = records.length ? records.length + ' 篇已保存在本机' : '尚未导入';
-    $('#privatePartTabs').innerHTML = ['P1','P2','P3','P4'].map(part => '<button class="' + (part === privatePart ? 'active' : '') + '" data-private-part="' + part + '">' + part + '（' + records.filter(x=>x.part===part).length + '）</button>').join('');
+    $('#privatePartTabs').innerHTML = ['P1','P2','P3','P4'].map(part => {
+      const count=records.filter(x=>x.part===part&&(!privateVipOnly||isVipTest(x))).length;
+      return '<button class="' + (part === privatePart ? 'active' : '') + '" data-private-part="' + part + '">' + part + '（' + count + '）</button>';
+    }).join('');
     document.querySelectorAll('[data-private-part]').forEach(btn => btn.onclick = () => { privatePart = btn.dataset.privatePart; renderPrivateBank(); });
-    const filtered = records.filter(x => x.part === privatePart).sort((a,b) => (a.frequency+a.title).localeCompare(b.frequency+b.title));
+    const vipCount=records.filter(x=>x.part===privatePart&&isVipTest(x)).length;
+    $('#privateBankFilters').innerHTML='<button class="'+(!privateVipOnly?'active':'')+'" data-private-vip="all">全部题目</button><button class="'+(privateVipOnly?'active':'')+'" data-private-vip="vip">仅看 VIP（'+vipCount+'）</button><span>已按题号从小到大排列</span>';
+    document.querySelectorAll('[data-private-vip]').forEach(btn=>btn.onclick=()=>{privateVipOnly=btn.dataset.privateVip==='vip';renderPrivateBank()});
+    const filtered = records.filter(x => x.part === privatePart && (!privateVipOnly || isVipTest(x))).sort((a,b) => testOrder(a)-testOrder(b) || a.title.localeCompare(b.title,undefined,{numeric:true,sensitivity:'base'}));
     $('#privateTestList').innerHTML = filtered.length ? filtered.map(x => {
       const attempts=history.filter(a=>a.title===x.title);
       const attemptHtml=attempts.length?attempts.map(a=>{
         const wrong=Object.entries(a.reviews||{}).map(([q,r])=>esc('Q'+q+' '+(r.primary||'未标记')+(r.synonym?' · '+r.synonym:''))).join('<br>');
         return '<div class="private-attempt"><div class="private-attempt-head"><span>'+esc(new Date(a.date).toLocaleDateString())+' · '+a.correct+'/'+a.total+'</span><button class="edit-attempt" data-edit-attempt="'+esc(a.id||'')+'">重新编辑</button></div><div class="private-attempt-errors">'+(wrong||'本次没有逐题复盘记录')+'</div></div>';
       }).join(''):'<p class="no-private-errors">完成这篇并保存复盘后，错题会显示在这里。</p>';
-      return '<details class="private-test-entry"><summary><span><b>'+esc(x.title)+'</b><small>'+esc(x.frequency)+' · '+attempts.length+' 次练习</small></span><em>展开 ↓</em></summary><div class="private-test-body"><div class="private-test-actions"><button data-private-test="'+esc(x.id)+'">开始做题</button><button class="chatgpt-review" data-chatgpt-title="'+esc(x.title)+'">复制复盘并打开 ChatGPT</button></div>'+attemptHtml+'</div></details>';
-    }).join('') : '<p>这个部分还没有导入篇目。</p>';
+      return '<details class="private-test-entry"><summary><span><b>'+esc(x.title)+(isVipTest(x)?' <i class="vip-test-badge">VIP</i>':'')+'</b><small>'+esc(x.frequency)+' · '+attempts.length+' 次练习</small></span><em>展开 ↓</em></summary><div class="private-test-body"><div class="private-test-actions"><button data-private-test="'+esc(x.id)+'">开始做题</button><button class="chatgpt-review" data-chatgpt-title="'+esc(x.title)+'">复制复盘并打开 ChatGPT</button></div>'+attemptHtml+'</div></details>';
+    }).join('') : '<p>'+(privateVipOnly?'这个部分暂时没有标记为 VIP 的题目。':'这个部分还没有导入篇目。')+'</p>';
     document.querySelectorAll('[data-private-test]').forEach(btn => btn.onclick = async () => {
       const record = (await dbAll()).find(x => x.id === btn.dataset.privateTest);
       if (record) launchTest(record.html, record.audio, record.title, record.part);
