@@ -12,7 +12,7 @@
   <link rel="stylesheet" href="assets/listening-hub.css?v=1">
   <link rel="stylesheet" href="assets/private-bank.css?v=2">
   <link rel="stylesheet" href="assets/listening-review.css?v=1">
-  <link rel="stylesheet" href="assets/listening-fullscreen.css?v=1">
+  <link rel="stylesheet" href="assets/listening-fullscreen.css?v=2">
   <link rel="stylesheet" href="assets/private-review.css?v=2">
 </head>
 <body>
@@ -268,7 +268,9 @@
       </div>
       <div class="practice-frame-wrap hidden" id="practiceFrameWrap">
         <div class="practice-frame-head"><b id="practiceTitle">真题练习</b><div><button id="fullscreenListeningTest">⛶ 全屏做题</button><button id="closeListeningTest">关闭题目</button></div></div>
+        <nav class="paper-part-nav" id="paperPartNav" aria-label="套题部分切换" hidden></nav>
         <iframe id="practiceFrame" title="IELTS 听力真题练习"></iframe>
+        <div class="paper-frames" id="paperFrames" hidden></div>
       </div>
       <div class="cause-panel hidden" id="causePanel">
         <div class="section-head compact"><div><p class="kicker">ERROR REVIEW</p><h3>本次错因复盘</h3></div><strong id="practiceScore"></strong></div>
@@ -350,7 +352,7 @@
   <script src="assets/listening.js?v=7" defer></script>
   <script src="assets/dictation.js?v=2" defer></script>
   <script src="assets/mnemonic.js?v=3" defer></script>
-  <script src="assets/listening-hub.js?v=7" defer></script>
+  <script src="assets/listening-hub.js?v=8" defer></script>
   <script src="assets/overview.js?v=3" defer></script>
   <script src="assets/ui.js?v=1" defer></script>
   <script src="assets/training.js?v=7" defer></script>
