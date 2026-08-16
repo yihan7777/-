@@ -14,6 +14,7 @@
   <link rel="stylesheet" href="assets/listening-review.css?v=1">
   <link rel="stylesheet" href="assets/listening-fullscreen.css?v=2">
   <link rel="stylesheet" href="assets/private-review.css?v=2">
+  <link rel="stylesheet" href="assets/writing-mock.css?v=1">
 </head>
 <body>
   <header class="hero">
@@ -112,7 +113,11 @@
       </details>
     </section>
 
-    <section class="section tool-section" id="typing" data-page-section="writing" hidden>
+    <section class="section writing-mode-head" data-page-section="writing" hidden>
+      <div class="section-head"><div><p class="kicker">IELTS WRITING STUDIO</p><h2>作文训练中心</h2></div><p class="aside">真题计时模拟与范文打字训练分开保存。</p></div>
+      <nav class="writing-mode-tabs"><button class="active" data-writing-mode="mock">真题模拟考试</button><button data-writing-mode="typing">范文打字训练</button></nav>
+    </section>
+    <section class="section tool-section" id="typing" data-page-section="writing" data-writing-view="typing" hidden>
       <div class="section-head">
         <div><p class="kicker">WRITING MUSCLE MEMORY</p><h2>作文打字训练</h2></div>
         <p class="aside">粘贴优秀范文，逐句准确复刻。完成后自动归纳拼写错误、漏词、多打词，并筛选值得积累的表达与句式。</p>
@@ -148,6 +153,29 @@
       <div class="essay-memory">
         <div class="section-head compact"><div><p class="kicker">ESSAY MEMORY</p><h3>作文练习档案</h3></div><p class="aside"><span id="essayArchiveCount">0</span> 篇已保存 · 按作文题目展开</p></div>
         <div id="essayArchive"><p class="empty-report">完成第一篇打字训练后，作文会自动保存在这里。</p></div>
+      </div>
+    </section>
+
+    <section class="section tool-section writing-mock" id="writingMock" data-page-section="writing" data-writing-view="mock" hidden>
+      <div class="writing-bank-view" id="writingBankView">
+        <div class="section-head"><div><p class="kicker">252 REAL TASK 2 QUESTIONS</p><h2>大作文真题模拟</h2></div><p class="aside">选择题目后进入40分钟全真计时；系统持续保存草稿，交卷后立即生成站内批改报告。</p></div>
+        <div class="writing-bank-tools"><input id="writingQuestionSearch" type="search" placeholder="搜索英文题目或中文主题…"><button id="randomWritingQuestion">随机抽一题</button><button id="restoreWritingExam">恢复未完成考试</button></div>
+        <div class="writing-category-tabs" id="writingCategoryTabs"></div>
+        <div class="writing-question-count" id="writingQuestionCount">正在加载题库…</div>
+        <div class="writing-question-list" id="writingQuestionList"></div>
+        <div class="writing-mock-history"><div class="section-head compact"><div><p class="kicker">EXAM HISTORY</p><h3>真题练习记录</h3></div><span id="writingMockHistoryCount">0 次</span></div><div id="writingMockHistory"></div></div>
+      </div>
+      <div class="writing-exam hidden" id="writingExam">
+        <header class="writing-exam-head"><div><span>TASK 2 · 40 MINUTES</span><b id="writingExamTopic"></b></div><strong id="writingExamTimer">40:00</strong><button id="fullscreenWritingExam">⛶ 全屏</button></header>
+        <div class="writing-exam-grid"><article><span class="writing-exam-label">QUESTION</span><p id="writingExamQuestion"></p><small>Write at least 250 words.</small></article><label><span class="writing-exam-label">YOUR RESPONSE</span><textarea id="writingExamInput" spellcheck="true" placeholder="Start writing here…"></textarea><footer><span id="writingExamWords">0 words</span><small id="writingAutosave">草稿自动保存</small></footer></label></div>
+        <div class="writing-exam-actions"><button id="exitWritingExam">退出并保留草稿</button><button class="button primary" id="submitWritingExam">交卷并站内批改</button></div>
+      </div>
+      <div class="writing-review hidden" id="writingReview">
+        <div class="writing-review-head"><div><p class="kicker">WRITING REVIEW</p><h2>批改报告</h2><small id="writingReviewMeta"></small></div><button id="backWritingBank">返回题库</button></div>
+        <article class="writing-original-question"><span>ORIGINAL QUESTION · 原题</span><p id="writingReviewQuestion"></p></article>
+        <div class="writing-band-grid"><article class="overall"><span>站内参考分</span><strong id="writingOverallBand">—</strong><small>非官方成绩</small></article><article><span>Task Response</span><strong id="writingTR">—</strong></article><article><span>Coherence & Cohesion</span><strong id="writingCC">—</strong></article><article><span>Lexical Resource</span><strong id="writingLR">—</strong></article><article><span>Grammar Range & Accuracy</span><strong id="writingGRA">—</strong></article></div>
+        <div class="writing-review-sections"><article><h3>01 · 总体评价</h3><div id="writingOverallFeedback"></div></article><article><h3>02 · 原文与错误标注</h3><div class="annotated-essay" id="writingAnnotatedEssay"></div></article><article><h3>03 · 逐条修改</h3><div id="writingCorrections"></div></article><article><h3>04 · 本题词汇与表达</h3><div id="writingUsefulLanguage"></div></article><article><h3>05 · 下次优先改进</h3><div id="writingNextSteps"></div></article></div>
+        <section class="embedded-ai-review"><div><h3>ChatGPT 深度批改 · 回填到本站</h3><p>复制完整作文和固定批改要求，发给 ChatGPT；再把回复粘贴回来，报告会和本次考试一起保存在站内。</p></div><button id="openWritingAI">复制作文并打开 ChatGPT</button><textarea id="writingAIImport" placeholder="把 ChatGPT 返回的详细批改报告粘贴到这里…"></textarea><button id="saveWritingAI">内嵌保存 AI 批改</button><div id="writingAIReport"></div></section>
       </div>
     </section>
 
@@ -356,5 +384,6 @@
   <script src="assets/overview.js?v=3" defer></script>
   <script src="assets/ui.js?v=1" defer></script>
   <script src="assets/training.js?v=7" defer></script>
+  <script src="assets/writing-mock.js?v=1" defer></script>
 </body>
 </html>
