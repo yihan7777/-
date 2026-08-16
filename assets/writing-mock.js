@@ -5,7 +5,7 @@
   const esc=v=>String(v??'').replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
   const wordList=t=>(String(t).match(/[A-Za-z]+(?:['’-][A-Za-z]+)*/g)||[]);
   const draftKey='ielts-writing-mock-draft-v2',historyKey='ielts-writing-mock-history-v1',modeKey='ielts-writing-mode-v1';
-  let banks={task1:[],task2:[]},task='task2',questions=[],category='全部',theme='全部主题',activeQuestion=null,endAt=0,timer=null,currentSession=null;
+  let banks={task1:[],task2:[]},task='task2',questions=[],category='全部',theme='全部主题',activeQuestion=null,endAt=0,timer=null,currentSession=null,reportPage=0;
   const task2Categories=['全部','观点型','好坏型','比较型','讨论型','报告型','混搭型'];
   const task1Categories=['全部','折线图','柱状图','饼图','表格','地图题','流程图','混合图','图表题'];
   const packCache={};
@@ -142,10 +142,19 @@
     $('#writingCorrections').innerHTML=ai.sentenceCorrections.length?ai.sentenceCorrections.map((x,i)=>`<article class="writing-sentence-correction"><span>${esc(x.type||'逐句修改')} · ${i+1}</span><div><del>${esc(x.original||'原句未提供')}</del><b>→</b><ins>${esc(x.revised||'修改句未提供')}</ins></div><p>${esc(x.reason||'ChatGPT 未单独说明原因')}</p></article>`).join(''):`<div class="writing-legacy-report"><p>这份回复中没有识别到“原句 → 修改句”格式，因此完整内容暂时保留在这里。你可以直接编辑为箭头格式后再次保存。</p><pre>${esc(ai.raw)}</pre></div>`;
     renderLanguage(ai.vocabulary,session);$('#writingRevisedEssay').innerHTML=ai.revisedEssay?`<div>${esc(ai.revisedEssay)}</div>`:'<p class="writing-empty">这份 ChatGPT 回复未识别到独立修改稿；重新使用上方新版提示即可自动生成。</p>';$('#writingNextSteps').innerHTML=ai.nextSteps.length?'<ol>'+ai.nextSteps.map(x=>`<li>${esc(x)}</li>`).join('')+'</ol>':'<p>请查看逐句批改中的完整 ChatGPT 建议。</p>';
   }
+  function showReportPage(index,scroll=false){
+    const pages=$$('#writingReviewPages>article');if(!pages.length)return;reportPage=(index+pages.length)%pages.length;
+    pages.forEach((page,i)=>{page.hidden=i!==reportPage;page.classList.toggle('active',i===reportPage)});$$('[data-writing-report-page]').forEach((b,i)=>b.classList.toggle('active',i===reportPage));$('#writingReviewPageCount').textContent=`${reportPage+1} / ${pages.length}`;
+    if(scroll)$('#writingReviewTabs').scrollIntoView({behavior:'smooth',block:'start'});
+  }
+  function setupReportPager(){
+    const pages=$$('#writingReviewPages>article'),labels=['总体评价','原文错误','逐句批改','词汇表达','修改稿','下次建议'];$('#writingReviewTabs').innerHTML=pages.map((_,i)=>`<button data-writing-report-page="${i}"><b>${String(i+1).padStart(2,'0')}</b>${labels[i]}</button>`).join('');$$('[data-writing-report-page]').forEach(b=>b.onclick=()=>showReportPage(Number(b.dataset.writingReportPage),true));$('#writingReviewPrev').onclick=()=>showReportPage(reportPage-1,true);$('#writingReviewNext').onclick=()=>showReportPage(reportPage+1,true);
+    const box=$('#writingReviewPages');if(!box.dataset.swipeBound){let startX=0;box.addEventListener('touchstart',e=>{startX=e.changedTouches[0].clientX},{passive:true});box.addEventListener('touchend',e=>{const dx=e.changedTouches[0].clientX-startX;if(Math.abs(dx)>55)showReportPage(reportPage+(dx<0?1:-1),true)},{passive:true});box.dataset.swipeBound='1'}showReportPage(0);
+  }
   function renderReport(session){
     currentSession=session;$('#writingBankView').classList.add('hidden');$('#writingExam').classList.add('hidden');$('#writingReview').classList.remove('hidden');
     $('#writingReviewMeta').textContent=`${session.task==='task1'?'Task 1':'Task 2'} · ${session.category} · ${session.words}词 · ${session.minutes}分钟 · ${new Date(session.date).toLocaleString()}`;$('#writingReviewQuestion').textContent=session.question;$('#writingTaskCriterion').textContent=session.task==='task1'?'Task Achievement':'Task Response';
-    const ai=session.aiReport?parseAIReport(session.aiReport,session):null;if(ai)renderAIReport(ai,session);else renderLocalReport(session);$('#writingAIImport').value=session.aiReport||'';$('#removeWritingAI').hidden=!session.aiReport;$('#writingAIReport').innerHTML=session.aiReport?`<details><summary>查看 ChatGPT 原始回复</summary><pre>${esc(session.aiReport)}</pre></details>`:'';
+    const ai=session.aiReport?parseAIReport(session.aiReport,session):null;if(ai)renderAIReport(ai,session);else renderLocalReport(session);$('#writingAIImport').value=session.aiReport||'';$('#removeWritingAI').hidden=!session.aiReport;$('#writingAIReport').innerHTML=session.aiReport?`<details><summary>查看 ChatGPT 原始回复</summary><pre>${esc(session.aiReport)}</pre></details>`:'';setupReportPager();
     $('#writingReview').scrollIntoView({behavior:'smooth',block:'start'});
   }
   function aiPrompt(s){const t1=s.task==='task1';return `你是严格但实用的 IELTS Academic Writing ${t1?'Task 1':'Task 2'} 批改老师。请根据 IELTS 四项标准批改，不要虚高分数。\n\n【题目】\n${s.question}\n\n【考生作文】\n${s.essay}\n\n先输出便于阅读的中文报告，必须包含：1. 总分及 ${t1?'TA':'TR'}/CC/LR/GRA；2. 总体评价；3. 对全文逐句批改，每句都写“原句 → 修改句 → 原因”，并区分“确定错误/搭配/逻辑/风格优化”；4. ${t1?'一版6.5–7分范文，不得编造题图数据':'保留考生原有观点的一版6.5–7分修改稿'}；5. 10个本题表达（中文＋例句）；6. 下次最优先的3条建议。\n\n最后必须另起一段输出下面结构的纯 JSON 代码块，字段不可省略，确保网页可自动识别：\n\`\`\`json\n{"overall":6.5,"taskScore":6.5,"cc":6.5,"lr":6.5,"gra":6.5,"overallFeedback":"总体评价","sentenceCorrections":[{"original":"原句","revised":"修改句","reason":"具体原因","type":"确定错误或风格优化"}],"revisedEssay":"完整修改稿","vocabulary":[{"expression":"表达","meaning":"中文","example":"英文例句"}],"nextSteps":["建议1","建议2","建议3"]}\n\`\`\`\n逐句批改必须覆盖考生全文，不能只挑几句。`;}
