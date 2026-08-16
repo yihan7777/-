@@ -75,6 +75,43 @@
     return date.toISOString().slice(0,10);
   }
   function causeOptions() { return causes.map(c => '<option>' + c + '</option>').join(''); }
+  function parseReviewPaste(raw) {
+    const labels = [
+      ['primary', /^(?:主要错因|错因)\s*[：:]\s*(.*)$/],
+      ['questionType', /^(?:题型)\s*[：:]\s*(.*)$/],
+      ['autoAnalysis', /^(?:系统找到的原文\s*\/\s*解析参考|系统找到的原文|解析参考)\s*[：:]\s*(.*)$/],
+      ['evidence', /^(?:原文定位句|原文定位)\s*[：:]\s*(.*)$/],
+      ['synonym', /^(?:题干\s*(?:⇄|↔|<->)\s*原文同义替换|同义替换)\s*[：:]\s*(.*)$/],
+      ['newWords', /^(?:本题生词|生词)\s*[：:]\s*(.*)$/],
+      ['reminder', /^(?:下次看到什么要警觉[？?]?|下次提醒|提醒)\s*[：:]\s*(.*)$/]
+    ];
+    const result = {}; let current = '';
+    String(raw || '').split(/\r?\n/).forEach(source => {
+      const line = source.trim().replace(/^[-*•]\s*/, '').replace(/\*\*/g, '');
+      if (!line) return;
+      const found = labels.map(([key, pattern]) => [key, line.match(pattern)]).find(([, match]) => match);
+      if (found) { current = found[0]; result[current] = found[1][1].trim(); }
+      else if (current) result[current] = [result[current], line].filter(Boolean).join('\n');
+    });
+    return result;
+  }
+  function importReviewPaste(card) {
+    const parsed = parseReviewPaste(card.querySelector('[data-review-paste]')?.value || '');
+    const fields = {questionType:'[data-question-type]',autoAnalysis:'[data-auto-analysis]',evidence:'[data-evidence]',synonym:'[data-synonym]',newWords:'[data-new-words]',reminder:'[data-reminder]'};
+    let count = 0;
+    if (parsed.primary) {
+      const select = card.querySelector('[data-primary-cause]');
+      select.value = causes.find(c => parsed.primary.includes(c)) || '其他'; count++;
+    }
+    Object.entries(fields).forEach(([key, selector]) => {
+      if (!parsed[key]) return;
+      const input = card.querySelector(selector);
+      if (input) { input.value = parsed[key]; count++; }
+    });
+    const status = card.querySelector('[data-paste-status]');
+    status.textContent = count ? '✓ 已自动填入 ' + count + ' 项，你可以继续逐项修改。' : '没有识别到字段，请保留“主要错因：”“题型：”等标题后重试。';
+    status.classList.toggle('bad', !count);
+  }
   function reviewCard(q, detail={}) {
     const analysisText=String(detail.analysis||'');
     const synonymMatch=analysisText.match(/[^。；\n]{2,80}\s*(?:=|→|⇄)\s*[^。；\n]{2,80}/);
@@ -82,10 +119,11 @@
     const wordCandidate=/^[A-Za-z][A-Za-z' -]{2,}$/.test(String(detail.correctAnswer||''))?detail.correctAnswer:'';
     return '<details class="wrong-review-card" data-wrong-q="' + esc(q) + '"><summary><b>第 ' + esc(q) + ' 题</b><span>展开查看答案、解析与卡片选项 ↓</span></summary><div class="wrong-review-body">' +
       '<div class="answer-compare"><div><span>你的答案</span><b>' + esc(detail.userAnswer||'—') + '</b></div><div><span>正确答案</span><b>' + esc(detail.correctAnswer||'—') + '</b></div></div>' +
+      '<div class="review-paste-box"><b>整段粘贴，自动拆分</b><p>把 ChatGPT 生成的完整错题分析直接粘贴到这里。</p><textarea data-review-paste placeholder="主要错因：同义替换没反应\n题型：填空题\n系统找到的原文 / 解析参考：…\n原文定位句：…\n题干 ⇄ 原文同义替换：…\n本题生词：…\n下次看到什么要警觉？：…"></textarea><button type="button" data-import-review>自动填入下面各项</button><small data-paste-status></small></div>' +
       '<label>主要错因<select data-primary-cause>' + causeOptions() + '</select></label>' +
       '<div class="secondary-causes">' + causes.map(c => '<label><input type="checkbox" data-secondary-cause value="' + esc(c) + '">' + esc(c) + '</label>').join('') + '</div>' +
       '<label>题型<select data-question-type><option>填空题</option><option>单选题</option><option>多选题</option><option>匹配题</option><option>地图题</option></select></label>' +
-      '<label>系统找到的原文/解析参考<textarea data-auto-analysis readonly>' + esc([detail.transcript,detail.analysis].filter(Boolean).join('\n')) + '</textarea></label>' +
+      '<label>系统找到的原文/解析参考<textarea data-auto-analysis>' + esc(detail.autoAnalysis||[detail.transcript,detail.analysis].filter(Boolean).join('\n')) + '</textarea></label>' +
       '<label>原文定位句<textarea data-evidence placeholder="保留真正决定答案的一句">' + esc(detail.transcript||'') + '</textarea></label>' +
       '<label>题干 ⇄ 原文同义替换<input data-synonym value="' + esc(synonymCandidate) + '" placeholder="例如：keep an open mind = be flexible"></label>' +
       '<label>本题生词（多个词用逗号或换行分隔）<textarea data-new-words placeholder="例如：intersection, utilitarian">' + esc(wordCandidate) + '</textarea></label>' +
@@ -167,6 +205,7 @@
       const card=document.querySelector('[data-wrong-q="'+CSS.escape(String(q))+'"]'),r=pendingResult.reviews?.[q];if(!card||!r)return;
       card.querySelector('[data-primary-cause]').value=r.primary||causes[0];
       card.querySelector('[data-question-type]').value=r.questionType||'填空题';
+      card.querySelector('[data-auto-analysis]').value=r.autoAnalysis||pendingResult.questionDetails?.[q]?.autoAnalysis||[pendingResult.questionDetails?.[q]?.transcript,pendingResult.questionDetails?.[q]?.analysis].filter(Boolean).join('\n');
       card.querySelector('[data-evidence]').value=r.evidence||'';
       card.querySelector('[data-synonym]').value=r.synonym||'';
       card.querySelector('[data-new-words]').value=r.newWords||'';
@@ -177,11 +216,15 @@
     $('#causePanel').classList.remove('hidden');$('#causePanel').scrollIntoView({behavior:'smooth',block:'start'});
     $('#cancelReviewEdit').onclick=()=>{editingAttemptId=null;pendingResult=null;$('#causePanel').classList.add('hidden')};
   }
+  document.addEventListener('click', event => {
+    const button = event.target.closest('[data-import-review]');
+    if (button) importReviewPaste(button.closest('[data-wrong-q]'));
+  });
   function chatGPTPrompt(title) {
     const attempts=loadHistory().filter(x=>x.title===title);
     const lines=attempts.flatMap(a=>Object.entries(a.reviews||{}).map(([q,r])=>{
       const d=a.questionDetails?.[q]||{};
-      return ['Q'+q,'我的答案：'+(d.userAnswer||'未记录'),'正确答案：'+(d.correctAnswer||'未记录'),'主要错因：'+(r.primary||'未标记'),'次要错因：'+(r.secondary||[]).join('、'),'原文定位：'+(r.evidence||d.transcript||'未补充'),'已有同义替换：'+(r.synonym||'未补充'),'生词：'+(r.newWords||'未补充'),'下次提醒：'+(r.reminder||'未补充')].join('\n');
+      return ['Q'+q,'我的答案：'+(d.userAnswer||'未记录'),'正确答案：'+(d.correctAnswer||'未记录'),'主要错因：'+(r.primary||'未标记'),'次要错因：'+(r.secondary||[]).join('、'),'系统找到的原文 / 解析参考：'+(r.autoAnalysis||d.analysis||'未补充'),'原文定位：'+(r.evidence||d.transcript||'未补充'),'已有同义替换：'+(r.synonym||'未补充'),'生词：'+(r.newWords||'未补充'),'下次提醒：'+(r.reminder||'未补充')].join('\n');
     }));
     return '你是我的雅思听力复盘老师。下面是我在《'+title+'》中的错题复盘，请完成：\n1. 按题号检查我的错因是否准确；\n2. 提取“题干表达 ⇄ 原文表达”的同义替换；\n3. 整理值得加入听力反应卡的生词，并给出中文和简短例句；\n4. 整理值得加入记忆卡的短语；\n5. 总结我反复出现的问题，并给下一次做题前的3条提醒。\n不要编造原文中没有的信息。\n\n'+(lines.join('\n\n')||'这篇暂时没有保存错题，请先提醒我完成复盘。');
   }
@@ -262,6 +305,7 @@
         primary:card.querySelector('[data-primary-cause]').value,
         secondary:[...card.querySelectorAll('[data-secondary-cause]:checked')].map(x=>x.value),
         questionType:card.querySelector('[data-question-type]').value,
+        autoAnalysis:card.querySelector('[data-auto-analysis]').value.trim(),
         evidence:card.querySelector('[data-evidence]').value.trim(),
         synonym:card.querySelector('[data-synonym]').value.trim(),
         newWords:card.querySelector('[data-new-words]').value.trim(),
