@@ -13,6 +13,9 @@
   let editingAttemptId = null;
   let privatePart = 'P1';
   let privateVipOnly = false;
+  let paperSelection = new Set();
+  let paperQueue = [];
+  let paperIndex = -1;
   const dbName = 'ielts-private-listening-bank-v1';
   function openDb() {
     return new Promise((resolve,reject) => {
@@ -166,6 +169,32 @@
     const match = String(record?.title || '').match(/^\s*(\d+)/);
     return match ? Number(match[1]) : Number.MAX_SAFE_INTEGER;
   }
+  function sortPaper(records) {
+    const partOrder={P1:1,P2:2,P3:3,P4:4};
+    return [...records].sort((a,b)=>(partOrder[a.part]||9)-(partOrder[b.part]||9)||testOrder(a)-testOrder(b)||a.title.localeCompare(b.title,undefined,{numeric:true}));
+  }
+  function renderPaperBuilder(records) {
+    const selected=sortPaper(records.filter(x=>paperSelection.has(x.id)));
+    $('#paperBuilder').innerHTML='<div class="paper-builder-head"><div><b>组卷做套题</b><small>手动加入，或一键从 P1–P4 各抽一篇</small></div><strong>'+selected.length+' 篇</strong></div><div class="paper-builder-actions"><button data-random-paper>随机完整套题</button><button data-start-paper '+(selected.length?'':'disabled')+'>开始套题</button><button data-clear-paper '+(selected.length?'':'disabled')+'>清空</button></div><div class="paper-selected-strip">'+(selected.length?selected.map((x,i)=>'<span><i>'+x.part+'</i>'+(i+1)+'. '+esc(x.title)+'<button data-remove-paper="'+esc(x.id)+'" aria-label="移除">×</button></span>').join(''):'<p>还没有选题。你可以在题目下方点击“加入组卷”。</p>')+'</div>';
+    document.querySelector('[data-random-paper]').onclick=()=>{
+      const chosen=[];
+      for(const part of ['P1','P2','P3','P4']){
+        const pool=records.filter(x=>x.part===part&&(!privateVipOnly||isVipTest(x)));
+        if(!pool.length)return alert(part+' 没有可用题目，请先导入该部分或关闭“仅看 VIP”。');
+        chosen.push(pool[Math.floor(Math.random()*pool.length)]);
+      }
+      paperSelection=new Set(chosen.map(x=>x.id));renderPrivateBank();
+    };
+    document.querySelector('[data-start-paper]').onclick=()=>startPaper(records);
+    document.querySelector('[data-clear-paper]').onclick=()=>{paperSelection.clear();renderPrivateBank()};
+    document.querySelectorAll('[data-remove-paper]').forEach(btn=>btn.onclick=()=>{paperSelection.delete(btn.dataset.removePaper);renderPrivateBank()});
+  }
+  async function startPaper(records) {
+    paperQueue=sortPaper(records.filter(x=>paperSelection.has(x.id)));
+    if(!paperQueue.length)return;
+    paperIndex=0;
+    await launchTest(paperQueue[0].html,paperQueue[0].audio,paperQueue[0].title,paperQueue[0].part);
+  }
   async function launchTest(htmlText, audioBlob, title, part) {
     if (activeUrl) URL.revokeObjectURL(activeUrl);
     if (activeAudioUrl) URL.revokeObjectURL(activeAudioUrl);
@@ -174,7 +203,7 @@
     const source = injectBridge(htmlText, activeAudioUrl, title, part);
     activeUrl = URL.createObjectURL(new Blob([source], {type:'text/html'}));
     $('#practiceFrame').src = activeUrl;
-    $('#practiceTitle').textContent = part + ' · ' + title;
+    $('#practiceTitle').textContent = paperQueue.length&&paperIndex>=0 ? '套题 '+(paperIndex+1)+'/'+paperQueue.length+' · '+part+' · '+title : part + ' · ' + title;
     $('#practiceFrameWrap').classList.remove('hidden');
     $('#causePanel').classList.add('hidden');
     $('#practiceFrameWrap').scrollIntoView({behavior:'smooth',block:'start'});
@@ -191,6 +220,7 @@
     const vipCount=records.filter(x=>x.part===privatePart&&isVipTest(x)).length;
     $('#privateBankFilters').innerHTML='<button class="'+(!privateVipOnly?'active':'')+'" data-private-vip="all">全部题目</button><button class="'+(privateVipOnly?'active':'')+'" data-private-vip="vip">仅看 VIP（'+vipCount+'）</button><span>已按题号从小到大排列</span>';
     document.querySelectorAll('[data-private-vip]').forEach(btn=>btn.onclick=()=>{privateVipOnly=btn.dataset.privateVip==='vip';renderPrivateBank()});
+    renderPaperBuilder(records);
     const filtered = records.filter(x => x.part === privatePart && (!privateVipOnly || isVipTest(x))).sort((a,b) => testOrder(a)-testOrder(b) || a.title.localeCompare(b.title,undefined,{numeric:true,sensitivity:'base'}));
     $('#privateTestList').innerHTML = filtered.length ? filtered.map(x => {
       const attempts=history.filter(a=>a.title===x.title);
@@ -198,12 +228,13 @@
         const wrong=Object.entries(a.reviews||{}).map(([q,r])=>esc('Q'+q+' '+(r.primary||'未标记')+(r.synonym?' · '+r.synonym:''))).join('<br>');
         return '<div class="private-attempt"><div class="private-attempt-head"><span>'+esc(new Date(a.date).toLocaleDateString())+' · '+a.correct+'/'+a.total+'</span><button class="edit-attempt" data-edit-attempt="'+esc(a.id||'')+'">重新编辑</button></div><div class="private-attempt-errors">'+(wrong||'本次没有逐题复盘记录')+'</div></div>';
       }).join(''):'<p class="no-private-errors">完成这篇并保存复盘后，错题会显示在这里。</p>';
-      return '<details class="private-test-entry"><summary><span><b>'+esc(x.title)+(isVipTest(x)?' <i class="vip-test-badge">VIP</i>':'')+'</b><small>'+esc(x.frequency)+' · '+attempts.length+' 次练习</small></span><em>展开 ↓</em></summary><div class="private-test-body"><div class="private-test-actions"><button data-private-test="'+esc(x.id)+'">开始做题</button><button class="chatgpt-review" data-chatgpt-title="'+esc(x.title)+'">复制复盘并打开 ChatGPT</button></div>'+attemptHtml+'</div></details>';
+      return '<details class="private-test-entry"><summary><span><b>'+esc(x.title)+(isVipTest(x)?' <i class="vip-test-badge">VIP</i>':'')+'</b><small>'+esc(x.frequency)+' · '+attempts.length+' 次练习</small></span><em>展开 ↓</em></summary><div class="private-test-body"><div class="private-test-actions"><button data-private-test="'+esc(x.id)+'">开始做题</button><button class="'+(paperSelection.has(x.id)?'paper-added':'')+'" data-add-paper="'+esc(x.id)+'">'+(paperSelection.has(x.id)?'✓ 已加入组卷':'＋ 加入组卷')+'</button><button class="chatgpt-review" data-chatgpt-title="'+esc(x.title)+'">复制复盘并打开 ChatGPT</button></div>'+attemptHtml+'</div></details>';
     }).join('') : '<p>'+(privateVipOnly?'这个部分暂时没有标记为 VIP 的题目。':'这个部分还没有导入篇目。')+'</p>';
     document.querySelectorAll('[data-private-test]').forEach(btn => btn.onclick = async () => {
       const record = (await dbAll()).find(x => x.id === btn.dataset.privateTest);
-      if (record) launchTest(record.html, record.audio, record.title, record.part);
+      if (record) { paperQueue=[];paperIndex=-1;launchTest(record.html, record.audio, record.title, record.part); }
     });
+    document.querySelectorAll('[data-add-paper]').forEach(btn=>btn.onclick=()=>{paperSelection.has(btn.dataset.addPaper)?paperSelection.delete(btn.dataset.addPaper):paperSelection.add(btn.dataset.addPaper);renderPrivateBank()});
     document.querySelectorAll('[data-edit-attempt]').forEach(btn=>btn.onclick=()=>openAttemptEditor(btn.dataset.editAttempt));
     document.querySelectorAll('[data-chatgpt-title]').forEach(btn=>btn.onclick=()=>openChatGPTReview(btn.dataset.chatgptTitle));
   }
@@ -274,6 +305,7 @@
     if (!htmlFile || !audioFile) { status('需要同时选择同一篇的 HTML 题目和 audio.mp3。', true); return; }
     const title = htmlFile.name.replace(/\.html$/i,'');
     const part = inferPart(title);
+    paperQueue=[];paperIndex=-1;
     await launchTest(await htmlFile.text(), audioFile, title, part);
     status('✓ 题目已在本机打开。完成后请点击题目页面底部的 Finish。');
   });
@@ -284,6 +316,7 @@
     status('本机私人题库已清除。');
   });
   $('#closeListeningTest')?.addEventListener('click', () => {
+    paperQueue=[];paperIndex=-1;
     $('#practiceFrameWrap').classList.remove('fullscreen-test');
     $('#practiceFrameWrap').classList.add('hidden');
     $('#practiceFrame').src = 'about:blank';
@@ -305,10 +338,11 @@
     const rate = pendingResult.total ? Math.round(wrong.length / pendingResult.total * 100) : 0;
     $('#practiceScore').textContent = pendingResult.correct + '/' + pendingResult.total + ' · 错误率 ' + rate + '%';
     $('#causeQuestions').innerHTML = wrong.length ? wrong.map(q=>reviewCard(q,pendingResult.questionDetails?.[q]||{})).join('') : '<p>本篇全部正确，无需标记错因。</p>';
+    $('#saveTestAnalysis').textContent=paperQueue.length&&paperIndex<paperQueue.length-1?'保存复盘并进入下一篇':'保存本次复盘';
     $('#causePanel').classList.remove('hidden');
     $('#causePanel').scrollIntoView({behavior:'smooth',block:'start'});
   });
-  $('#saveTestAnalysis')?.addEventListener('click', () => {
+  $('#saveTestAnalysis')?.addEventListener('click', async () => {
     if (!pendingResult) return;
     let wordsAdded=0,phrasesAdded=0;
     document.querySelectorAll('[data-wrong-q]').forEach(card => {
@@ -336,9 +370,18 @@
     saveHistory(items.slice(0,200));
     $('#causePanel').classList.add('hidden');
     const wasEditing=Boolean(editingAttemptId);editingAttemptId=null;pendingResult = null;
-    activate('analysis');
     renderPrivateBank();
-    alert((wasEditing?'修改已保存':'复盘已保存')+'：加入 '+wordsAdded+' 张反应卡、'+phrasesAdded+' 张短语卡。');
+    if(!wasEditing&&paperQueue.length&&paperIndex<paperQueue.length-1){
+      paperIndex++;
+      const next=paperQueue[paperIndex];
+      alert('本篇复盘已保存。接下来进入 '+next.part+'（'+(paperIndex+1)+'/'+paperQueue.length+'）。');
+      await launchTest(next.html,next.audio,next.title,next.part);
+    }else{
+      const paperFinished=!wasEditing&&paperQueue.length>0;
+      paperQueue=[];paperIndex=-1;
+      activate('analysis');
+      alert((paperFinished?'整套题已完成并保存':wasEditing?'修改已保存':'复盘已保存')+'：加入 '+wordsAdded+' 张反应卡、'+phrasesAdded+' 张短语卡。');
+    }
   });
   function renderAnalysis() {
     const items = loadHistory();
