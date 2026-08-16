@@ -51,7 +51,7 @@ Promise.all(['data/plan.json','data/topics.json','data/part1.json','data/progres
 
   const filters = ['ALL',...Object.keys(clusterMeta)]; let active='ALL';
   $('#filters').innerHTML = filters.map(x=>`<button class="filter ${x==='ALL'?'active':''}" data-filter="${x}">${x==='ALL'?'全部':x+' · '+clusterMeta[x].name}</button>`).join('');
-  function render(){const q=$('#search').value.toLowerCase(); const rows=topics.filter(t=>(active==='ALL'||t.cluster===active)&&(`${t.title_zh} ${t.cue}`.toLowerCase().includes(q))); $('#topicList').innerHTML=rows.map(t=>`<article class="topic"><code>${t.id} · ${t.cluster}</code><h3>${t.title_zh}</h3><p>${t.cue}</p><details><summary>查看 Part 3</summary>${list(t.part3.slice(0,8))}</details></article>`).join('')||'<p>没有匹配题目。</p>'}
+  function render(){const q=$('#search').value.toLowerCase(); const rows=topics.filter(t=>(active==='ALL'||t.cluster===active)&&(`${t.title_zh} ${t.cue}`.toLowerCase().includes(q))); $('#topicList').innerHTML=rows.map(t=>`<article class="topic" data-topic-id="${t.id}"><code>${t.id} · ${t.cluster}</code><h3>${t.title_zh}</h3><p>${t.cue}</p><details><summary>查看 Part 3</summary>${list(t.part3.slice(0,8))}</details><button class="start-speaking-topic" data-start-topic="${t.id}">开始逐题练习 →</button></article>`).join('')||'<p>没有匹配题目。</p>'}
   $('#filters').addEventListener('click',e=>{if(!e.target.dataset.filter)return;active=e.target.dataset.filter;document.querySelectorAll('.filter').forEach(x=>x.classList.toggle('active',x===e.target));render()});
   $('#search').addEventListener('input',render); render();
 
