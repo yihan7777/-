@@ -15,6 +15,7 @@
   <link rel="stylesheet" href="assets/listening-fullscreen.css?v=2">
   <link rel="stylesheet" href="assets/private-review.css?v=2">
   <link rel="stylesheet" href="assets/writing-mock.css?v=2">
+  <link rel="stylesheet" href="assets/speaking-center.css?v=1">
 </head>
 <body>
   <header class="hero">
@@ -32,13 +33,12 @@
   <div class="app-tabs-shell">
     <nav class="app-tabs" aria-label="学习板块切换">
       <button class="active" data-page="home">今日</button>
-      <button data-page="stories">串题</button>
+      <button data-page="speaking">口语</button>
       <button data-page="vocabulary">词汇</button>
       <button data-page="writing">作文</button>
       <button data-page="listening-hub">听力</button>
       <button data-page="reading">阅读</button>
       <button data-page="plan">计划</button>
-      <button data-page="library">题库</button>
     </nav>
   </div>
 
@@ -66,7 +66,12 @@
       </div>
     </section>
 
-    <section class="section" id="clusters" data-page-section="stories" hidden>
+    <section class="section speaking-center-head" data-page-section="speaking" data-speaking-view="all" hidden>
+      <div class="section-head"><div><p class="kicker">IELTS SPEAKING STUDIO</p><h2>口语训练中心</h2></div><p class="aside">题库、串题素材、录音练习和反馈记录集中在一个板块内，不再来回切换。</p></div>
+      <nav class="speaking-page-tabs"><button class="active" data-speaking-page="bank">全部题库</button><button data-speaking-page="materials">串题素材</button><button data-speaking-page="practice">录音练习</button><button data-speaking-page="history">练习记录</button></nav>
+    </section>
+
+    <section class="section" id="clusters" data-page-section="speaking" data-speaking-view="materials" hidden>
       <div class="section-head"><div><p class="kicker">TRANSFER SYSTEM</p><h2>4 大串题素材模块</h2></div><p class="aside">人物、地点、经历和物品四条主线。先掌握自己的真实素材，再根据题眼迁移。</p></div>
       <div class="cluster-grid" id="clusterGrid"></div>
       <div class="materials-library" id="materialsLibrary"></div>
@@ -369,10 +374,26 @@
       <div class="timeline" id="timeline"></div>
     </section>
 
-    <section class="section" id="library" data-page-section="library" hidden>
-      <div class="section-head"><div><p class="kicker">QUESTION LIBRARY</p><h2>Part 2 & 3 题库</h2></div><input id="search" type="search" placeholder="搜索中文题名或英文题目…"></div>
+    <section class="section speaking-bank" id="library" data-page-section="speaking" data-speaking-view="bank" hidden>
+      <div class="section-head"><div><p class="kicker">QUESTION LIBRARY</p><h2>本季口语题库</h2><small>32 个 Part 1 主题 · 49 道 Part 2/3 串题</small></div><input id="search" type="search" placeholder="搜索中文题名或英文题目…"></div>
+      <nav class="speaking-bank-tabs"><button class="active" data-speaking-bank="part2">Part 2 & 3（49）</button><button data-speaking-bank="part1">Part 1（32）</button><button data-speaking-bank="all">全部（81）</button></nav>
       <div class="filters" id="filters"></div>
+      <div class="speaking-p1-list hidden" id="speakingP1List"></div>
       <div class="topic-list" id="topicList"></div>
+    </section>
+
+    <section class="section speaking-practice" id="speakingPractice" data-page-section="speaking" data-speaking-view="practice" hidden>
+      <div class="speaking-session-head"><button id="backSpeakingBank">← 返回题库</button><div><span id="speakingPartLabel">PART 1</span><b id="speakingPracticeTitle">选择一道题开始练习</b></div><small id="speakingQuestionProgress">—</small></div>
+      <div class="speaking-practice-grid">
+        <article class="speaking-question-pane"><span>QUESTION</span><h3 id="speakingQuestionText">请先从题库选择一个主题。</h3><div id="speakingCueBullets"></div><div class="speaking-question-nav"><button id="prevSpeakingQuestion">← 上一题</button><button id="nextSpeakingQuestion">下一题 →</button></div></article>
+        <article class="speaking-response-pane"><span>YOUR RESPONSE</span><div class="speaking-clock"><strong id="speakingClock">00:00</strong><i id="speakingMeter"></i><small id="speakingRecorderStatus">准备录音</small></div><div class="speaking-record-actions"><button class="primary" id="startSpeakingRecording">● 开始录音</button><button id="stopSpeakingRecording" disabled>■ 停止</button></div><audio id="speakingPlayback" controls hidden></audio><label><span>答案转写（可修改）</span><textarea id="speakingTranscript" placeholder="设备支持时会尝试自动转写；也可以把 ChatGPT Live 的转写粘贴到这里。"></textarea></label><label><span>练习备注（可选）</span><textarea id="speakingNotes" placeholder="例如：Part 3 第2题卡住；environmental regulation 不熟……"></textarea></label><button class="save-speaking" id="saveSpeakingAttempt">保存并生成反馈 →</button></article>
+      </div>
+      <section class="speaking-feedback hidden" id="speakingFeedback"><div class="section-head compact"><div><p class="kicker">SPEAKING REVIEW</p><h3>当前题 · 转写与纠错结果</h3></div><button id="copySpeakingAI">复制并打开 ChatGPT 深度批改</button></div><h4 id="speakingFeedbackQuestion"></h4><div class="speaking-feedback-stats" id="speakingFeedbackStats"></div><div class="speaking-feedback-body"><article><h4>即时表达反馈</h4><div id="speakingRuleFeedback"></div></article><article><h4>可积累表达</h4><div id="speakingExtractedLanguage"></div></article></div><div class="speaking-ai-import"><textarea id="speakingAIImport" placeholder="把 ChatGPT 的详细批改粘贴回来……"></textarea><button id="saveSpeakingAI">保存 AI 反馈到本次记录</button><div id="speakingAIReport"></div></div></section>
+    </section>
+
+    <section class="section speaking-history" id="speakingHistorySection" data-page-section="speaking" data-speaking-view="history" hidden>
+      <div class="section-head"><div><p class="kicker">PRACTICE HISTORY</p><h2>口语练习记录</h2></div><button id="clearSpeakingHistory">清空记录</button></div>
+      <div class="speaking-history-summary" id="speakingHistorySummary"></div><div id="speakingHistoryList"></div>
     </section>
   </main>
 
@@ -387,5 +408,6 @@
   <script src="assets/ui.js?v=1" defer></script>
   <script src="assets/training.js?v=7" defer></script>
   <script src="assets/writing-mock.js?v=2" defer></script>
+  <script src="assets/speaking-center.js?v=1" defer></script>
 </body>
 </html>
