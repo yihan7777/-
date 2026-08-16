@@ -17,7 +17,8 @@
   function records(module, data) {
     if (module === 'memory') {
       const state = read('ielts-speaking-vocabulary-v1', {});
-      return data.vocab.map(card => ({id:card.id, title:card.front, meta:card.meaning, state:state[card.id] || {}}));
+      const custom = read('ielts-speaking-vocabulary-custom-v1', []);
+      return [...data.vocab,...custom].map(card => ({id:card.id, title:card.front, meta:card.meaning, state:state[card.id] || {}}));
     }
     if (module === 'listening') {
       const state = read('ielts-listening-state-v1', {});

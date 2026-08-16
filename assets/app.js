@@ -15,6 +15,16 @@ const shanghaiToday = () => {
 const list = (items, empty='今天无此项') => items.length ? `<ul>${items.map(x=>`<li>${x}</li>`).join('')}</ul>` : `<p>${empty}</p>`;
 
 Promise.all(['data/plan.json','data/topics.json','data/part1.json','data/progress.json','data/vocabulary.json','data/story-materials.json'].map(x=>fetch(`${x}?v=5`,{cache:'no-store'}).then(r=>{if(!r.ok)throw new Error(`${x} (${r.status})`);return r.json()}))).then(([plan,topics,part1,progress,vocabulary,storyMaterials])=>{
+  const VOCAB_CUSTOM='ielts-speaking-vocabulary-custom-v1';
+  let customVocabulary=[];try{customVocabulary=JSON.parse(localStorage.getItem(VOCAB_CUSTOM)||'[]')}catch(_){}
+  const knownVocabulary=new Set(vocabulary.map(x=>String(x.front).toLowerCase().trim()));
+  customVocabulary.forEach(card=>{if(!knownVocabulary.has(String(card.front).toLowerCase().trim()))vocabulary.push(card)});
+  window.addIELTSVocabularyCard=item=>{
+    const front=String(item.front||'').trim();if(!front)return false;
+    const key=front.toLowerCase();if(vocabulary.some(x=>String(x.front).toLowerCase().trim()===key))return false;
+    const card={id:'VC-'+Date.now()+'-'+Math.random().toString(36).slice(2,7),category:item.category||'固定句型',front,meaning:item.meaning||'含义待补充',example:item.example||'',note:item.note||'来自听力真题复盘'};
+    customVocabulary.push(card);vocabulary.push(card);localStorage.setItem(VOCAB_CUSTOM,JSON.stringify(customVocabulary));return true;
+  };
   const todayISO = shanghaiToday();
   const today = plan.days.find(d=>d.date===todayISO) || plan.days.find(d=>d.date>=todayISO) || plan.days[plan.days.length-1];
   const topicMap = Object.fromEntries(topics.map(t=>[t.id,t]));

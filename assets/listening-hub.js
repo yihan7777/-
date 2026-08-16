@@ -50,19 +50,46 @@
   function esc(value) { return String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
   function loadHistory() { try { return JSON.parse(localStorage.getItem(historyKey) || '[]'); } catch (_) { return []; } }
   function saveHistory(items) { try { localStorage.setItem(historyKey, JSON.stringify(items)); } catch (_) {} }
+  function addReactionWords(raw, title, q) {
+    const words=String(raw||'').split(/[\n,，、;；]+/).map(x=>x.trim()).filter(Boolean);
+    if(!words.length)return 0;
+    let custom=[];try{custom=JSON.parse(localStorage.getItem('ielts-listening-custom-v1')||'[]')}catch(_){}
+    const known=new Set(custom.map(x=>String(x.word).toLowerCase().replace(/[^a-z]/g,'')));let added=0;
+    words.forEach(word=>{const key=word.toLowerCase().replace(/[^a-z]/g,'');if(!key||known.has(key))return;custom.push({id:'LC-'+Date.now()+'-'+added,word,meaning:'来自真题复盘，中文待补充',example:'Listen for “'+word+'” in '+title+' (Q'+q+').'});known.add(key);added++});
+    localStorage.setItem('ielts-listening-custom-v1',JSON.stringify(custom));
+    if(added)window.dispatchEvent(new CustomEvent('ielts-listening-cards-added',{detail:{cards:custom.slice(-added)}}));
+    return added;
+  }
+  function addPhraseCard(text,evidence,title,q) {
+    const phrase=String(text||'').trim();if(!phrase)return 0;
+    const parts=phrase.split(/\s*(?:=|→|⇄)\s*/);const front=parts[0],meaning=parts.slice(1).join(' = ')||'听力同义替换，含义待补充';
+    const item={category:'固定句型',front,meaning,example:evidence||'',note:'听力真题复盘 · '+title+' · Q'+q};
+    if(window.addIELTSVocabularyCard)return window.addIELTSVocabularyCard(item)?1:0;
+    let custom=[];try{custom=JSON.parse(localStorage.getItem('ielts-speaking-vocabulary-custom-v1')||'[]')}catch(_){}
+    if(custom.some(x=>String(x.front).toLowerCase()===front.toLowerCase()))return 0;
+    custom.push({id:'VC-'+Date.now(),...item});localStorage.setItem('ielts-speaking-vocabulary-custom-v1',JSON.stringify(custom));return 1;
+  }
   function dayStamp(offset=0) {
     const date = new Date(); date.setHours(0,0,0,0); date.setDate(date.getDate()+offset);
     return date.toISOString().slice(0,10);
   }
   function causeOptions() { return causes.map(c => '<option>' + c + '</option>').join(''); }
-  function reviewCard(q) {
-    return '<details class="wrong-review-card" data-wrong-q="' + esc(q) + '"><summary><b>第 ' + esc(q) + ' 题</b><span>展开填写完整复盘 ↓</span></summary><div class="wrong-review-body">' +
+  function reviewCard(q, detail={}) {
+    const analysisText=String(detail.analysis||'');
+    const synonymMatch=analysisText.match(/[^。；\n]{2,80}\s*(?:=|→|⇄)\s*[^。；\n]{2,80}/);
+    const synonymCandidate=synonymMatch?.[0]?.trim()||'';
+    const wordCandidate=/^[A-Za-z][A-Za-z' -]{2,}$/.test(String(detail.correctAnswer||''))?detail.correctAnswer:'';
+    return '<details class="wrong-review-card" data-wrong-q="' + esc(q) + '"><summary><b>第 ' + esc(q) + ' 题</b><span>展开查看答案、解析与卡片选项 ↓</span></summary><div class="wrong-review-body">' +
+      '<div class="answer-compare"><div><span>你的答案</span><b>' + esc(detail.userAnswer||'—') + '</b></div><div><span>正确答案</span><b>' + esc(detail.correctAnswer||'—') + '</b></div></div>' +
       '<label>主要错因<select data-primary-cause>' + causeOptions() + '</select></label>' +
       '<div class="secondary-causes">' + causes.map(c => '<label><input type="checkbox" data-secondary-cause value="' + esc(c) + '">' + esc(c) + '</label>').join('') + '</div>' +
       '<label>题型<select data-question-type><option>填空题</option><option>单选题</option><option>多选题</option><option>匹配题</option><option>地图题</option></select></label>' +
-      '<label>原文定位句<textarea data-evidence placeholder="粘贴真正决定答案的原文，不用粘整段"></textarea></label>' +
-      '<label>题干 ⇄ 原文同义替换<input data-synonym placeholder="例如：keep an open mind = be flexible"></label>' +
+      '<label>系统找到的原文/解析参考<textarea data-auto-analysis readonly>' + esc([detail.transcript,detail.analysis].filter(Boolean).join('\n')) + '</textarea></label>' +
+      '<label>原文定位句<textarea data-evidence placeholder="保留真正决定答案的一句">' + esc(detail.transcript||'') + '</textarea></label>' +
+      '<label>题干 ⇄ 原文同义替换<input data-synonym value="' + esc(synonymCandidate) + '" placeholder="例如：keep an open mind = be flexible"></label>' +
+      '<label>本题生词（多个词用逗号或换行分隔）<textarea data-new-words placeholder="例如：intersection, utilitarian">' + esc(wordCandidate) + '</textarea></label>' +
       '<label>下次看到什么要警觉？<input data-reminder placeholder="例如：听到 but 后等待最终观点"></label>' +
+      '<div class="card-export-options"><label><input type="checkbox" data-add-words checked>保存时把生词加入“单词反应卡”</label><label><input type="checkbox" data-add-phrase checked>把同义替换/短语加入“词汇记忆卡”</label></div>' +
       '</div></details>';
   }
   function activate(name) {
@@ -81,7 +108,7 @@
   }
   function injectBridge(html, audioUrl, title, part) {
     const replaced = html.replace(/"audio"\s*:\s*"[^"]*"/, '"audio":' + JSON.stringify(audioUrl));
-    const bridge = '<script>(function(){document.addEventListener("click",function(e){if(e.target&&e.target.id==="finish"){setTimeout(function(){var wrong=[].slice.call(document.querySelectorAll("#nav .incorrect")).map(function(x){return x.dataset.q});var correct=document.querySelectorAll("#nav .correct").length;parent.postMessage({type:"ielts-test-result",title:' + JSON.stringify(title) + ',part:' + JSON.stringify(part) + ',correct:correct,wrongQuestions:wrong,total:correct+wrong.length},"*")},600)}})})();<\/script>';
+    const bridge = '<script>(function(){function plain(v){var d=document.createElement("div");d.innerHTML=String(v||"");return d.textContent.trim()}document.addEventListener("click",function(e){if(e.target&&e.target.id==="finish"){setTimeout(function(){var wrong=[].slice.call(document.querySelectorAll("#nav .incorrect")).map(function(x){return x.dataset.q});var correct=document.querySelectorAll("#nav .correct").length;var rows=[].slice.call(document.querySelectorAll(".review-table tbody tr"));var details={};wrong.forEach(function(q){var row=rows.find(function(r){return r.cells&&r.cells[0]&&r.cells[0].textContent.trim()===String(q)});var cues=(typeof DATA!=="undefined"&&DATA.transcriptLines||[]).filter(function(x){var h=String(x&&x.html||"");return h.indexOf("q"+q)>=0||h.indexOf("Q"+q)>=0});details[q]={userAnswer:row&&row.cells[1]?row.cells[1].textContent.trim():"",correctAnswer:row&&row.querySelector(".answer-value")?row.querySelector(".answer-value").dataset.answer:"",transcript:cues.map(function(x){return plain(x.html)}).join(" "),analysis:cues.map(function(x){return plain(x.analysis)}).filter(Boolean).join(" ")}});parent.postMessage({type:"ielts-test-result",title:' + JSON.stringify(title) + ',part:' + JSON.stringify(part) + ',correct:correct,wrongQuestions:wrong,total:correct+wrong.length,questionDetails:details},"*")},800)}})})();<\/script>';
     return replaced.replace('</body>', bridge + '</body>');
   }
   function status(text, bad=false) {
@@ -155,21 +182,32 @@
     status('本机私人题库已清除。');
   });
   $('#closeListeningTest')?.addEventListener('click', () => {
+    $('#practiceFrameWrap').classList.remove('fullscreen-test');
     $('#practiceFrameWrap').classList.add('hidden');
     $('#practiceFrame').src = 'about:blank';
   });
+  $('#fullscreenListeningTest')?.addEventListener('click', async () => {
+    const wrap=$('#practiceFrameWrap');
+    if (document.fullscreenElement) { await document.exitFullscreen?.(); wrap.classList.remove('fullscreen-test'); return; }
+    wrap.classList.toggle('fullscreen-test');
+    if (wrap.classList.contains('fullscreen-test')) {
+      try { await wrap.requestFullscreen?.(); } catch (_) {}
+    }
+  });
+  document.addEventListener('fullscreenchange',()=>{ if(!document.fullscreenElement) $('#practiceFrameWrap')?.classList.remove('fullscreen-test'); });
   window.addEventListener('message', event => {
     if (event.data?.type !== 'ielts-test-result') return;
     pendingResult = {...event.data, id:'attempt-' + Date.now(), date:new Date().toISOString(), reviews:{}, reviewPlan:[{label:'D+1',due:dayStamp(1),done:false},{label:'D+3',due:dayStamp(3),done:false},{label:'D+7',due:dayStamp(7),done:false}]};
     const wrong = pendingResult.wrongQuestions || [];
     const rate = pendingResult.total ? Math.round(wrong.length / pendingResult.total * 100) : 0;
     $('#practiceScore').textContent = pendingResult.correct + '/' + pendingResult.total + ' · 错误率 ' + rate + '%';
-    $('#causeQuestions').innerHTML = wrong.length ? wrong.map(reviewCard).join('') : '<p>本篇全部正确，无需标记错因。</p>';
+    $('#causeQuestions').innerHTML = wrong.length ? wrong.map(q=>reviewCard(q,pendingResult.questionDetails?.[q]||{})).join('') : '<p>本篇全部正确，无需标记错因。</p>';
     $('#causePanel').classList.remove('hidden');
     $('#causePanel').scrollIntoView({behavior:'smooth',block:'start'});
   });
   $('#saveTestAnalysis')?.addEventListener('click', () => {
     if (!pendingResult) return;
+    let wordsAdded=0,phrasesAdded=0;
     document.querySelectorAll('[data-wrong-q]').forEach(card => {
       const q = card.dataset.wrongQ;
       pendingResult.reviews[q] = {
@@ -178,15 +216,21 @@
         questionType:card.querySelector('[data-question-type]').value,
         evidence:card.querySelector('[data-evidence]').value.trim(),
         synonym:card.querySelector('[data-synonym]').value.trim(),
+        newWords:card.querySelector('[data-new-words]').value.trim(),
         reminder:card.querySelector('[data-reminder]').value.trim()
       };
+      const review=pendingResult.reviews[q];
+      if(card.querySelector('[data-add-words]').checked)wordsAdded+=addReactionWords(review.newWords,pendingResult.title,q);
+      if(card.querySelector('[data-add-phrase]').checked)phrasesAdded+=addPhraseCard(review.synonym,review.evidence,pendingResult.title,q);
     });
+    pendingResult.cardsAdded={words:wordsAdded,phrases:phrasesAdded};
     const items = loadHistory();
     items.unshift(pendingResult);
     saveHistory(items.slice(0,200));
     $('#causePanel').classList.add('hidden');
     pendingResult = null;
     activate('analysis');
+    alert('复盘已保存：加入 '+wordsAdded+' 张反应卡、'+phrasesAdded+' 张短语卡。');
   });
   function renderAnalysis() {
     const items = loadHistory();

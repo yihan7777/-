@@ -112,6 +112,11 @@
     if (!confirm(`恢复 ${ids.length} 个已移出的听力词吗？`)) return;
     ids.forEach(id => { state[id].archived=false; state[id].due=0; }); setStore(stateKey,state); build(); setStatus(`已恢复 ${ids.length} 个听力词。`);
   });
+  window.addEventListener('ielts-listening-cards-added',event=>{
+    const added=event.detail?.cards||[];if(!added.length)return;
+    const known=new Set(cards.map(x=>x.id));added.forEach(card=>{if(!known.has(card.id))cards.push(card)});
+    queue=[...added,...queue];updateArchived();show();setStatus(`✓ 真题复盘已加入 ${added.length} 张听力反应卡。`);
+  });
 
   state = getStore(stateKey, {}); const custom = getStore(customKey, []);
   fetch('data/listening-defaults.json?v=6', {cache:'no-store'}).then(r => r.ok ? r.json() : []).catch(() => []).then(defaults => {
