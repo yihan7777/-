@@ -9,6 +9,7 @@
   <link rel="stylesheet" href="assets/training.css?v=5">
   <link rel="stylesheet" href="assets/ui.css?v=2">
   <link rel="stylesheet" href="assets/mnemonic.css?v=1">
+  <link rel="stylesheet" href="assets/listening-hub.css?v=1">
 </head>
 <body>
   <header class="hero">
@@ -29,8 +30,7 @@
       <button data-page="stories">串题</button>
       <button data-page="vocabulary">词汇</button>
       <button data-page="writing">作文</button>
-      <button data-page="listening">听力反应</button>
-      <button data-page="dictation">答案词听写</button>
+      <button data-page="listening-hub">听力</button>
       <button data-page="reading">阅读</button>
       <button data-page="plan">计划</button>
       <button data-page="library">题库</button>
@@ -147,7 +147,16 @@
       </div>
     </section>
 
-    <section class="section tool-section" id="listening" data-page-section="listening" hidden>
+    <section class="section listening-hub-head" data-page-section="listening-hub" data-listening-view="all" hidden>
+      <div class="section-head"><div><p class="kicker">LISTENING CENTER</p><h2>听力训练中心</h2></div><p class="aside">一个板块内翻页：反应力、答案词听写、真题做题与复盘。</p></div>
+      <nav class="listening-page-tabs" aria-label="听力页面切换">
+        <button class="active" data-listening-page="reaction">单词反应卡</button>
+        <button data-listening-page="dictation">答案词听写</button>
+        <button data-listening-page="practice">真题做题</button>
+        <button data-listening-page="analysis">成绩分析</button>
+      </nav>
+    </section>
+    <section class="section tool-section" id="listening" data-page-section="listening-hub" data-listening-view="reaction" hidden>
       <div class="section-head">
         <div><p class="kicker">AUDIO REACTION</p><h2>听力单词反应卡</h2></div>
         <p class="aside">正面不显示拼写。只听声音，立刻反应意思并写下单词，然后翻面核对。</p>
@@ -189,7 +198,7 @@
       </details>
     </section>
 
-    <section class="section tool-section" id="dictation" data-page-section="dictation" hidden>
+    <section class="section tool-section" id="dictation" data-page-section="listening-hub" data-listening-view="dictation" hidden>
       <div class="section-head">
         <div><p class="kicker">ANSWER WORD DICTATION</p><h2>听力答案词听写</h2></div>
         <p class="aside">按文章题目建立题库。只听发音再拼写；系统自动累计错词与错误次数，也可以只练错词或剔除熟词。</p>
@@ -234,6 +243,33 @@
         <div class="overview-tabs"><button class="active" data-overview-tab="active">在线学习</button><button data-overview-tab="archived">剔除学习</button></div>
         <div class="overview-strip" data-overview-strip></div>
       </details>
+    </section>
+
+    <section class="section tool-section listening-practice" id="listeningPractice" data-page-section="listening-hub" data-listening-view="practice" hidden>
+      <div class="section-head"><div><p class="kicker">REAL TEST PRACTICE</p><h2>听力真题做题平台</h2></div><p class="aside">题目和音频只在当前设备打开，不上传公开网站。交卷后自动统计，并让你给每道错题标记原因。</p></div>
+      <div class="practice-import">
+        <label><span>① 选择题目网页（.html）</span><input id="practiceHtmlFile" type="file" accept=".html,text/html"></label>
+        <label><span>② 选择同篇音频（audio.mp3）</span><input id="practiceAudioFile" type="file" accept=".mp3,audio/mpeg,audio/*"></label>
+        <label><span>③ 所属部分</span><select id="practicePart"><option>P1</option><option>P2</option><option>P3</option><option>P4</option></select></label>
+        <button class="button primary" id="openListeningTest">打开真题</button>
+        <p id="practiceImportStatus">请从解压后的同一篇文件夹中选择 HTML 和 audio.mp3。</p>
+      </div>
+      <div class="practice-frame-wrap hidden" id="practiceFrameWrap">
+        <div class="practice-frame-head"><b id="practiceTitle">真题练习</b><button id="closeListeningTest">关闭题目</button></div>
+        <iframe id="practiceFrame" title="IELTS 听力真题练习"></iframe>
+      </div>
+      <div class="cause-panel hidden" id="causePanel">
+        <div class="section-head compact"><div><p class="kicker">ERROR REVIEW</p><h3>本次错因复盘</h3></div><strong id="practiceScore"></strong></div>
+        <p>为每道错题选择最主要的原因，保存后会进入长期统计。</p>
+        <div id="causeQuestions"></div>
+        <button class="button primary" id="saveTestAnalysis">保存本次复盘</button>
+      </div>
+    </section>
+
+    <section class="section tool-section listening-analysis" id="listeningAnalysis" data-page-section="listening-hub" data-listening-view="analysis" hidden>
+      <div class="section-head"><div><p class="kicker">PERFORMANCE REVIEW</p><h2>听力成绩与错因分析</h2></div><button class="button" id="clearListeningHistory">清空统计</button></div>
+      <div class="analysis-part-grid" id="analysisPartGrid"></div>
+      <div class="analysis-grid"><article><h3>高频错因</h3><div id="causeRanking"></div></article><article><h3>近期练习</h3><div id="attemptHistory"></div></article></div>
     </section>
 
     <section class="section tool-section" id="reading" data-page-section="reading" hidden>
@@ -297,6 +333,7 @@
   <script src="assets/listening.js?v=6" defer></script>
   <script src="assets/dictation.js?v=2" defer></script>
   <script src="assets/mnemonic.js?v=3" defer></script>
+  <script src="assets/listening-hub.js?v=1" defer></script>
   <script src="assets/overview.js?v=2" defer></script>
   <script src="assets/ui.js?v=1" defer></script>
   <script src="assets/training.js?v=7" defer></script>
