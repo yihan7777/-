@@ -1,0 +1,2019 @@
+[
+  {
+    "id": "一-001",
+    "category": "观点型",
+    "categoryKey": "一",
+    "number": 1,
+    "topic": "收入平等影响",
+    "prompt": "The best way to make society happier is to ensure that the richest and poorest people have the smallest differences in earnings. To what extent do you agree or disagree?"
+  },
+  {
+    "id": "一-002",
+    "category": "观点型",
+    "categoryKey": "一",
+    "number": 2,
+    "topic": "广告禁用辩论",
+    "prompt": "Society would benefit from a ban on all forms of advertising because it serves no useful purpose and can even be damaging. To what extent do you agree or disagree?"
+  },
+  {
+    "id": "一-003",
+    "category": "观点型",
+    "categoryKey": "一",
+    "number": 3,
+    "topic": "年度驾驶员测试",
+    "prompt": "Some people think that the best way to improve road safety is to get drivers tested each year. To what extent do you agree or disagree?"
+  },
+  {
+    "id": "一-004",
+    "category": "观点型",
+    "categoryKey": "一",
+    "number": 4,
+    "topic": "明星隐私权利",
+    "prompt": "In some countries, celebrities complain about the way the media publicizes their private lives. Some people say that they should accept it as part of their fame. Do you agree or disagree?"
+  },
+  {
+    "id": "一-005",
+    "category": "观点型",
+    "categoryKey": "一",
+    "number": 5,
+    "topic": "犯罪行为对策",
+    "prompt": "The most common solution for criminal behavior is prison, but many believe education is a better method. To what extent do you agree or disagree?"
+  },
+  {
+    "id": "一-006",
+    "category": "观点型",
+    "categoryKey": "一",
+    "number": 6,
+    "topic": "环境责任辩论",
+    "prompt": "Individuals can do nothing to improve the environment; only governments and large companies can make a difference. To what extent do you agree or disagree?"
+  },
+  {
+    "id": "一-007",
+    "category": "观点型",
+    "categoryKey": "一",
+    "number": 7,
+    "topic": "成功与运气",
+    "prompt": "Whether or not a person achieves their aims in life is mostly related to luck. To what extent do you agree or disagree?"
+  },
+  {
+    "id": "一-008",
+    "category": "观点型",
+    "categoryKey": "一",
+    "number": 8,
+    "topic": "媒体犯罪细节",
+    "prompt": "Detailed descriptions of crimes in newspapers and TV can have bad consequences on society, so this kind of information should be restricted in the media. To what extent do you agree or disagree?"
+  },
+  {
+    "id": "一-009",
+    "category": "观点型",
+    "categoryKey": "一",
+    "number": 9,
+    "topic": "网络信息获取",
+    "prompt": "Nowadays, students can easily access information online, so libraries are no longer necessary. To what extent do you agree or disagree?"
+  },
+  {
+    "id": "一-010",
+    "category": "观点型",
+    "categoryKey": "一",
+    "number": 10,
+    "topic": "公共艺术投资",
+    "prompt": "Towns and cities are attractive places. Some people suggest that the government should spend money putting in more works of art like paintings and statues to make them better to live in. To what extent do you agree or disagree?"
+  },
+  {
+    "id": "一-011",
+    "category": "观点型",
+    "categoryKey": "一",
+    "number": 11,
+    "topic": "生活质量提高",
+    "prompt": "People living in the 21st century have a better quality of life than in the previous centuries. To what extent do you agree or disagree?"
+  },
+  {
+    "id": "一-012",
+    "category": "观点型",
+    "categoryKey": "一",
+    "number": 12,
+    "topic": "道路安全措施",
+    "prompt": "Stricter punishments for driving offenses are the only way to improve road safety. To what extent do you agree or disagree?"
+  },
+  {
+    "id": "一-013",
+    "category": "观点型",
+    "categoryKey": "一",
+    "number": 13,
+    "topic": "学校行为教育",
+    "prompt": "It is the responsibility of schools to teach children good behavior in addition to providing formal education. To what extent do you agree or disagree with this statement?"
+  },
+  {
+    "id": "一-014",
+    "category": "观点型",
+    "categoryKey": "一",
+    "number": 14,
+    "topic": "太空探索资金",
+    "prompt": "Some people think the money spent on developing the technology for space exploration is not justified. There are more beneficial ways to spend this money. To what extent do you agree or disagree?"
+  },
+  {
+    "id": "一-015",
+    "category": "观点型",
+    "categoryKey": "一",
+    "number": 15,
+    "topic": "职场激励因素",
+    "prompt": "Many factors motivate people to work hard in the workplace. Some people think money is the most important. Do you agree or disagree?"
+  },
+  {
+    "id": "一-016",
+    "category": "观点型",
+    "categoryKey": "一",
+    "number": 16,
+    "topic": "未来规划焦点",
+    "prompt": "Some people think it is a waste of time for individuals to plan for the future and that it is more important to focus on the present. Do you agree or disagree with this opinion?"
+  },
+  {
+    "id": "一-017",
+    "category": "观点型",
+    "categoryKey": "一",
+    "number": 17,
+    "topic": "沟通能力下降",
+    "prompt": "The increase use of mobile phone and computers makes people lose the ability to communicate face to face. To what extent do you agree or disagree?"
+  },
+  {
+    "id": "一-018",
+    "category": "观点型",
+    "categoryKey": "一",
+    "number": 18,
+    "topic": "历史建筑修复",
+    "prompt": "The restoration of old buildings in major cities in the world involves a lot of government expenditures. This money should be used for new housing and road development. To what extent do you agree or disagree?"
+  },
+  {
+    "id": "一-019",
+    "category": "观点型",
+    "categoryKey": "一",
+    "number": 19,
+    "topic": "负面新闻影响",
+    "prompt": "The tendency of news reports in the media to focus more on problems and emergencies than on positive developments is harmful to individuals and society as a whole. To what extent do you agree or disagree?"
+  },
+  {
+    "id": "一-020",
+    "category": "观点型",
+    "categoryKey": "一",
+    "number": 20,
+    "topic": "极限运动禁令",
+    "prompt": "Extreme sports such as skydiving and skiing are very dangerous and should be banned. To what extent do you agree or disagree with this view?"
+  },
+  {
+    "id": "一-021",
+    "category": "观点型",
+    "categoryKey": "一",
+    "number": 21,
+    "topic": "电视儿童教育",
+    "prompt": "Children can learn effectively by watching television. Therefore, they should be encouraged to watch television both at home and at school. To what extent do you agree or disagree?"
+  },
+  {
+    "id": "一-022",
+    "category": "观点型",
+    "categoryKey": "一",
+    "number": 22,
+    "topic": "广告社会影响",
+    "prompt": "Today, people are surrounded by advertising. This affects what people think is important and has a negative impact on people's lives. To what extent do you agree or disagree?"
+  },
+  {
+    "id": "一-023",
+    "category": "观点型",
+    "categoryKey": "一",
+    "number": 23,
+    "topic": "免费政府教育",
+    "prompt": "Education, from preschool through university, should be paid for by the government and therefore free to students. To what extent do you agree or disagree?"
+  },
+  {
+    "id": "一-024",
+    "category": "观点型",
+    "categoryKey": "一",
+    "number": 24,
+    "topic": "企业收入不均",
+    "prompt": "Large companies should pay much higher salaries to Chief Executive Officers (CEOs) or Company Presidents than to their employees. To what extent do you agree or disagree?"
+  },
+  {
+    "id": "一-025",
+    "category": "观点型",
+    "categoryKey": "一",
+    "number": 25,
+    "topic": "虚拟博物馆需求",
+    "prompt": "Some people claim that public museums and art galleries will not be needed because people can see historical objects and works of art using a computer. To what extent do you agree or disagree?"
+  },
+  {
+    "id": "一-026",
+    "category": "观点型",
+    "categoryKey": "一",
+    "number": 26,
+    "topic": "快餐文化影响",
+    "prompt": "In many countries, traditional food is being replaced by international fast food. This will have negative effects on both families and societies. To what extent do you agree or disagree?"
+  },
+  {
+    "id": "一-027",
+    "category": "观点型",
+    "categoryKey": "一",
+    "number": 27,
+    "topic": "面试可靠性",
+    "prompt": "Interviews form the basic selection procedure for most large companies. However, some people think an interview is not a reliable means of choosing who to employ, and there are some other better selection methods. To what extent do you agree or disagree?"
+  },
+  {
+    "id": "一-028",
+    "category": "观点型",
+    "categoryKey": "一",
+    "number": 28,
+    "topic": "禁用不健康食品",
+    "prompt": "Some people think that shops should not be allowed to sell any food or drink that has scientifically been proved to have bad effects on people's health. To what extent do you agree or disagree?"
+  },
+  {
+    "id": "一-029",
+    "category": "观点型",
+    "categoryKey": "一",
+    "number": 29,
+    "topic": "儿童学习工具",
+    "prompt": "With the development of multimedia technology, some people believe that books are no longer necessary as a learning tool for children. To what extent do you agree or disagree?"
+  },
+  {
+    "id": "一-030",
+    "category": "观点型",
+    "categoryKey": "一",
+    "number": 30,
+    "topic": "间隔年选择",
+    "prompt": "After graduation, many students take a year to travel. Some think that it would be more useful to work for a year. To what extent do you agree or disagree?"
+  },
+  {
+    "id": "一-031",
+    "category": "观点型",
+    "categoryKey": "一",
+    "number": 31,
+    "topic": "传统观念价值",
+    "prompt": "Some people believe that traditional ideas about how to live, think, and behave as taught by the older generation are not helpful for young people in preparing for modern life. To what extent do you agree or disagree with this statement?"
+  },
+  {
+    "id": "一-032",
+    "category": "观点型",
+    "categoryKey": "一",
+    "number": 32,
+    "topic": "青年休闲预算",
+    "prompt": "Some people feel that there is too much emphasis on getting an education and that the government should spend money on leisure activities for young people too. To what extent do you agree or disagree?"
+  },
+  {
+    "id": "一-033",
+    "category": "观点型",
+    "categoryKey": "一",
+    "number": 33,
+    "topic": "体育资金选择",
+    "prompt": "Many countries spend large amounts of money on preparing competitors for major world sporting events such as the Olympic Games and the football World Cup. Instead, this money can be spent on encouraging children to take up sports at a young age. To what extent do you agree or disagree?"
+  },
+  {
+    "id": "一-034",
+    "category": "观点型",
+    "categoryKey": "一",
+    "number": 34,
+    "topic": "职场生活平衡",
+    "prompt": "The most important element in a person's life is their work. Without a satisfying career, life is meaningless. To what extent do you agree or disagree?"
+  },
+  {
+    "id": "一-035",
+    "category": "观点型",
+    "categoryKey": "一",
+    "number": 35,
+    "topic": "自由时间变化",
+    "prompt": "It was predicted that people in the 21st century would have much more free time than in the past. To what extent has this prediction come true?"
+  },
+  {
+    "id": "一-036",
+    "category": "观点型",
+    "categoryKey": "一",
+    "number": 36,
+    "topic": "减少化石燃料",
+    "prompt": "The international community must act immediately to ensure all nations reduce the consumption of fossil fuels (gas and oil). To what extent do you agree or disagree?"
+  },
+  {
+    "id": "一-037",
+    "category": "观点型",
+    "categoryKey": "一",
+    "number": 37,
+    "topic": "财富社会责任",
+    "prompt": "Some people say the most important thing about being rich is that it gives you the opportunity to give back or help the poor. To what extent do you agree or disagree with this statement?"
+  },
+  {
+    "id": "一-038",
+    "category": "观点型",
+    "categoryKey": "一",
+    "number": 38,
+    "topic": "政府援助重心",
+    "prompt": "It is impossible to help all people in the world, so governments should focus on people in their own countries. To what extent do you agree or disagree?"
+  },
+  {
+    "id": "一-039",
+    "category": "观点型",
+    "categoryKey": "一",
+    "number": 39,
+    "topic": "领导力品质辩论",
+    "prompt": "Intelligence is the most important quality for a leader. To what extent do you agree or disagree?"
+  },
+  {
+    "id": "一-040",
+    "category": "观点型",
+    "categoryKey": "一",
+    "number": 40,
+    "topic": "所得税辩论",
+    "prompt": "People believe they should be able to keep all the money they earn and not pay taxes to the state. To what extent do you agree or disagree with this statement?"
+  },
+  {
+    "id": "一-041",
+    "category": "观点型",
+    "categoryKey": "一",
+    "number": 41,
+    "topic": "最重要的发明",
+    "prompt": "There have been many inventions in human history, such as the wheel. Some people think the most important thing is the internet. To what extent do you agree or disagree with this opinion?"
+  },
+  {
+    "id": "一-042",
+    "category": "观点型",
+    "categoryKey": "一",
+    "number": 42,
+    "topic": "年龄与购物习惯",
+    "prompt": "People's shopping habits depend more on the age group they belong to than any other factor. To what extent do you agree or disagree?"
+  },
+  {
+    "id": "一-043",
+    "category": "观点型",
+    "categoryKey": "一",
+    "number": 43,
+    "topic": "航空旅行限制",
+    "prompt": "One long-distance flight consumes more fuel than a car uses for several years, and aircraft produce much more pollution than cars. Therefore, it would be better for the environment to discourage non-essential air travel – such as tourist travel – than to limit the use of cars. To what extent do you agree or disagree?"
+  },
+  {
+    "id": "一-044",
+    "category": "观点型",
+    "categoryKey": "一",
+    "number": 44,
+    "topic": "强制育儿课程",
+    "prompt": "Childcare training courses should be mandatory for all parents. Do you agree or disagree with this statement?"
+  },
+  {
+    "id": "一-045",
+    "category": "观点型",
+    "categoryKey": "一",
+    "number": 45,
+    "topic": "人类模仿行为",
+    "prompt": "The tendency of human beings to copy one another is shown in the popularity of areas such as fashion and consumer goods. To what extent do you agree or disagree?"
+  },
+  {
+    "id": "一-046",
+    "category": "观点型",
+    "categoryKey": "一",
+    "number": 46,
+    "topic": "疾病预防重心",
+    "prompt": "Some people think governments should focus on reducing environmental pollution and housing problems to help people prevent illness and disease. To what extent do you agree or disagree?"
+  },
+  {
+    "id": "一-047",
+    "category": "观点型",
+    "categoryKey": "一",
+    "number": 47,
+    "topic": "大学课程范围",
+    "prompt": "University students always focus on one specialist subject, but some people think universities should encourage their students to study a range of subjects in addition to their own subjects. To what extent do you agree or disagree?"
+  },
+  {
+    "id": "一-048",
+    "category": "观点型",
+    "categoryKey": "一",
+    "number": 48,
+    "topic": "陪产假政策",
+    "prompt": "All fathers should be entitled to take time off from work when their children are born. To what extent do you agree or disagree?"
+  },
+  {
+    "id": "一-049",
+    "category": "观点型",
+    "categoryKey": "一",
+    "number": 49,
+    "topic": "团队运动与合作",
+    "prompt": "The best way to teach children to cooperate is through team sports at school. To what extent do you agree or disagree?"
+  },
+  {
+    "id": "一-050",
+    "category": "观点型",
+    "categoryKey": "一",
+    "number": 50,
+    "topic": "老师家长影响",
+    "prompt": "Once children start school, teachers become a more important influence on children's intellectual and social development than parents. To what extent do you agree or disagree?"
+  },
+  {
+    "id": "一-051",
+    "category": "观点型",
+    "categoryKey": "一",
+    "number": 51,
+    "topic": "科学研究价值",
+    "prompt": "Some people think scientific research is a waste of time and money. To what extent do you agree or disagree?"
+  },
+  {
+    "id": "一-052",
+    "category": "观点型",
+    "categoryKey": "一",
+    "number": 52,
+    "topic": "政府住房保障",
+    "prompt": "Some people think that governments should provide housing for people who cannot afford it themselves. To what extent do you agree or disagree?"
+  },
+  {
+    "id": "一-053",
+    "category": "观点型",
+    "categoryKey": "一",
+    "number": 53,
+    "topic": "粮食自给自足",
+    "prompt": "Many people believe that countries should produce food for all the population and import as little as possible. To what extent do you agree or disagree?"
+  },
+  {
+    "id": "一-054",
+    "category": "观点型",
+    "categoryKey": "一",
+    "number": 54,
+    "topic": "遵循当地习俗",
+    "prompt": "People should follow the customs and traditions when they start to live in a new country. To what extent do you agree or disagree?"
+  },
+  {
+    "id": "一-055",
+    "category": "观点型",
+    "categoryKey": "一",
+    "number": 55,
+    "topic": "博物馆展览重心",
+    "prompt": "Museums and art galleries should concentrate on local works rather than showing the cultures or artworks from other countries. To what extent do you agree or disagree?"
+  },
+  {
+    "id": "一-056",
+    "category": "观点型",
+    "categoryKey": "一",
+    "number": 56,
+    "topic": "赡养老人责任",
+    "prompt": "Some believe that younger family members should be legally responsible for supporting older family members when they become physically, mentally, and financially unable to look after themselves. To what extent do you agree or disagree?"
+  },
+  {
+    "id": "一-057",
+    "category": "观点型",
+    "categoryKey": "一",
+    "number": 57,
+    "topic": "未来课程重心",
+    "prompt": "University courses should focus more on future developments rather than the past. To what extent do you agree or disagree?"
+  },
+  {
+    "id": "一-058",
+    "category": "观点型",
+    "categoryKey": "一",
+    "number": 58,
+    "topic": "数字媒体教学",
+    "prompt": "Some people think schools should stop teaching students by using books because students find them boring, and children can learn from films, TV, video games, and computers instead. To what extent do you agree?"
+  },
+  {
+    "id": "一-059",
+    "category": "观点型",
+    "categoryKey": "一",
+    "number": 59,
+    "topic": "广告的必要性",
+    "prompt": "Some believe that people will purchase a product based on their needs, and advertising is not needed. To what extent do you agree or disagree?"
+  },
+  {
+    "id": "一-060",
+    "category": "观点型",
+    "categoryKey": "一",
+    "number": 60,
+    "topic": "免费公共交通",
+    "prompt": "The best way for a government to solve the problem of traffic congestion is to provide free public transport 24 hours a day, 7 days a week. To what extent do you agree or disagree?"
+  },
+  {
+    "id": "一-061",
+    "category": "观点型",
+    "categoryKey": "一",
+    "number": 61,
+    "topic": "儿童肥胖责任",
+    "prompt": "In many countries, children are becoming overweight and unhealthy. Some people think that the government is responsible for solving this problem. To what extent do you agree or disagree?"
+  },
+  {
+    "id": "一-062",
+    "category": "观点型",
+    "categoryKey": "一",
+    "number": 62,
+    "topic": "科学教育投入",
+    "prompt": "The government should invest more money in teaching science rather than other subjects to help a country make progress and develop. To what extent do you agree or disagree?"
+  },
+  {
+    "id": "一-063",
+    "category": "观点型",
+    "categoryKey": "一",
+    "number": 63,
+    "topic": "青年发展投入",
+    "prompt": "The best way for a country to prepare for the future is to invest more resources in young people. To what extent do you agree or disagree?"
+  },
+  {
+    "id": "一-064",
+    "category": "观点型",
+    "categoryKey": "一",
+    "number": 64,
+    "topic": "电子产品读写影响",
+    "prompt": "Some people think that electronic products have a negative effect on people's reading and writing abilities. Do you agree or disagree?"
+  },
+  {
+    "id": "一-065",
+    "category": "观点型",
+    "categoryKey": "一",
+    "number": 65,
+    "topic": "城市化交通治理",
+    "prompt": "The best way to solve traffic and transport problems is to encourage people from the suburbs or the countryside to live in the cities. To what extent do you agree or disagree?"
+  },
+  {
+    "id": "一-066",
+    "category": "观点型",
+    "categoryKey": "一",
+    "number": 66,
+    "topic": "全球合作重要性",
+    "prompt": "As we face more and more problems affecting the whole planet, good relationships between different countries are becoming more important than ever before. To what extent do you agree or disagree?"
+  },
+  {
+    "id": "一-067",
+    "category": "观点型",
+    "categoryKey": "一",
+    "number": 67,
+    "topic": "濒危动物保护",
+    "prompt": "Many animals are in danger of extinction. Some people say that we should protect only those animals that are useful to humans. To what extent do you agree or disagree?"
+  },
+  {
+    "id": "一-068",
+    "category": "观点型",
+    "categoryKey": "一",
+    "number": 68,
+    "topic": "工作满意度优先",
+    "prompt": "It is better to be unemployed than to do a job that people don't like. To what extent do you agree or disagree?"
+  },
+  {
+    "id": "一-069",
+    "category": "观点型",
+    "categoryKey": "一",
+    "number": 69,
+    "topic": "新闻媒体价值",
+    "prompt": "Some people think the news has no connection to people's lives, so then it is a waste of time to read the news in the newspaper and watch television news programs. To what extent do you agree or disagree?"
+  },
+  {
+    "id": "一-070",
+    "category": "观点型",
+    "categoryKey": "一",
+    "number": 70,
+    "topic": "老年人就业",
+    "prompt": "Some people think that it is a good idea for people to continue working in their old age. Do you agree or disagree?"
+  },
+  {
+    "id": "一-071",
+    "category": "观点型",
+    "categoryKey": "一",
+    "number": 71,
+    "topic": "城市健康风险",
+    "prompt": "Living in big cities is bad for people's health. To what extent do you agree or disagree?"
+  },
+  {
+    "id": "一-072",
+    "category": "观点型",
+    "categoryKey": "一",
+    "number": 72,
+    "topic": "广告引发物质主义",
+    "prompt": "The main purpose of advertising is to increase the sales of products people don't need. To what extent do you agree or disagree?"
+  },
+  {
+    "id": "一-073",
+    "category": "观点型",
+    "categoryKey": "一",
+    "number": 73,
+    "topic": "音乐是通用语言",
+    "prompt": "Music has been and will continue to be the universal language of mankind. To what extent do you agree or disagree?"
+  },
+  {
+    "id": "一-074",
+    "category": "观点型",
+    "categoryKey": "一",
+    "number": 74,
+    "topic": "现代通讯技术影响",
+    "prompt": "Some people think that modern communication technology is having a negative effect on social relationships. To what extent do you agree or disagree with this?"
+  },
+  {
+    "id": "一-075",
+    "category": "观点型",
+    "categoryKey": "一",
+    "number": 75,
+    "topic": "博物馆文物归国",
+    "prompt": "Historical objects in museums all over the world should be returned to their country of origin. To what extent do you agree or disagree?"
+  },
+  {
+    "id": "一-076",
+    "category": "观点型",
+    "categoryKey": "一",
+    "number": 76,
+    "topic": "老年人电脑培训",
+    "prompt": "Training 65-year-olds to use computers would be a good way to use government money. To what extent do you agree or disagree?"
+  },
+  {
+    "id": "一-077",
+    "category": "观点型",
+    "categoryKey": "一",
+    "number": 77,
+    "topic": "延长义务教育",
+    "prompt": "Everybody should stay at school until they are 18 years old. To what extent do you agree or disagree?"
+  },
+  {
+    "id": "一-078",
+    "category": "观点型",
+    "categoryKey": "一",
+    "number": 78,
+    "topic": "青少年休闲活动",
+    "prompt": "More government money should be spent on free-time activities for young people. To what extent do you agree or disagree?"
+  },
+  {
+    "id": "一-079",
+    "category": "观点型",
+    "categoryKey": "一",
+    "number": 79,
+    "topic": "传统与习俗",
+    "prompt": "Many customs and traditional ways of behavior are no longer relevant to modern life and not worth keeping. Do you agree or disagree?"
+  },
+  {
+    "id": "一-080",
+    "category": "观点型",
+    "categoryKey": "一",
+    "number": 80,
+    "topic": "职业技能培训",
+    "prompt": "It is better for a country to spend money on skills training and vocational training for practical work (e.g. car maintenance, hairdressing) than on university education. To what extent do you agree or disagree?"
+  },
+  {
+    "id": "一-081",
+    "category": "观点型",
+    "categoryKey": "一",
+    "number": 81,
+    "topic": "历史学习方法",
+    "prompt": "It is better to learn the way people lived in the past through films and video records than written documents. To what extent do you agree or disagree?"
+  },
+  {
+    "id": "一-082",
+    "category": "观点型",
+    "categoryKey": "一",
+    "number": 82,
+    "topic": "团队活动技能",
+    "prompt": "Group or team activities can teach more important skills for life than those activities which are done alone. Do you agree or disagree?"
+  },
+  {
+    "id": "一-083",
+    "category": "观点型",
+    "categoryKey": "一",
+    "number": 83,
+    "topic": "领导者年龄",
+    "prompt": "Leaders and directors in an organisation are normally older people. Some people think having a younger leader would be better. To what extent do you agree or disagree?"
+  },
+  {
+    "id": "一-084",
+    "category": "观点型",
+    "categoryKey": "一",
+    "number": 84,
+    "topic": "员工假期福利",
+    "prompt": "Employers should give their staff at least 4 weeks' holiday every year to make them perform better at their jobs. To what extent do you agree or disagree?"
+  },
+  {
+    "id": "一-085",
+    "category": "观点型",
+    "categoryKey": "一",
+    "number": 85,
+    "topic": "野生动物保护",
+    "prompt": "Some people claim that too much focus and resources have been spent on protecting wild animals and birds. To what extent do you agree or disagree?"
+  },
+  {
+    "id": "一-086",
+    "category": "观点型",
+    "categoryKey": "一",
+    "number": 86,
+    "topic": "不健康食品税",
+    "prompt": "Some people think that the government should increase taxes on unhealthy food to encourage people to start eating healthy. To what extent do you agree or disagree?"
+  },
+  {
+    "id": "一-087",
+    "category": "观点型",
+    "categoryKey": "一",
+    "number": 87,
+    "topic": "传统教育系统",
+    "prompt": "Many believe that the traditional educational system of teachers and students in a classroom will be replaced by 2050. To what extent do you agree or disagree with this view?"
+  },
+  {
+    "id": "一-088",
+    "category": "观点型",
+    "categoryKey": "一",
+    "number": 88,
+    "topic": "无偿社区工作",
+    "prompt": "Some people believe that teenagers should be required to do unpaid community work in their free time. This can benefit teenagers and the community as well. To what extent do you agree or disagree?"
+  },
+  {
+    "id": "一-089",
+    "category": "观点型",
+    "categoryKey": "一",
+    "number": 89,
+    "topic": "学生志愿工作",
+    "prompt": "All university students should do some voluntary work to help the local community. To what extent do you agree or disagree?"
+  },
+  {
+    "id": "一-090",
+    "category": "观点型",
+    "categoryKey": "一",
+    "number": 90,
+    "topic": "平均工作时间",
+    "prompt": "Countries with long average working hours are economically more successful than those countries which do not work long hours. To what extent do you agree or disagree?"
+  },
+  {
+    "id": "一-091",
+    "category": "观点型",
+    "categoryKey": "一",
+    "number": 91,
+    "topic": "动物物种灭绝",
+    "prompt": "It is a natural process for animal species to become extinct. There is no reason why people should try to prevent this from happening. To what extent do you agree or disagree?"
+  },
+  {
+    "id": "一-092",
+    "category": "观点型",
+    "categoryKey": "一",
+    "number": 92,
+    "topic": "必修艺术课程",
+    "prompt": "Art classes, like painting and drawing, are as important as other subjects, so they should be a compulsory subject in high school. To what extent do you agree or disagree?"
+  },
+  {
+    "id": "一-093",
+    "category": "观点型",
+    "categoryKey": "一",
+    "number": 93,
+    "topic": "最低驾驶年龄",
+    "prompt": "Some people say that the best way to improve road safety is to increase the minimum legal age for driving cars or riding motorbikes. To what extent do you agree or disagree?"
+  },
+  {
+    "id": "一-094",
+    "category": "观点型",
+    "categoryKey": "一",
+    "number": 94,
+    "topic": "学校教育目的",
+    "prompt": "Some people believe that the main purpose of school is to turn children into good citizens and workers instead of benefiting them individually. To what extent do you agree or disagree?"
+  },
+  {
+    "id": "一-095",
+    "category": "观点型",
+    "categoryKey": "一",
+    "number": 95,
+    "topic": "国际援助方式",
+    "prompt": "Rich countries often give money to poorer countries, but it does not solve poverty. Therefore, developed countries should give other types of help to poor countries rather than financial aid. To what extent do you agree or disagree?"
+  },
+  {
+    "id": "一-096",
+    "category": "观点型",
+    "categoryKey": "一",
+    "number": 96,
+    "topic": "全球英语传播",
+    "prompt": "The advantages of the spread of English as a global language will continue to outweigh its disadvantages. To what extent do you agree or disagree?"
+  },
+  {
+    "id": "一-097",
+    "category": "观点型",
+    "categoryKey": "一",
+    "number": 97,
+    "topic": "员工着装规定",
+    "prompt": "Some people think employers should not care about the way their employees dress, but rather the quality of their work. To what extent do you agree or disagree?"
+  },
+  {
+    "id": "一-098",
+    "category": "观点型",
+    "categoryKey": "一",
+    "number": 98,
+    "topic": "全球问题解决",
+    "prompt": "Many of today's most urgent problems can only be solved by international cooperation. To what extent do you agree or disagree?"
+  },
+  {
+    "id": "一-099",
+    "category": "观点型",
+    "categoryKey": "一",
+    "number": 99,
+    "topic": "青少年犯罪惩罚",
+    "prompt": "Children who commit serious crimes should be punished as adults. To what extent do you agree or disagree?"
+  },
+  {
+    "id": "一-100",
+    "category": "观点型",
+    "categoryKey": "一",
+    "number": 100,
+    "topic": "跨国工作经验",
+    "prompt": "The best way to understand other cultures is to work in a multinational organization. To what extent do you agree or disagree?"
+  },
+  {
+    "id": "一-101",
+    "category": "观点型",
+    "categoryKey": "一",
+    "number": 101,
+    "topic": "儿童独立性发展",
+    "prompt": "It is important to give children the chance to act independently and make their own decisions from early age. To what extent do you agree or disagree with this idea?"
+  },
+  {
+    "id": "一-102",
+    "category": "观点型",
+    "categoryKey": "一",
+    "number": 102,
+    "topic": "犯罪媒体报道",
+    "prompt": "Media coverage of violent crime frightens people and encourages criminals. Some people say it should be banned from newspapers and TV programs. To what extent do you agree or disagree?"
+  },
+  {
+    "id": "一-103",
+    "category": "观点型",
+    "categoryKey": "一",
+    "number": 103,
+    "topic": "青少年购物中心",
+    "prompt": "Nowadays young people spend too much of their free time in shopping malls. This has negative effects on themselves and the society they live in. To what extent do you agree or disagree with this statement."
+  },
+  {
+    "id": "一-104",
+    "category": "观点型",
+    "categoryKey": "一",
+    "number": 104,
+    "topic": "企业社区支持",
+    "prompt": "All large companies should offer sports and social facilities to the local community. To what extent do you agree or disagree?"
+  },
+  {
+    "id": "一-105",
+    "category": "观点型",
+    "categoryKey": "一",
+    "number": 105,
+    "topic": "企业公民义务",
+    "prompt": "As well as making money, businesses also have a responsibility towards society. To what extent do you agree or disagree?"
+  },
+  {
+    "id": "二-001",
+    "category": "好坏型",
+    "categoryKey": "二",
+    "number": 1,
+    "topic": "名人榜样效应",
+    "prompt": "Nowadays, young people admire sports and media stars. Some people think they do not set good examples. Do you think this is a positive or negative development?"
+  },
+  {
+    "id": "二-002",
+    "category": "好坏型",
+    "categoryKey": "二",
+    "number": 2,
+    "topic": "网络隐私分享",
+    "prompt": "More people today put their personal and private information online (address, telephone number, credit card number) to do everyday activities such as banking, shopping, and socializing. Is this a positive or negative development?"
+  },
+  {
+    "id": "二-003",
+    "category": "好坏型",
+    "categoryKey": "二",
+    "number": 3,
+    "topic": "绿地空间减少",
+    "prompt": "In many cities, green spaces and parks have been replaced with houses. Is this a positive or negative development?"
+  },
+  {
+    "id": "二-004",
+    "category": "好坏型",
+    "categoryKey": "二",
+    "number": 4,
+    "topic": "数字新闻趋势",
+    "prompt": "More and more people no longer read newspapers or watch TV programs to get news. They get news about the world through the Internet. Is this a positive or negative development?"
+  },
+  {
+    "id": "二-005",
+    "category": "好坏型",
+    "categoryKey": "二",
+    "number": 5,
+    "topic": "全球产品趋同",
+    "prompt": "Countries are becoming more and more similar because people are able to buy the same products anywhere in the world. Do you think this is a positive or negative development?"
+  },
+  {
+    "id": "二-006",
+    "category": "好坏型",
+    "categoryKey": "二",
+    "number": 6,
+    "topic": "体育商业化趋势",
+    "prompt": "Sports have become a big business, with high-earning sportspeople and large amounts of money involved. Do you think this is a positive or negative development?"
+  },
+  {
+    "id": "二-007",
+    "category": "好坏型",
+    "categoryKey": "二",
+    "number": 7,
+    "topic": "精英体育设施",
+    "prompt": "Some countries achieve international success by building specialised facilities to train top athletes instead of providing sports facilities that everyone can use. Is it a positive or negative development?"
+  },
+  {
+    "id": "二-008",
+    "category": "好坏型",
+    "categoryKey": "二",
+    "number": 8,
+    "topic": "拥堵税收政策",
+    "prompt": "In some countries, the government has tried to reduce traffic. For instance, they imposed a congestion tax during rush hour. Do you think this development is positive or negative?"
+  },
+  {
+    "id": "二-009",
+    "category": "好坏型",
+    "categoryKey": "二",
+    "number": 9,
+    "topic": "职业居所变动",
+    "prompt": "An increasing number of people today change their career and place of residence several times during their lives. Is this a positive or negative development?"
+  },
+  {
+    "id": "二-010",
+    "category": "好坏型",
+    "categoryKey": "二",
+    "number": 10,
+    "topic": "全球旅行便利化",
+    "prompt": "It has become easier and more affordable for people to travel to other countries. Do you think it is a positive or negative development?"
+  },
+  {
+    "id": "二-011",
+    "category": "好坏型",
+    "categoryKey": "二",
+    "number": 11,
+    "topic": "偏远地区旅游",
+    "prompt": "Organized tours to remote places and communities are now popular. Is this a positive development for the local people and the environment?"
+  },
+  {
+    "id": "二-012",
+    "category": "好坏型",
+    "categoryKey": "二",
+    "number": 12,
+    "topic": "城市家庭结构",
+    "prompt": "Many people in cities live alone or in small family units instead of with extended family. Do you think this is a positive or negative development?"
+  },
+  {
+    "id": "二-013",
+    "category": "好坏型",
+    "categoryKey": "二",
+    "number": 13,
+    "topic": "机器人广泛应用",
+    "prompt": "Today, there are many tasks at home or work that have been done by robots. Is this a positive or negative development?"
+  },
+  {
+    "id": "二-014",
+    "category": "好坏型",
+    "categoryKey": "二",
+    "number": 14,
+    "topic": "儿童竞技体育",
+    "prompt": "Some children nowadays take sports seriously while others play sports in their free time. Is this a positive or negative development?"
+  },
+  {
+    "id": "二-015",
+    "category": "好坏型",
+    "categoryKey": "二",
+    "number": 15,
+    "topic": "家居用品消费",
+    "prompt": "In many countries, people buy a wider range of household goods (for example, a television and a rice cooker) than ever before. Do you think it is a positive or negative development?"
+  },
+  {
+    "id": "三-001",
+    "category": "比较型",
+    "categoryKey": "三",
+    "number": 1,
+    "topic": "营利性医疗",
+    "prompt": "Some people think keeping health is a basic need of humans, so that this medical care should not be run by profit-making companies. Do the disadvantages of private health care outweigh the advantages?"
+  },
+  {
+    "id": "三-002",
+    "category": "比较型",
+    "categoryKey": "三",
+    "number": 2,
+    "topic": "居家观演趋势",
+    "prompt": "These days, many people like to watch live performances (such as shows or concerts) at home, either on TV or on a computer, instead of attending in person. Do the advantages of this trend outweigh its disadvantages?"
+  },
+  {
+    "id": "三-003",
+    "category": "比较型",
+    "categoryKey": "三",
+    "number": 3,
+    "topic": "社交媒体联系",
+    "prompt": "Many people around the world use social media every day to keep in touch with other people and news events. Do you think the advantages of this development outweigh the disadvantages?"
+  },
+  {
+    "id": "三-004",
+    "category": "比较型",
+    "categoryKey": "三",
+    "number": 4,
+    "topic": "在家教育趋势",
+    "prompt": "In some countries, many people choose to educate their children at home by themselves instead of sending them to school. Do you think the advantages outweigh the disadvantages?"
+  },
+  {
+    "id": "三-005",
+    "category": "比较型",
+    "categoryKey": "三",
+    "number": 5,
+    "topic": "寻找新石油",
+    "prompt": "Demand for gas and oil is increasing, so finding new sources in remote and untouched areas is necessary. Do the advantages of this outweigh the disadvantages?"
+  },
+  {
+    "id": "三-006",
+    "category": "比较型",
+    "categoryKey": "三",
+    "number": 6,
+    "topic": "工作搬迁趋势",
+    "prompt": "Nowadays, more people move away from their friends and families for work. Does this development have more advantages or disadvantages?"
+  },
+  {
+    "id": "三-007",
+    "category": "比较型",
+    "categoryKey": "三",
+    "number": 7,
+    "topic": "公园变菜园",
+    "prompt": "In some cities, public parks and open spaces are changed into gardens where local residents can grow their own fruits and vegetables. Do you think the advantages of this development outweigh the disadvantages?"
+  },
+  {
+    "id": "三-008",
+    "category": "比较型",
+    "categoryKey": "三",
+    "number": 8,
+    "topic": "同辈压力影响",
+    "prompt": "Young people are often influenced in their behaviors by others in the same age group. Some argue that peer pressure is important, while others feel it has disadvantages. Do the disadvantages of peer pressure outweigh the advantages?"
+  },
+  {
+    "id": "三-009",
+    "category": "比较型",
+    "categoryKey": "三",
+    "number": 9,
+    "topic": "广告影响生活",
+    "prompt": "People are surrounded by advertising, which increasingly affects our lives. Do you think the positive effects of this outweigh the negative effects?"
+  },
+  {
+    "id": "三-010",
+    "category": "比较型",
+    "categoryKey": "三",
+    "number": 10,
+    "topic": "信用卡风险",
+    "prompt": "In many countries, it is becoming easier for people to obtain credit cards, but this also implies higher financial risks. In your opinion, do the advantages of credit cards outweigh the disadvantages?"
+  },
+  {
+    "id": "三-011",
+    "category": "比较型",
+    "categoryKey": "三",
+    "number": 11,
+    "topic": "新型全球语言",
+    "prompt": "Some people think that we should invent a new language for international communication. Will the benefits of this outweigh the problems associated with it?"
+  },
+  {
+    "id": "三-012",
+    "category": "比较型",
+    "categoryKey": "三",
+    "number": 12,
+    "topic": "网络知识存储",
+    "prompt": "In the past, people stored knowledge in books. Nowadays, people store knowledge on the Internet. Do the advantages of this development outweigh the disadvantages?"
+  },
+  {
+    "id": "三-013",
+    "category": "比较型",
+    "categoryKey": "三",
+    "number": 13,
+    "topic": "私营科学研究",
+    "prompt": "In today's world, private companies, rather than the government, pay for and conduct most scientific research. Do you think the advantages outweigh the disadvantages?"
+  },
+  {
+    "id": "三-014",
+    "category": "比较型",
+    "categoryKey": "三",
+    "number": 14,
+    "topic": "私营医疗服务",
+    "prompt": "Some people think keeping health is a basic need of humans, thus medical care should not be run by profit-making companies. Do the disadvantages of private health care outweigh the advantages?"
+  },
+  {
+    "id": "三-015",
+    "category": "比较型",
+    "categoryKey": "三",
+    "number": 15,
+    "topic": "城市功能分区",
+    "prompt": "In many cities, planners tend to arrange shops, schools, offices, and homes in specific areas and separate them from each other. Do you think the advantages of this policy outweigh the disadvantages?"
+  },
+  {
+    "id": "三-016",
+    "category": "比较型",
+    "categoryKey": "三",
+    "number": 16,
+    "topic": "学生交换项目",
+    "prompt": "Some teachers think that international student exchange would be beneficial for all teenage school students. Do you think its advantages will outweigh the disadvantages?"
+  },
+  {
+    "id": "三-017",
+    "category": "比较型",
+    "categoryKey": "三",
+    "number": 17,
+    "topic": "城市无车日",
+    "prompt": "Some cities have vehicle-free days when private cars, trucks, and motorcycles are banned from the city center. People are encouraged to use public transportation such as buses, taxis, and the metro on vehicle-free days. Do the advantages outweigh the disadvantages?"
+  },
+  {
+    "id": "四-001",
+    "category": "讨论型",
+    "categoryKey": "四",
+    "number": 1,
+    "topic": "薪酬公平",
+    "prompt": "Directors of large organizations earn much higher salaries than ordinary employees. Some people believe it is necessary, but others think that it is unfair. Discuss both views and give your own opinions."
+  },
+  {
+    "id": "四-002",
+    "category": "讨论型",
+    "categoryKey": "四",
+    "number": 2,
+    "topic": "公共卫生法律",
+    "prompt": "Some people think that public health within a country can be improved by the government making laws regarding nutritious food. Others, however, think that health is a matter of personal choice and responsibility. Discuss both views and give your opinion."
+  },
+  {
+    "id": "四-003",
+    "category": "讨论型",
+    "categoryKey": "四",
+    "number": 3,
+    "topic": "职场社交生活",
+    "prompt": "Some people think a job not only provides income but also a social life. Others think it is better to develop a social life with people you do not work with. Discuss both views and give your opinion."
+  },
+  {
+    "id": "四-004",
+    "category": "讨论型",
+    "categoryKey": "四",
+    "number": 4,
+    "topic": "医疗保健优先",
+    "prompt": "Some people say governments should give health care priority; some others believe there are more important priorities to spend taxpayers' money. Discuss both views and give your own opinion."
+  },
+  {
+    "id": "四-005",
+    "category": "讨论型",
+    "categoryKey": "四",
+    "number": 5,
+    "topic": "淡水使用控制",
+    "prompt": "Some people think they have the right to use as much fresh water as they want, while others believe governments should tightly control the use of fresh water as it is a limited resource. Discuss both views and give your opinion."
+  },
+  {
+    "id": "四-006",
+    "category": "讨论型",
+    "categoryKey": "四",
+    "number": 6,
+    "topic": "儿童发展因素",
+    "prompt": "Some people think that the main factors influencing a child's development these days are things such as TV, friends, and music. Others believe that the family still remains more important. Discuss both views and give your opinion."
+  },
+  {
+    "id": "四-007",
+    "category": "讨论型",
+    "categoryKey": "四",
+    "number": 7,
+    "topic": "实用技能学习",
+    "prompt": "Some people think adults should learn practical skills by themselves, while others believe that learning from a teacher in a classroom is better. Discuss both views and give your own opinion."
+  },
+  {
+    "id": "四-008",
+    "category": "讨论型",
+    "categoryKey": "四",
+    "number": 8,
+    "topic": "成功决定因素",
+    "prompt": "Some people think success is mainly based on hard work and determination. Others think there are more important factors, such as money and appearance. Discuss both views and give your opinion."
+  },
+  {
+    "id": "四-009",
+    "category": "讨论型",
+    "categoryKey": "四",
+    "number": 9,
+    "topic": "电视影响行为",
+    "prompt": "Some people believe that what children watch on television influences their behavior. Others say that the amount of time spent watching television influences their behavior. Discuss both views and give your own opinion."
+  },
+  {
+    "id": "四-010",
+    "category": "讨论型",
+    "categoryKey": "四",
+    "number": 10,
+    "topic": "青少年犯罪惩罚",
+    "prompt": "Some people believe that children who commit crimes should be punished. Others think that their parents should be punished instead. Discuss both views and give your own opinion."
+  },
+  {
+    "id": "四-011",
+    "category": "讨论型",
+    "categoryKey": "四",
+    "number": 11,
+    "topic": "学习国际新闻",
+    "prompt": "Some people think secondary school students should study international news as one of their subjects, while others believe this wastes valuable school time. Discuss both views and give your own opinion."
+  },
+  {
+    "id": "四-012",
+    "category": "讨论型",
+    "categoryKey": "四",
+    "number": 12,
+    "topic": "举办体育赛事",
+    "prompt": "It costs a lot of money for a country to host an international sports event, such as the Olympic Games or football World Cup. Some people think that this is a waste of money, while others believe the opposite. Discuss both these views and give your own opinion."
+  },
+  {
+    "id": "四-013",
+    "category": "讨论型",
+    "categoryKey": "四",
+    "number": 13,
+    "topic": "垃圾食品教育",
+    "prompt": "Scientists say that junk food is harmful to people's health. Some people think that the answer to this problem is to educate people. Others think education will not work. Discuss both views and give your opinion."
+  },
+  {
+    "id": "四-014",
+    "category": "讨论型",
+    "categoryKey": "四",
+    "number": 14,
+    "topic": "垂直城市设计",
+    "prompt": "Some people think that vertical cities are the best, where people live and work in tall buildings. Others think that horizontal cities are better, where there are few tall buildings. Discuss both views and give your opinion."
+  },
+  {
+    "id": "四-015",
+    "category": "讨论型",
+    "categoryKey": "四",
+    "number": 15,
+    "topic": "文化学习方式",
+    "prompt": "Some people believe that traveling to foreign countries is the best way to learn about new cultures, while others believe that watching television and reading books is sufficient. Discuss both views and give your own opinion."
+  },
+  {
+    "id": "四-016",
+    "category": "讨论型",
+    "categoryKey": "四",
+    "number": 16,
+    "topic": "现代老年生活",
+    "prompt": "Some people say that in the modern world, getting old is entirely bad. Others believe that old people's life nowadays is much better than in the past. Discuss both views and give your own opinion."
+  },
+  {
+    "id": "四-017",
+    "category": "讨论型",
+    "categoryKey": "四",
+    "number": 17,
+    "topic": "家族历史研究",
+    "prompt": "Some people argue that we should do research into our family history. Others agree that we should focus on the present and future generations. Discuss both these views and give your own opinion."
+  },
+  {
+    "id": "四-018",
+    "category": "讨论型",
+    "categoryKey": "四",
+    "number": 18,
+    "topic": "语言班级规模",
+    "prompt": "Some people think that language should be taught in small classes, while others think the number of students in a language class does not matter. Discuss both views and give your opinion."
+  },
+  {
+    "id": "四-019",
+    "category": "讨论型",
+    "categoryKey": "四",
+    "number": 19,
+    "topic": "气候变化与商业",
+    "prompt": "Some people think that climate change could have a negative effect on business. Other people think that climate change could create more business opportunities. Discuss both views and give your own opinion."
+  },
+  {
+    "id": "四-020",
+    "category": "讨论型",
+    "categoryKey": "四",
+    "number": 20,
+    "topic": "城市人口增长",
+    "prompt": "Some people think the rapid population growth in cities only benefits the people living there, while others believe there are disadvantages. Discuss both views and give your opinion."
+  },
+  {
+    "id": "四-021",
+    "category": "讨论型",
+    "categoryKey": "四",
+    "number": 21,
+    "topic": "企业体育赞助",
+    "prompt": "Many companies sponsor sports as a way of advertising themselves. Some people think this is good for the world of sports, while others think it is negative. Discuss both views and give your own opinion."
+  },
+  {
+    "id": "四-022",
+    "category": "讨论型",
+    "categoryKey": "四",
+    "number": 22,
+    "topic": "健康饮食责任",
+    "prompt": "Some people believe that the government has the duty to ensure its citizens have a healthy diet, while others believe it is the individual's responsibility to care for their diet and health. Discuss both sides and give your opinion."
+  },
+  {
+    "id": "四-023",
+    "category": "讨论型",
+    "categoryKey": "四",
+    "number": 23,
+    "topic": "图书馆与计算机",
+    "prompt": "Some people think that libraries are important because they can provide books and information, while others think that computers can be a better choice as they can avoid waste and save resources. Discuss both views and give your opinion."
+  },
+  {
+    "id": "四-024",
+    "category": "讨论型",
+    "categoryKey": "四",
+    "number": 24,
+    "topic": "高额薪酬限制",
+    "prompt": "In many countries, a small number of people earn extremely high salaries. Some people believe this is good for the country, but others think governments should not allow salaries above a certain level. Discuss both these views and give your own opinion."
+  },
+  {
+    "id": "四-025",
+    "category": "讨论型",
+    "categoryKey": "四",
+    "number": 25,
+    "topic": "慈善援助范围",
+    "prompt": "Some people think that charity organizations should only help people in their own country. However, others believe these organizations should aid people in great need wherever they live. Discuss both views and give your own opinion."
+  },
+  {
+    "id": "四-026",
+    "category": "讨论型",
+    "categoryKey": "四",
+    "number": 26,
+    "topic": "女性军警",
+    "prompt": "Some people believe that women should play an equal role as men in a country's police force or military force, while others think women are not suitable for these kinds of jobs. Discuss both views and give your opinion."
+  },
+  {
+    "id": "四-027",
+    "category": "讨论型",
+    "categoryKey": "四",
+    "number": 27,
+    "topic": "经济与环境",
+    "prompt": "Some people believe that economic growth is the only way to end poverty and hunger in the world, while others say that economic growth is causing damage to the environment and should be stopped. Discuss both views and give your own opinion."
+  },
+  {
+    "id": "四-028",
+    "category": "讨论型",
+    "categoryKey": "四",
+    "number": 28,
+    "topic": "学生能力分组",
+    "prompt": "Some people think that schools should select students according to their academic abilities, while others believe that it is better to have students with different abilities studying together. Discuss both views and state your own opinion."
+  },
+  {
+    "id": "四-029",
+    "category": "讨论型",
+    "categoryKey": "四",
+    "number": 29,
+    "topic": "国际合作的益处",
+    "prompt": "Some people think that the main benefit of international cooperation is in the protection of the environment, while others believe that businesses mainly benefit. Discuss both these views and give your own opinion."
+  },
+  {
+    "id": "四-030",
+    "category": "讨论型",
+    "categoryKey": "四",
+    "number": 30,
+    "topic": "科技与犯罪",
+    "prompt": "Some people think technology development decreases crime, while others believe it actually encourages crime. Discuss both views and give your own opinion."
+  },
+  {
+    "id": "四-031",
+    "category": "讨论型",
+    "categoryKey": "四",
+    "number": 31,
+    "topic": "环境保护责任",
+    "prompt": "Some people think that individuals can make a significant contribution to solving environmental problems, while others believe that only governments and large companies can make a real difference. Discuss both views and give your own opinion."
+  },
+  {
+    "id": "四-032",
+    "category": "讨论型",
+    "categoryKey": "四",
+    "number": 32,
+    "topic": "图书馆与互联网",
+    "prompt": "Some people think that the government should establish free libraries in each town. Others, however, believe that it is a waste of money since the public can use the Internet at home to obtain information. Discuss both sides and give your own opinion."
+  },
+  {
+    "id": "四-033",
+    "category": "讨论型",
+    "categoryKey": "四",
+    "number": 33,
+    "topic": "动物权利辩论",
+    "prompt": "Some people say that animals can be used in any way for the benefit of humans. Others say that exploiting animals for human purposes is not acceptable. Discuss both views and give your own opinion."
+  },
+  {
+    "id": "四-034",
+    "category": "讨论型",
+    "categoryKey": "四",
+    "number": 34,
+    "topic": "团队与个人运动",
+    "prompt": "Some people think that it is more beneficial to take part in sports which are played in teams, like football, while other people think that taking part in individual sports, like tennis or swimming, is better. Discuss both views and give your own opinion."
+  },
+  {
+    "id": "四-035",
+    "category": "讨论型",
+    "categoryKey": "四",
+    "number": 35,
+    "topic": "犯罪的原因",
+    "prompt": "Some think most crime is the result of circumstances, eg., poverty and other social problems. Others believe that most crimes are committed by people who are bad by nature. Discuss both views and give your own opinion."
+  },
+  {
+    "id": "四-036",
+    "category": "讨论型",
+    "categoryKey": "四",
+    "number": 36,
+    "topic": "物种保护辩论",
+    "prompt": "Human activities have a negative effect on plants and animal species. Some people think that it is too late to do anything about this problem. Other people believe that effective measures can be taken to improve this situation. Discuss both views and give your opinion."
+  },
+  {
+    "id": "四-037",
+    "category": "讨论型",
+    "categoryKey": "四",
+    "number": 37,
+    "topic": "父母讲故事辩论",
+    "prompt": "Some people say that parents need to spend time reading or telling stories to their children, while others think parents no longer have to do this because there are other sources for stories such as books, TV and the Internet. Discuss both these views and give your own opinion."
+  },
+  {
+    "id": "四-038",
+    "category": "讨论型",
+    "categoryKey": "四",
+    "number": 38,
+    "topic": "纸质书与电子书",
+    "prompt": "Some people believe that printed books are no longer necessary in this digital era as all writings can be stored electronically. Others think that printed books still play an important role. Discuss both views and give your opinion."
+  },
+  {
+    "id": "四-039",
+    "category": "讨论型",
+    "categoryKey": "四",
+    "number": 39,
+    "topic": "入学年龄",
+    "prompt": "Some people say that children should go to school as young as possible, while others believe that children should go to school at least 7 years old. Discuss both views and give your own opinion."
+  },
+  {
+    "id": "四-040",
+    "category": "讨论型",
+    "categoryKey": "四",
+    "number": 40,
+    "topic": "外国媒体的影响",
+    "prompt": "Some people think that it is good for a country's culture to show imported foreign films and TV programs. Other people think that a country should develop their own films and TV programs instead. Discuss both these views and give your own opinion."
+  },
+  {
+    "id": "四-041",
+    "category": "讨论型",
+    "categoryKey": "四",
+    "number": 41,
+    "topic": "政府福利资金",
+    "prompt": "Some people think that the government should pay for health care and education, but others believe it is not the government's responsibility. Discuss both views and give your opinion."
+  },
+  {
+    "id": "四-042",
+    "category": "讨论型",
+    "categoryKey": "四",
+    "number": 42,
+    "topic": "外星生命接触辩论",
+    "prompt": "Some scientists believe that intelligent life forms may exist on other planets and some want to send messages to contact them. Others think it is a bad idea because these life forms may be too dangerous. Discuss both views and give your opinion."
+  },
+  {
+    "id": "四-043",
+    "category": "讨论型",
+    "categoryKey": "四",
+    "number": 43,
+    "topic": "政府艺术资助",
+    "prompt": "Some believe that the government should support artists like musicians, painters, and poets, while others argue that this is a waste of money. Discuss both views and give your own opinion."
+  },
+  {
+    "id": "四-044",
+    "category": "讨论型",
+    "categoryKey": "四",
+    "number": 44,
+    "topic": "媒体暴力审查",
+    "prompt": "Movies and computer games containing violence are popular. Some people say they have a negative effect on society and should be censored. Others say they are just harmless relaxation. Discuss both these views and give your own opinion."
+  },
+  {
+    "id": "四-045",
+    "category": "讨论型",
+    "categoryKey": "四",
+    "number": 45,
+    "topic": "学校课程设计",
+    "prompt": "Some people think that older school children should learn a wide range of subjects to acquire more knowledge, while other people believe they should learn a small number of subjects in detail. Discuss both views and give your opinions."
+  },
+  {
+    "id": "四-046",
+    "category": "讨论型",
+    "categoryKey": "四",
+    "number": 46,
+    "topic": "全球化与国家认同",
+    "prompt": "Some people think the increasing business and cultural contact between countries brings many positive effects. Others say it causes the loss of national identities. Discuss both views and give your opinion."
+  },
+  {
+    "id": "四-047",
+    "category": "讨论型",
+    "categoryKey": "四",
+    "number": 47,
+    "topic": "健康饮食教育",
+    "prompt": "Many people believe that healthy eating and the importance of healthy food should be taught in school. Others say that parents should teach their children about healthy food and diet. Discuss both views and give your opinion."
+  },
+  {
+    "id": "四-048",
+    "category": "讨论型",
+    "categoryKey": "四",
+    "number": 48,
+    "topic": "大学教育与成功",
+    "prompt": "Some people think that the best way to be successful in life is to get a university education. Others disagree and say this is no longer true. Discuss both views and give your own opinion."
+  },
+  {
+    "id": "四-049",
+    "category": "讨论型",
+    "categoryKey": "四",
+    "number": 49,
+    "topic": "儿童休闲选择",
+    "prompt": "Some people say free-time activities for children should be organized by parents. Others say that children should be free to choose what they do in their free time. Discuss both views and give your opinion."
+  },
+  {
+    "id": "四-050",
+    "category": "讨论型",
+    "categoryKey": "四",
+    "number": 50,
+    "topic": "艺术天赋辩论",
+    "prompt": "Some people say that anyone can create art, such as painting, poetry, music, and so on. Others think that a person should have special abilities to create art. Discuss both views and give your opinion."
+  },
+  {
+    "id": "四-051",
+    "category": "讨论型",
+    "categoryKey": "四",
+    "number": 51,
+    "topic": "监狱替代方案辩论",
+    "prompt": "Some people think all lawbreakers should be sent to prison, while others think there are better alternatives for those whose crimes are minor, such as making them do work for the local community. Discuss both views and give your own opinion."
+  },
+  {
+    "id": "四-052",
+    "category": "讨论型",
+    "categoryKey": "四",
+    "number": 52,
+    "topic": "青年与传统",
+    "prompt": "Some people think young people should follow the traditions of their society. Others think that they should be free to behave as themselves. Discuss both views and give your opinion."
+  },
+  {
+    "id": "四-053",
+    "category": "讨论型",
+    "categoryKey": "四",
+    "number": 53,
+    "topic": "公民责任辩论",
+    "prompt": "Some people think that paying taxes is their only duty, while others believe that we have more responsibilities towards society. Discuss both sides and give your opinion."
+  },
+  {
+    "id": "四-054",
+    "category": "讨论型",
+    "categoryKey": "四",
+    "number": 54,
+    "topic": "城乡健康生活",
+    "prompt": "Many people believe that it is easier to have a healthy lifestyle in the countryside. Others believe that there are health benefits to living in cities. Discuss both views and give your opinion."
+  },
+  {
+    "id": "四-055",
+    "category": "讨论型",
+    "categoryKey": "四",
+    "number": 55,
+    "topic": "全球法律体系",
+    "prompt": "Some people think it is better to have one single legal system worldwide, while others say countries should have their own laws. Discuss both views and give your opinion."
+  },
+  {
+    "id": "四-056",
+    "category": "讨论型",
+    "categoryKey": "四",
+    "number": 56,
+    "topic": "广告影响辩论",
+    "prompt": "Some people say that advertising has positive economic effects. Others think it has negative social effects because it will make people feel dissatisfied with who they are and what they have. Discuss both views and give your own opinion."
+  },
+  {
+    "id": "四-057",
+    "category": "讨论型",
+    "categoryKey": "四",
+    "number": 57,
+    "topic": "大学教育目的",
+    "prompt": "Some people believe that university education should focus on skills for employment in the future. Others think they should focus only on academic study. Discuss both views and give your opinion."
+  },
+  {
+    "id": "四-058",
+    "category": "讨论型",
+    "categoryKey": "四",
+    "number": 58,
+    "topic": "太空研究预算",
+    "prompt": "Some people want governments to spend money looking for life on other planets. Others, however, think this is a waste of public money when there are so many problems on Earth. Discuss both views and give your opinion."
+  },
+  {
+    "id": "四-059",
+    "category": "讨论型",
+    "categoryKey": "四",
+    "number": 59,
+    "topic": "太空探索价值",
+    "prompt": "Some people think that space travel is beneficial for the future development of humanity, while others believe that the money spent on space exploration should be used to solve problems on Earth. Discuss both views and give your own opinion."
+  },
+  {
+    "id": "四-060",
+    "category": "讨论型",
+    "categoryKey": "四",
+    "number": 60,
+    "topic": "野生动物分级保护",
+    "prompt": "Many believe that it is important to protect all wild animals, while others think that it is important to protect some, not all of them. Discuss both views and give your opinion."
+  },
+  {
+    "id": "五-001",
+    "category": "报告型",
+    "categoryKey": "五",
+    "number": 1,
+    "topic": "食物浪费对策",
+    "prompt": "Nowadays people waste a lot of food that was brought from shops and restaurants. Why do you think people waste food? What can be done to reduce the amount of food they throw away?"
+  },
+  {
+    "id": "五-002",
+    "category": "报告型",
+    "categoryKey": "五",
+    "number": 2,
+    "topic": "广告影响消费者",
+    "prompt": "Consumers are faced with an increasing number of advertisements by competing companies. To what extent do you think consumers are affected? What measures can be taken to tackle the problem?"
+  },
+  {
+    "id": "五-003",
+    "category": "报告型",
+    "categoryKey": "五",
+    "number": 3,
+    "topic": "年轻人户外活动",
+    "prompt": "These days, many young people do not spend their weekends and holidays doing outdoor activities such as hiking or mountaineering. Why is this the case? How can they be encouraged to spend more time in the natural environment?"
+  },
+  {
+    "id": "五-004",
+    "category": "报告型",
+    "categoryKey": "五",
+    "number": 4,
+    "topic": "罪犯再次犯罪",
+    "prompt": "Many criminals re-offend after they have been punished. Why do some people commit crimes after being punished? What measures can be taken to tackle this problem?"
+  },
+  {
+    "id": "五-005",
+    "category": "报告型",
+    "categoryKey": "五",
+    "number": 5,
+    "topic": "大学学习更难",
+    "prompt": "Many students find it harder to study at university or college compared to when they were in grade school. Why is this? What are some possible solutions to this problem?"
+  },
+  {
+    "id": "五-006",
+    "category": "报告型",
+    "categoryKey": "五",
+    "number": 6,
+    "topic": "提高业务销量",
+    "prompt": "There are different methods businesses use to increase their sales. What are the different ways companies use to increase sales? Which one is the most effective?"
+  },
+  {
+    "id": "五-007",
+    "category": "报告型",
+    "categoryKey": "五",
+    "number": 7,
+    "topic": "平衡工作生活",
+    "prompt": "Many people find it hard to balance their work with other parts of their lives. What are the reasons for this? How can this problem be overcome?"
+  },
+  {
+    "id": "五-008",
+    "category": "报告型",
+    "categoryKey": "五",
+    "number": 8,
+    "topic": "年轻人幸福感下降",
+    "prompt": "In some countries, young people have become richer, healthier, and live longer but are less happy. What causes? What can be done to address this situation?"
+  },
+  {
+    "id": "五-009",
+    "category": "报告型",
+    "categoryKey": "五",
+    "number": 9,
+    "topic": "自行车出行减少",
+    "prompt": "More and more people do not ride the bicycle as a mode of transportation even though it has a lot of benefits. What are the causes of this? How can people be encouraged to ride bikes?"
+  },
+  {
+    "id": "五-010",
+    "category": "报告型",
+    "categoryKey": "五",
+    "number": 10,
+    "topic": "本地博物馆参观",
+    "prompt": "Museums and historical sites are mainly visited by local people. Why is this the case? What can be done to encourage local people to visit these sites?"
+  },
+  {
+    "id": "五-011",
+    "category": "报告型",
+    "categoryKey": "五",
+    "number": 11,
+    "topic": "生物多样性减少趋势",
+    "prompt": "In many countries, the number of animals and plants is declining. Why do you think this is happening? How can this issue be solved?"
+  },
+  {
+    "id": "五-012",
+    "category": "报告型",
+    "categoryKey": "五",
+    "number": 12,
+    "topic": "抛弃型社会",
+    "prompt": "In many countries, people are living in a 'throw-away' society. They tend to use things for a short time and then throw them away. What do you think are the causes? What problems may it lead to?"
+  },
+  {
+    "id": "五-013",
+    "category": "报告型",
+    "categoryKey": "五",
+    "number": 13,
+    "topic": "老年人数字融入",
+    "prompt": "Mobile phones and the internet bring a lot of benefits to people nowadays. However, the old people use them the least. In what aspect do mobile phones and the internet benefit old people? How can we encourage old people to use them?"
+  },
+  {
+    "id": "五-014",
+    "category": "报告型",
+    "categoryKey": "五",
+    "number": 14,
+    "topic": "消费主义环境破坏",
+    "prompt": "The increase in the production of consumer goods results in damage to the natural environment. What are the causes of this? What can be done to solve this problem?"
+  },
+  {
+    "id": "五-015",
+    "category": "报告型",
+    "categoryKey": "五",
+    "number": 15,
+    "topic": "城市过度拥挤问题",
+    "prompt": "In many countries today, major cities have become too big and overcrowded. Why is this? What measures could be taken to reduce this problem?"
+  },
+  {
+    "id": "五-016",
+    "category": "报告型",
+    "categoryKey": "五",
+    "number": 16,
+    "topic": "代际沟通减少",
+    "prompt": "Nowadays, in many countries, young people don't communicate with older people as much as they used to. Why is this happening? How could this situation be improved?"
+  },
+  {
+    "id": "五-017",
+    "category": "报告型",
+    "categoryKey": "五",
+    "number": 17,
+    "topic": "艺术的价值",
+    "prompt": "In today's world of advanced science and technology, we still greatly value our artists such as musicians, painters and writers. What can arts tell us about life that science and technology cannot?"
+  },
+  {
+    "id": "五-018",
+    "category": "报告型",
+    "categoryKey": "五",
+    "number": 18,
+    "topic": "青少年犯罪上升",
+    "prompt": "Crime appears to be rising in most countries in the world, especially among young people. What are the possible causes of this trend, and what solutions would be effective in reducing crime levels?"
+  },
+  {
+    "id": "五-019",
+    "category": "报告型",
+    "categoryKey": "五",
+    "number": 19,
+    "topic": "垃圾回收率低",
+    "prompt": "Today, not many people recycle waste. Why is this the case? How can people be encouraged to recycle waste?"
+  },
+  {
+    "id": "五-020",
+    "category": "报告型",
+    "categoryKey": "五",
+    "number": 20,
+    "topic": "出国留学趋势",
+    "prompt": "Increasing numbers of students are choosing to study abroad. To what extent does this trend benefit the students themselves and the countries involved? What are the drawbacks?"
+  },
+  {
+    "id": "五-021",
+    "category": "报告型",
+    "categoryKey": "五",
+    "number": 21,
+    "topic": "频繁更换工作",
+    "prompt": "Nowadays, many people change jobs quite regularly, rather than working in one company for their entire careers. Why do you think this is happening? How can people be encouraged to stay in one job?"
+  },
+  {
+    "id": "五-022",
+    "category": "报告型",
+    "categoryKey": "五",
+    "number": 22,
+    "topic": "全球粮食短缺",
+    "prompt": "In many parts of the world, there is not enough food for everyone. What do you think are the causes of this? What solutions can you suggest?"
+  },
+  {
+    "id": "五-023",
+    "category": "报告型",
+    "categoryKey": "五",
+    "number": 23,
+    "topic": "自然资源过度消耗",
+    "prompt": "World's natural resources such as oil, forests and fresh water are consumed at an ever-increasing rate. What are the causes of this? How can it be solved?"
+  },
+  {
+    "id": "五-024",
+    "category": "报告型",
+    "categoryKey": "五",
+    "number": 24,
+    "topic": "退休寿命延长",
+    "prompt": "Today, people live longer after retiring from work. What problems does this cause for individuals and society? What can be done to address these problems?"
+  },
+  {
+    "id": "五-025",
+    "category": "报告型",
+    "categoryKey": "五",
+    "number": 25,
+    "topic": "反社会行为上升",
+    "prompt": "Today, there is a great increase in antisocial behavior and a lack of respect for others. What are the causes of this? What measures can be taken to reduce this problem?"
+  },
+  {
+    "id": "五-026",
+    "category": "报告型",
+    "categoryKey": "五",
+    "number": 26,
+    "topic": "生活垃圾增加",
+    "prompt": "In many countries, household waste e.g. food packaging is increasing day by day. What are the reasons for this? How can this problem be solved?"
+  },
+  {
+    "id": "五-027",
+    "category": "报告型",
+    "categoryKey": "五",
+    "number": 27,
+    "topic": "成人文盲问题",
+    "prompt": "Despite better access to education, many adults today still cannot read or write. In what ways are they disadvantaged? What can governments do to help them?"
+  },
+  {
+    "id": "五-028",
+    "category": "报告型",
+    "categoryKey": "五",
+    "number": 28,
+    "topic": "理科教育遇冷",
+    "prompt": "Nowadays, not enough students choose science subjects at university in many countries. Why is this? What effect does this have on society?"
+  },
+  {
+    "id": "五-029",
+    "category": "报告型",
+    "categoryKey": "五",
+    "number": 29,
+    "topic": "公共交通费用上涨",
+    "prompt": "In many countries, the cost of using public transport is rising rapidly. What are the causes of this problem? What solutions can be implemented to address it?"
+  },
+  {
+    "id": "五-030",
+    "category": "报告型",
+    "categoryKey": "五",
+    "number": 30,
+    "topic": "产品销售方法",
+    "prompt": "Companies use a variety of methods to improve the sales of their products. What are those methods? Which is the most effective method?"
+  },
+  {
+    "id": "五-031",
+    "category": "报告型",
+    "categoryKey": "五",
+    "number": 31,
+    "topic": "代际就业竞争",
+    "prompt": "Nowadays, more and more older people compete with younger people for the same jobs. What can be reason for this what would you suggest as a solution?"
+  },
+  {
+    "id": "六-001",
+    "category": "混搭型",
+    "categoryKey": "六",
+    "number": 1,
+    "topic": "全球建筑趋势",
+    "prompt": "In the past, buildings often reflected the culture of a society, but today, world are becoming more and more similar. Why is this the case? Is it a positive or negative development?"
+  },
+  {
+    "id": "六-002",
+    "category": "混搭型",
+    "categoryKey": "六",
+    "number": 2,
+    "topic": "全球食品运输",
+    "prompt": "Today's food travels thousands of miles before it reaches customers. Why is this the case? Is this a positive or negative development?"
+  },
+  {
+    "id": "六-003",
+    "category": "混搭型",
+    "categoryKey": "六",
+    "number": 3,
+    "topic": "父亲居家带娃",
+    "prompt": "These days, more fathers stay at home and take care of their children while mothers go out to work. What could be the reason for this? Is it a positive or negative development?"
+  },
+  {
+    "id": "六-004",
+    "category": "混搭型",
+    "categoryKey": "六",
+    "number": 4,
+    "topic": "美容整形热潮",
+    "prompt": "An increasing number of people are choosing to have cosmetic surgery in order to improve their appearance. Why do people have operations to change the way they look? Do you think this is a positive or negative development?"
+  },
+  {
+    "id": "六-005",
+    "category": "混搭型",
+    "categoryKey": "六",
+    "number": 5,
+    "topic": "城市交通问题",
+    "prompt": "Car ownership has increased so rapidly over the past thirty years that many cities worldwide are now facing serious traffic issues. Is this truly the case? What measures can governments take to discourage people from using cars?"
+  },
+  {
+    "id": "六-006",
+    "category": "混搭型",
+    "categoryKey": "六",
+    "number": 6,
+    "topic": "西式服装趋势",
+    "prompt": "In many countries, people now wear western-style dresses such as suits and jeans rather than traditional clothing. Why is this? Is this a positive or negative development?"
+  },
+  {
+    "id": "六-007",
+    "category": "混搭型",
+    "categoryKey": "六",
+    "number": 7,
+    "topic": "即时满足趋势",
+    "prompt": "Today, more and more people want things instantly (e.g. goods, services, news). Why is this the case? Is it a positive or negative development?"
+  },
+  {
+    "id": "六-008",
+    "category": "混搭型",
+    "categoryKey": "六",
+    "number": 8,
+    "topic": "雄心与成功",
+    "prompt": "Ambition is being emphasized in today's society. How important is it for people who want to succeed in life? Is it a positive or negative characteristic?"
+  },
+  {
+    "id": "六-009",
+    "category": "混搭型",
+    "categoryKey": "六",
+    "number": 9,
+    "topic": "线上医疗服务",
+    "prompt": "Online medical services are becoming more and more popular. Why is this? Is it a positive or negative development?"
+  },
+  {
+    "id": "六-010",
+    "category": "混搭型",
+    "categoryKey": "六",
+    "number": 10,
+    "topic": "男性育儿趋势",
+    "prompt": "In many countries, more and more men are staying at home to look after their children while women work full-time. What are the reasons? Is it a positive or negative development?"
+  },
+  {
+    "id": "六-011",
+    "category": "混搭型",
+    "categoryKey": "六",
+    "number": 11,
+    "topic": "性别学科选择",
+    "prompt": "In schools and universities, girls tend to choose the arts, while boys like science. What are the reasons for this trend? Do you think this tendency should be changed?"
+  },
+  {
+    "id": "六-012",
+    "category": "混搭型",
+    "categoryKey": "六",
+    "number": 12,
+    "topic": "城市交通转变",
+    "prompt": "In some cities, people are choosing cars instead of bicycles, while in others, riding bikes is replacing driving cars. What are the causes of those developments? Which development do you think is better?"
+  },
+  {
+    "id": "六-013",
+    "category": "混搭型",
+    "categoryKey": "六",
+    "number": 13,
+    "topic": "城市骑行推广",
+    "prompt": "Some countries spend a lot of money making it easier to use bicycles in cities. Why is this? Is it the best solution to transport problems?"
+  },
+  {
+    "id": "六-014",
+    "category": "混搭型",
+    "categoryKey": "六",
+    "number": 14,
+    "topic": "父母成功压力",
+    "prompt": "Nowadays, parents put too much pressure on their children to succeed. What are the reasons for this? Is this a positive or negative development for children?"
+  },
+  {
+    "id": "六-015",
+    "category": "混搭型",
+    "categoryKey": "六",
+    "number": 15,
+    "topic": "广告影响力下降",
+    "prompt": "People are becoming less influenced by advertisements today. Why is this the case? Is it a positive or negative development?"
+  },
+  {
+    "id": "六-016",
+    "category": "混搭型",
+    "categoryKey": "六",
+    "number": 16,
+    "topic": "晚育趋势",
+    "prompt": "In many countries, people decide to have children at a later age than in the past. Why? Do the advantages of this development outweigh the disadvantages?"
+  },
+  {
+    "id": "六-017",
+    "category": "混搭型",
+    "categoryKey": "六",
+    "number": 17,
+    "topic": "报纸影响力增长",
+    "prompt": "Nowadays, newspapers have an increasing influence on people's ideas and opinions. What are the reasons for this? Is it a negative or positive development?"
+  },
+  {
+    "id": "六-018",
+    "category": "混搭型",
+    "categoryKey": "六",
+    "number": 18,
+    "topic": "努力工作文化",
+    "prompt": "In education and employment, some people work much harder than others. Why do they work much harder than others? Is it always a good thing to work hard?"
+  },
+  {
+    "id": "六-019",
+    "category": "混搭型",
+    "categoryKey": "六",
+    "number": 19,
+    "topic": "外国电影偏好",
+    "prompt": "Many people prefer to watch foreign films rather than locally produced films. Why could this be? Should governments give more financial support to local film industries?"
+  },
+  {
+    "id": "六-020",
+    "category": "混搭型",
+    "categoryKey": "六",
+    "number": 20,
+    "topic": "社会竞争趋势",
+    "prompt": "Competitiveness is considered to be an important quality for people in many societies. How do you think it affects individuals? Is it a positive or negative trend?"
+  },
+  {
+    "id": "六-021",
+    "category": "混搭型",
+    "categoryKey": "六",
+    "number": 21,
+    "topic": "网络医疗咨询",
+    "prompt": "Nowadays, many people use the Internet to get medical advice instead of going to see a doctor. Why is this? Do you think it is a positive or negative development?"
+  },
+  {
+    "id": "六-022",
+    "category": "混搭型",
+    "categoryKey": "六",
+    "number": 22,
+    "topic": "工作时间限制",
+    "prompt": "Some countries have introduced laws to limit the working hours that an employer can ask from an employee. Why were these laws introduced? Is this a positive or negative trend?"
+  },
+  {
+    "id": "六-023",
+    "category": "混搭型",
+    "categoryKey": "六",
+    "number": 23,
+    "topic": "儿童游戏趋势",
+    "prompt": "Today, many children spend a lot of time playing computer games and little time on sports. Why is this the case? Is it a positive or negative development?"
+  },
+  {
+    "id": "六-024",
+    "category": "混搭型",
+    "categoryKey": "六",
+    "number": 24,
+    "topic": "家族寻根探索",
+    "prompt": "Nowadays, more and more people are interested in learning about their family history. Why is this? Is it a positive or negative development?"
+  }
+]
+
