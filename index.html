@@ -8,6 +8,7 @@
   <link rel="stylesheet" href="assets/style.css">
   <link rel="stylesheet" href="assets/training.css?v=5">
   <link rel="stylesheet" href="assets/ui.css?v=2">
+  <link rel="stylesheet" href="assets/mnemonic.css?v=1">
 </head>
 <body>
   <header class="hero">
@@ -221,22 +222,11 @@
         </div>
       </div>
       <details class="mnemonic-panel" id="dictationMnemonic" hidden>
-        <summary><div><b>主题记忆图（可选）</b><small>Surtsey Island · 用场景位置记住10个答案词</small></div><span>点击查看</span></summary>
+        <summary><div><b>主题记忆图（可选）</b><small id="mnemonicSubtitle">用场景位置记住答案词</small></div><span>点击查看</span></summary>
+        <div class="mnemonic-summary"><b>中文梗概</b><p id="mnemonicChineseSummary"></p></div>
         <p class="mnemonic-tip">图片不会提前自动展开。手机上可以左右滑动画面，观察每个答案词所在的位置。</p>
         <div class="mnemonic-scroller">
-          <div class="mnemonic-canvas">
-            <img data-src="assets/mnemonics/surtsey-island.webp" alt="Surtsey Island 火山岛主题答案词视觉记忆图">
-            <i style="--x:15%;--y:18%">volcano</i>
-            <i style="--x:52%;--y:17%">smoke</i>
-            <i style="--x:11%;--y:82%">flower</i>
-            <i style="--x:55%;--y:77%">grass</i>
-            <i style="--x:89%;--y:54%">bacteria</i>
-            <i style="--x:27%;--y:66%">carpet</i>
-            <i style="--x:89%;--y:86%">fossils</i>
-            <i style="--x:72%;--y:53%">radio</i>
-            <i style="--x:43%;--y:63%">houses</i>
-            <i style="--x:82%;--y:23%">dormant</i>
-          </div>
+          <div class="mnemonic-canvas" id="mnemonicCanvas"></div>
         </div>
       </details>
       <details class="module-activity" data-card-overview="dictation">
@@ -306,7 +296,7 @@
   <script src="assets/reading.js?v=6" defer></script>
   <script src="assets/listening.js?v=6" defer></script>
   <script src="assets/dictation.js?v=2" defer></script>
-  <script src="assets/mnemonic.js?v=1" defer></script>
+  <script src="assets/mnemonic.js?v=2" defer></script>
   <script src="assets/overview.js?v=2" defer></script>
   <script src="assets/ui.js?v=1" defer></script>
   <script src="assets/training.js?v=7" defer></script>
