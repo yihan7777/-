@@ -16,6 +16,9 @@
   let paperSelection = new Set();
   let paperQueue = [];
   let paperIndex = -1;
+  let paperResults = new Map();
+  let paperReviewQueue = [];
+  let paperObjectUrls = [];
   const dbName = 'ielts-private-listening-bank-v1';
   function openDb() {
     return new Promise((resolve,reject) => {
@@ -192,10 +195,39 @@
   async function startPaper(records) {
     paperQueue=sortPaper(records.filter(x=>paperSelection.has(x.id)));
     if(!paperQueue.length)return;
-    paperIndex=0;
-    await launchTest(paperQueue[0].html,paperQueue[0].audio,paperQueue[0].title,paperQueue[0].part);
+    launchPaperWorkspace();
+  }
+  function cleanupPaperWorkspace() {
+    paperObjectUrls.forEach(url=>URL.revokeObjectURL(url));paperObjectUrls=[];
+    $('#paperFrames').innerHTML='';$('#paperFrames').hidden=true;$('#paperPartNav').hidden=true;
+  }
+  function showPaperPart(index) {
+    paperIndex=index;
+    document.querySelectorAll('[data-paper-frame]').forEach(frame=>{
+      const active=Number(frame.dataset.paperFrame)===index;frame.hidden=!active;
+      if(!active){try{frame.contentDocument?.querySelectorAll('audio').forEach(audio=>audio.pause())}catch(_){}}
+    });
+    document.querySelectorAll('[data-paper-switch]').forEach(btn=>btn.classList.toggle('active',Number(btn.dataset.paperSwitch)===index));
+    const record=paperQueue[index];
+    if(record)$('#practiceTitle').textContent='IELTS 套题 · '+record.part+' · '+record.title;
+  }
+  function launchPaperWorkspace() {
+    cleanupPaperWorkspace();paperResults=new Map();paperReviewQueue=[];paperIndex=0;
+    $('#practiceFrame').hidden=true;$('#practiceFrame').src='about:blank';
+    $('#paperPartNav').hidden=false;$('#paperFrames').hidden=false;
+    $('#paperPartNav').innerHTML=paperQueue.map((x,i)=>'<button data-paper-switch="'+i+'"><b>'+esc(x.part)+'</b><small>'+(i+1)+'</small></button>').join('');
+    $('#paperFrames').innerHTML=paperQueue.map((record,i)=>{
+      const audioUrl=URL.createObjectURL(record.audio);paperObjectUrls.push(audioUrl);
+      const source=injectBridge(record.html,audioUrl,record.title,record.part);
+      const pageUrl=URL.createObjectURL(new Blob([source],{type:'text/html'}));paperObjectUrls.push(pageUrl);
+      return '<iframe data-paper-frame="'+i+'" src="'+esc(pageUrl)+'" title="'+esc(record.part+' '+record.title)+'" '+(i?'hidden':'')+'></iframe>';
+    }).join('');
+    document.querySelectorAll('[data-paper-switch]').forEach(btn=>btn.onclick=()=>showPaperPart(Number(btn.dataset.paperSwitch)));
+    $('#practiceFrameWrap').classList.remove('hidden');$('#causePanel').classList.add('hidden');
+    showPaperPart(0);$('#practiceFrameWrap').scrollIntoView({behavior:'smooth',block:'start'});
   }
   async function launchTest(htmlText, audioBlob, title, part) {
+    cleanupPaperWorkspace();$('#practiceFrame').hidden=false;
     if (activeUrl) URL.revokeObjectURL(activeUrl);
     if (activeAudioUrl) URL.revokeObjectURL(activeAudioUrl);
     activeAudioUrl = URL.createObjectURL(audioBlob);
@@ -203,7 +235,7 @@
     const source = injectBridge(htmlText, activeAudioUrl, title, part);
     activeUrl = URL.createObjectURL(new Blob([source], {type:'text/html'}));
     $('#practiceFrame').src = activeUrl;
-    $('#practiceTitle').textContent = paperQueue.length&&paperIndex>=0 ? '套题 '+(paperIndex+1)+'/'+paperQueue.length+' · '+part+' · '+title : part + ' · ' + title;
+    $('#practiceTitle').textContent = part + ' · ' + title;
     $('#practiceFrameWrap').classList.remove('hidden');
     $('#causePanel').classList.add('hidden');
     $('#practiceFrameWrap').scrollIntoView({behavior:'smooth',block:'start'});
@@ -232,7 +264,7 @@
     }).join('') : '<p>'+(privateVipOnly?'这个部分暂时没有标记为 VIP 的题目。':'这个部分还没有导入篇目。')+'</p>';
     document.querySelectorAll('[data-private-test]').forEach(btn => btn.onclick = async () => {
       const record = (await dbAll()).find(x => x.id === btn.dataset.privateTest);
-      if (record) { paperQueue=[];paperIndex=-1;launchTest(record.html, record.audio, record.title, record.part); }
+      if (record) { paperQueue=[];paperReviewQueue=[];paperIndex=-1;launchTest(record.html, record.audio, record.title, record.part); }
     });
     document.querySelectorAll('[data-add-paper]').forEach(btn=>btn.onclick=()=>{paperSelection.has(btn.dataset.addPaper)?paperSelection.delete(btn.dataset.addPaper):paperSelection.add(btn.dataset.addPaper);renderPrivateBank()});
     document.querySelectorAll('[data-edit-attempt]').forEach(btn=>btn.onclick=()=>openAttemptEditor(btn.dataset.editAttempt));
@@ -240,6 +272,7 @@
   }
   function openAttemptEditor(id) {
     const attempt=loadHistory().find(x=>x.id===id);if(!attempt)return;
+    paperReviewQueue=[];
     editingAttemptId=id;pendingResult=JSON.parse(JSON.stringify(attempt));
     const wrong=pendingResult.wrongQuestions||[];
     $('#practiceScore').textContent=pendingResult.correct+'/'+pendingResult.total+' · 重新编辑';
@@ -305,7 +338,7 @@
     if (!htmlFile || !audioFile) { status('需要同时选择同一篇的 HTML 题目和 audio.mp3。', true); return; }
     const title = htmlFile.name.replace(/\.html$/i,'');
     const part = inferPart(title);
-    paperQueue=[];paperIndex=-1;
+    paperQueue=[];paperReviewQueue=[];paperIndex=-1;
     await launchTest(await htmlFile.text(), audioFile, title, part);
     status('✓ 题目已在本机打开。完成后请点击题目页面底部的 Finish。');
   });
@@ -316,7 +349,7 @@
     status('本机私人题库已清除。');
   });
   $('#closeListeningTest')?.addEventListener('click', () => {
-    paperQueue=[];paperIndex=-1;
+    paperQueue=[];paperReviewQueue=[];paperIndex=-1;cleanupPaperWorkspace();
     $('#practiceFrameWrap').classList.remove('fullscreen-test');
     $('#practiceFrameWrap').classList.add('hidden');
     $('#practiceFrame').src = 'about:blank';
@@ -330,17 +363,31 @@
     }
   });
   document.addEventListener('fullscreenchange',()=>{ if(!document.fullscreenElement) $('#practiceFrameWrap')?.classList.remove('fullscreen-test'); });
+  function showResultReview(data,label='') {
+    editingAttemptId=null;
+    pendingResult={...data,id:'attempt-'+Date.now()+'-'+Math.random().toString(36).slice(2,7),date:new Date().toISOString(),reviews:{},reviewPlan:[{label:'D+1',due:dayStamp(1),done:false},{label:'D+3',due:dayStamp(3),done:false},{label:'D+7',due:dayStamp(7),done:false}]};
+    const wrong=pendingResult.wrongQuestions||[];
+    const rate=pendingResult.total?Math.round(wrong.length/pendingResult.total*100):0;
+    $('#practiceScore').textContent=(label?label+' · ':'')+pendingResult.correct+'/'+pendingResult.total+' · 错误率 '+rate+'%';
+    $('#causeQuestions').innerHTML=wrong.length?wrong.map(q=>reviewCard(q,pendingResult.questionDetails?.[q]||{})).join(''):'<p>本篇全部正确，无需标记错因。</p>';
+    $('#saveTestAnalysis').textContent=paperReviewQueue.length&&paperIndex<paperReviewQueue.length-1?'保存并复盘下一篇':'保存本次复盘';
+    $('#causePanel').classList.remove('hidden');$('#causePanel').scrollIntoView({behavior:'smooth',block:'start'});
+  }
   window.addEventListener('message', event => {
     if (event.data?.type !== 'ielts-test-result') return;
-    editingAttemptId = null;
-    pendingResult = {...event.data, id:'attempt-' + Date.now(), date:new Date().toISOString(), reviews:{}, reviewPlan:[{label:'D+1',due:dayStamp(1),done:false},{label:'D+3',due:dayStamp(3),done:false},{label:'D+7',due:dayStamp(7),done:false}]};
-    const wrong = pendingResult.wrongQuestions || [];
-    const rate = pendingResult.total ? Math.round(wrong.length / pendingResult.total * 100) : 0;
-    $('#practiceScore').textContent = pendingResult.correct + '/' + pendingResult.total + ' · 错误率 ' + rate + '%';
-    $('#causeQuestions').innerHTML = wrong.length ? wrong.map(q=>reviewCard(q,pendingResult.questionDetails?.[q]||{})).join('') : '<p>本篇全部正确，无需标记错因。</p>';
-    $('#saveTestAnalysis').textContent=paperQueue.length&&paperIndex<paperQueue.length-1?'保存复盘并进入下一篇':'保存本次复盘';
-    $('#causePanel').classList.remove('hidden');
-    $('#causePanel').scrollIntoView({behavior:'smooth',block:'start'});
+    if(paperQueue.length){
+      const index=paperQueue.findIndex(x=>x.title===event.data.title&&x.part===event.data.part);
+      if(index<0)return;
+      paperResults.set(index,event.data);
+      const tab=document.querySelector('[data-paper-switch="'+index+'"]');if(tab)tab.classList.add('completed');
+      if(paperResults.size<paperQueue.length){
+        const next=paperQueue.findIndex((_,i)=>!paperResults.has(i));showPaperPart(next);return;
+      }
+      paperReviewQueue=paperQueue.map((_,i)=>paperResults.get(i));
+      paperQueue=[];paperIndex=0;cleanupPaperWorkspace();$('#practiceFrameWrap').classList.add('hidden');
+      showResultReview(paperReviewQueue[0],'套题复盘 1/'+paperReviewQueue.length);return;
+    }
+    showResultReview(event.data);
   });
   $('#saveTestAnalysis')?.addEventListener('click', async () => {
     if (!pendingResult) return;
@@ -371,14 +418,13 @@
     $('#causePanel').classList.add('hidden');
     const wasEditing=Boolean(editingAttemptId);editingAttemptId=null;pendingResult = null;
     renderPrivateBank();
-    if(!wasEditing&&paperQueue.length&&paperIndex<paperQueue.length-1){
+    if(!wasEditing&&paperReviewQueue.length&&paperIndex<paperReviewQueue.length-1){
       paperIndex++;
-      const next=paperQueue[paperIndex];
-      alert('本篇复盘已保存。接下来进入 '+next.part+'（'+(paperIndex+1)+'/'+paperQueue.length+'）。');
-      await launchTest(next.html,next.audio,next.title,next.part);
+      const next=paperReviewQueue[paperIndex];
+      showResultReview(next,'套题复盘 '+(paperIndex+1)+'/'+paperReviewQueue.length);
     }else{
-      const paperFinished=!wasEditing&&paperQueue.length>0;
-      paperQueue=[];paperIndex=-1;
+      const paperFinished=!wasEditing&&paperReviewQueue.length>0;
+      paperQueue=[];paperReviewQueue=[];paperIndex=-1;
       activate('analysis');
       alert((paperFinished?'整套题已完成并保存':wasEditing?'修改已保存':'复盘已保存')+'：加入 '+wordsAdded+' 张反应卡、'+phrasesAdded+' 张短语卡。');
     }
