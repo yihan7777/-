@@ -213,22 +213,37 @@
     try {
       const doc=frame.contentDocument, win=frame.contentWindow;
       if(!doc||!win||!doc.body)return;
-      doc.body.style.transform='';
-      doc.body.style.transformOrigin='top left';
       const nodes=[...doc.querySelectorAll('h1,h2,h3,[role="heading"],header,.title')];
       const target=nodes.find(el=>/IELTS\s+Listening\s+Practice/i.test(el.textContent||''))||nodes.find(el=>(el.textContent||'').trim().length>3)||doc.body.firstElementChild;
       if(!target){win.scrollTo(0,0);return}
-      const absoluteTop=target.getBoundingClientRect().top+win.scrollY;
-      const maxScroll=Math.max(0,doc.documentElement.scrollHeight-win.innerHeight);
-      if(absoluteTop>260&&maxScroll<absoluteTop-40){
-        const shift=Math.max(0,absoluteTop-18);
-        doc.body.style.transform='translateY(-'+shift+'px)';
-        doc.body.style.marginBottom='-'+shift+'px';
-        win.scrollTo(0,0);
-      }else{
-        doc.body.style.marginBottom='';
-        win.scrollTo(0,Math.max(0,absoluteTop-12));
+      let node=target;
+      while(node&&node!==doc.documentElement){
+        const cs=win.getComputedStyle(node);
+        node.style.setProperty('min-height','0','important');
+        node.style.setProperty('height','auto','important');
+        node.style.setProperty('margin-top','0','important');
+        node.style.setProperty('padding-top','0','important');
+        node.style.setProperty('justify-content','flex-start','important');
+        node.style.setProperty('align-content','flex-start','important');
+        node.style.setProperty('transform','none','important');
+        if((cs.position==='absolute'||cs.position==='fixed')&&node!==target){
+          node.style.setProperty('position','relative','important');
+          node.style.setProperty('top','auto','important');
+          node.style.setProperty('bottom','auto','important');
+        }
+        [...node.children].forEach(child=>{
+          if(child===target||child.contains(target))return;
+          const r=child.getBoundingClientRect(), meaningful=(child.textContent||'').trim()||child.querySelector('audio,input,textarea,button,img,svg,canvas');
+          if(!meaningful&&r.height>180)child.style.setProperty('display','none','important');
+        });
+        node=node.parentElement;
       }
+      doc.documentElement.style.setProperty('height','auto','important');
+      doc.body.style.setProperty('min-height','0','important');
+      doc.body.style.setProperty('height','auto','important');
+      doc.body.style.setProperty('transform','none','important');
+      doc.body.style.setProperty('margin-bottom','0','important');
+      win.scrollTo(0,Math.max(0,target.getBoundingClientRect().top+win.scrollY-12));
     } catch(_){}
   }
   function showPaperPart(index) {
