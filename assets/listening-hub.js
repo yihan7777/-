@@ -211,40 +211,18 @@
   function focusPaperContent(frame) {
     if(!frame)return;
     try {
-      const doc=frame.contentDocument, win=frame.contentWindow;
-      if(!doc||!win||!doc.body)return;
+      const doc=frame.contentDocument,win=frame.contentWindow,holder=frame.parentElement;
+      if(!doc||!win||!holder)return;
+      frame.style.setProperty('transform','none','important');frame.style.setProperty('height','100%','important');win.scrollTo(0,0);
       const nodes=[...doc.querySelectorAll('h1,h2,h3,[role="heading"],header,.title')];
-      const target=nodes.find(el=>/IELTS\s+Listening\s+Practice/i.test(el.textContent||''))||nodes.find(el=>(el.textContent||'').trim().length>3)||doc.body.firstElementChild;
-      if(!target){win.scrollTo(0,0);return}
-      let node=target;
-      while(node&&node!==doc.documentElement){
-        const cs=win.getComputedStyle(node);
-        node.style.setProperty('min-height','0','important');
-        node.style.setProperty('height','auto','important');
-        node.style.setProperty('margin-top','0','important');
-        node.style.setProperty('padding-top','0','important');
-        node.style.setProperty('justify-content','flex-start','important');
-        node.style.setProperty('align-content','flex-start','important');
-        node.style.setProperty('transform','none','important');
-        if((cs.position==='absolute'||cs.position==='fixed')&&node!==target){
-          node.style.setProperty('position','relative','important');
-          node.style.setProperty('top','auto','important');
-          node.style.setProperty('bottom','auto','important');
-        }
-        [...node.children].forEach(child=>{
-          if(child===target||child.contains(target))return;
-          const r=child.getBoundingClientRect(), meaningful=(child.textContent||'').trim()||child.querySelector('audio,input,textarea,button,img,svg,canvas');
-          if(!meaningful&&r.height>180)child.style.setProperty('display','none','important');
-        });
-        node=node.parentElement;
-      }
-      doc.documentElement.style.setProperty('height','auto','important');
-      doc.body.style.setProperty('min-height','0','important');
-      doc.body.style.setProperty('height','auto','important');
-      doc.body.style.setProperty('transform','none','important');
-      doc.body.style.setProperty('margin-bottom','0','important');
-      win.scrollTo(0,Math.max(0,target.getBoundingClientRect().top+win.scrollY-12));
-    } catch(_){}
+      const target=nodes.find(el=>/IELTS\s+Listening\s+Practice/i.test(el.textContent||''))||nodes.find(el=>/Questions?\s*1/i.test(el.textContent||''))||doc.body?.firstElementChild;
+      if(!target)return;
+      const top=Math.max(0,target.getBoundingClientRect().top),crop=top>180?Math.max(0,top-18):0;
+      holder.style.setProperty('overflow','hidden','important');holder.style.setProperty('position','relative','important');
+      frame.style.setProperty('height',(Math.max(holder.clientHeight,win.innerHeight)+crop)+'px','important');
+      frame.style.setProperty('transform','translateY(-'+crop+'px)','important');frame.style.setProperty('transform-origin','top left','important');
+      frame.dataset.cropOffset=String(Math.round(crop));
+    }catch(_){}
   }
   function showPaperPart(index) {
     paperIndex=index;
