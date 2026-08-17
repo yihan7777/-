@@ -159,7 +159,7 @@
   }
   function injectBridge(html, audioUrl, title, part) {
     const replaced = html.replace(/"audio"\s*:\s*"[^"]*"/, '"audio":' + JSON.stringify(audioUrl));
-    const layoutFix = '<style id="ielts-embedded-layout-fix">html{margin:0!important;padding:0!important;min-height:0!important;height:auto!important;scroll-behavior:auto}body{margin:0!important;padding:18px 22px 80px!important;min-height:0!important;height:auto!important;box-sizing:border-box!important;background:#fff!important}body>header:first-child,body>main:first-child,body>#app:first-child,body>.app:first-child,body>.container:first-child,body>.wrapper:first-child,body>.page:first-child{margin-top:0!important;padding-top:0!important;min-height:0!important}main,#app,.app,.container,.wrapper,.page{min-height:0!important;height:auto!important}audio{max-width:100%}@media(max-width:700px){body{padding:12px 12px 64px!important}}</style>';
+    const layoutFix = '<style id="ielts-embedded-layout-fix">html{margin:0!important;padding:0!important;min-height:100%!important;height:auto!important;scroll-behavior:auto}body{display:block!important;align-items:initial!important;justify-content:initial!important;margin:0!important;padding:18px 22px 80px!important;min-height:100%!important;height:auto!important;box-sizing:border-box!important;background:#fff!important}body>*:first-child,body>header:first-child,body>main:first-child,body>#app:first-child,body>.app:first-child,body>.container:first-child,body>.wrapper:first-child,body>.page:first-child{margin-top:0!important;padding-top:0!important;transform:none!important}audio{max-width:100%}@media(max-width:700px){body{padding:12px 12px 64px!important}}</style>';
     const bridge = '<script>(function(){function plain(v){var d=document.createElement("div");d.innerHTML=String(v||"");return d.textContent.trim()}document.addEventListener("click",function(e){if(e.target&&e.target.id==="finish"){setTimeout(function(){var wrong=[].slice.call(document.querySelectorAll("#nav .incorrect")).map(function(x){return x.dataset.q});var correct=document.querySelectorAll("#nav .correct").length;var rows=[].slice.call(document.querySelectorAll(".review-table tbody tr"));var details={};wrong.forEach(function(q){var row=rows.find(function(r){return r.cells&&r.cells[0]&&r.cells[0].textContent.trim()===String(q)});var cues=(typeof DATA!=="undefined"&&DATA.transcriptLines||[]).filter(function(x){var h=String(x&&x.html||"");return h.indexOf("q"+q)>=0||h.indexOf("Q"+q)>=0});details[q]={userAnswer:row&&row.cells[1]?row.cells[1].textContent.trim():"",correctAnswer:row&&row.querySelector(".answer-value")?row.querySelector(".answer-value").dataset.answer:"",transcript:cues.map(function(x){return plain(x.html)}).join(" "),analysis:cues.map(function(x){return plain(x.analysis)}).filter(Boolean).join(" ")}});parent.postMessage({type:"ielts-test-result",title:' + JSON.stringify(title) + ',part:' + JSON.stringify(part) + ',correct:correct,wrongQuestions:wrong,total:correct+wrong.length,questionDetails:details},"*")},800)}})})();<\/script>';
     const withStyle=/<\/head>/i.test(replaced)?replaced.replace(/<\/head>/i,layoutFix+'</head>'):layoutFix+replaced;
     return withStyle.replace('</body>', bridge + '</body>');
@@ -217,6 +217,8 @@
     document.querySelectorAll('[data-paper-switch]').forEach(btn=>btn.classList.toggle('active',Number(btn.dataset.paperSwitch)===index));
     const record=paperQueue[index];
     if(record)$('#practiceTitle').textContent='IELTS 套题 · '+record.part+' · '+record.title;
+    const activeFrame=document.querySelector('[data-paper-frame="'+index+'"]');
+    try { activeFrame?.contentWindow?.scrollTo(0,0); } catch (_) {}
   }
   function launchPaperWorkspace() {
     cleanupPaperWorkspace();paperResults=new Map();paperReviewQueue=[];paperIndex=0;
@@ -227,8 +229,9 @@
       const audioUrl=URL.createObjectURL(record.audio);paperObjectUrls.push(audioUrl);
       const source=injectBridge(record.html,audioUrl,record.title,record.part);
       const pageUrl=URL.createObjectURL(new Blob([source],{type:'text/html'}));paperObjectUrls.push(pageUrl);
-      return '<iframe data-paper-frame="'+i+'" src="'+esc(pageUrl)+'" title="'+esc(record.part+' '+record.title)+'" '+(i?'hidden':'')+'></iframe>';
+      return '<iframe data-paper-frame="'+i+'" src="'+esc(pageUrl)+'" title="'+esc(record.part+' '+record.title)+'" loading="eager" '+(i?'hidden':'')+'></iframe>';
     }).join('');
+    document.querySelectorAll('[data-paper-frame]').forEach(frame=>frame.addEventListener('load',()=>{try{frame.contentWindow.scrollTo(0,0)}catch(_){}}));
     document.querySelectorAll('[data-paper-switch]').forEach(btn=>btn.onclick=()=>showPaperPart(Number(btn.dataset.paperSwitch)));
     $('#practiceFrameWrap').classList.remove('hidden');$('#causePanel').classList.add('hidden');
     showPaperPart(0);$('#practiceFrameWrap').scrollIntoView({behavior:'smooth',block:'start'});
