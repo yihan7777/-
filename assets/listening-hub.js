@@ -212,13 +212,23 @@
     if(!frame)return;
     try {
       const doc=frame.contentDocument, win=frame.contentWindow;
-      if(!doc||!win)return;
+      if(!doc||!win||!doc.body)return;
+      doc.body.style.transform='';
+      doc.body.style.transformOrigin='top left';
       const nodes=[...doc.querySelectorAll('h1,h2,h3,[role="heading"],header,.title')];
-      const target=nodes.find(el=>/IELTS\s+Listening\s+Practice/i.test(el.textContent||''))||nodes.find(el=>(el.textContent||'').trim().length>3)||doc.body?.firstElementChild;
-      if(target){
-        const top=target.getBoundingClientRect().top+win.scrollY;
-        win.scrollTo(0,Math.max(0,top-12));
-      } else win.scrollTo(0,0);
+      const target=nodes.find(el=>/IELTS\s+Listening\s+Practice/i.test(el.textContent||''))||nodes.find(el=>(el.textContent||'').trim().length>3)||doc.body.firstElementChild;
+      if(!target){win.scrollTo(0,0);return}
+      const absoluteTop=target.getBoundingClientRect().top+win.scrollY;
+      const maxScroll=Math.max(0,doc.documentElement.scrollHeight-win.innerHeight);
+      if(absoluteTop>260&&maxScroll<absoluteTop-40){
+        const shift=Math.max(0,absoluteTop-18);
+        doc.body.style.transform='translateY(-'+shift+'px)';
+        doc.body.style.marginBottom='-'+shift+'px';
+        win.scrollTo(0,0);
+      }else{
+        doc.body.style.marginBottom='';
+        win.scrollTo(0,Math.max(0,absoluteTop-12));
+      }
     } catch(_){}
   }
   function showPaperPart(index) {
