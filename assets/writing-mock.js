@@ -157,9 +157,21 @@
     const ai=session.aiReport?parseAIReport(session.aiReport,session):null;if(ai)renderAIReport(ai,session);else renderLocalReport(session);$('#writingAIImport').value=session.aiReport||'';$('#removeWritingAI').hidden=!session.aiReport;$('#writingAIReport').innerHTML=session.aiReport?`<details><summary>查看 ChatGPT 原始回复</summary><pre>${esc(session.aiReport)}</pre></details>`:'';setupReportPager();
     $('#writingReview').scrollIntoView({behavior:'smooth',block:'start'});
   }
-  function aiPrompt(s){const t1=s.task==='task1';return `你是严格但实用的 IELTS Academic Writing ${t1?'Task 1':'Task 2'} 批改老师。请根据 IELTS 四项标准批改，不要虚高分数。\n\n【题目】\n${s.question}\n\n【考生作文】\n${s.essay}\n\n先输出便于阅读的中文报告，必须包含：1. 总分及 ${t1?'TA':'TR'}/CC/LR/GRA；2. 总体评价；3. 对全文逐句批改，每句都写“原句 → 修改句 → 原因”，并区分“确定错误/搭配/逻辑/风格优化”；4. ${t1?'一版6.5–7分范文，不得编造题图数据':'保留考生原有观点的一版6.5–7分修改稿'}；5. 10个本题表达（中文＋例句）；6. 下次最优先的3条建议。\n\n最后必须另起一段输出下面结构的纯 JSON 代码块，字段不可省略，确保网页可自动识别：\n\`\`\`json\n{"overall":6.5,"taskScore":6.5,"cc":6.5,"lr":6.5,"gra":6.5,"overallFeedback":"总体评价","sentenceCorrections":[{"original":"原句","revised":"修改句","reason":"具体原因","type":"确定错误或风格优化"}],"revisedEssay":"完整修改稿","vocabulary":[{"expression":"表达","meaning":"中文","example":"英文例句"}],"nextSteps":["建议1","建议2","建议3"]}\n\`\`\`\n逐句批改必须覆盖考生全文，不能只挑几句。`;}
-  async function copyText(text){try{await navigator.clipboard.writeText(text)}catch(_){const t=document.createElement('textarea');t.value=text;document.body.append(t);t.select();document.execCommand('copy');t.remove()}}
-  $('#openWritingAI').onclick=async()=>{if(!currentSession)return;await copyText(aiPrompt(currentSession));const w=window.open('https://chatgpt.com/','_blank','noopener');alert('完整题目、作文和批改格式已经复制。打开 ChatGPT 后直接粘贴发送，再把报告粘贴回本页。');if(!w)location.href='https://chatgpt.com/'};
+  function aiPrompt(s){const t1=s.task==='task1';return `你是严格但实用的 IELTS Academic Writing ${t1?'Task 1':'Task 2'} 批改老师。请根据 IELTS 四项标准批改，不要虚高分数。\n\n【题目】\n${s.question}\n\n【考生作文】\n${s.essay}\n\n请逐句覆盖全文，并把结果严格输出为下面这一个 JSON 对象。不要输出 Markdown、代码围栏、表格、星号、标题或 JSON 之外的解释。字符串中不要使用未转义的换行。字段不可省略：\n{\"overall\":6.5,\"taskScore\":6.5,\"cc\":6.5,\"lr\":6.5,\"gra\":6.5,\"overallFeedback\":\"中文总体评价\",\"sentenceCorrections\":[{\"original\":\"考生完整原句\",\"revised\":\"修改后的完整句\",\"reason\":\"中文具体原因\",\"type\":\"确定错误/搭配/逻辑/风格优化\"}],\"revisedEssay\":\"${t1?'一版6.5–7分范文，不得编造题图数据':'保留考生原观点的一版6.5–7分完整修改稿'}\",\"vocabulary\":[{\"expression\":\"英文表达\",\"meaning\":\"中文含义\",\"example\":\"英文例句\"}],\"nextSteps\":[\"最优先建议1\",\"建议2\",\"建议3\"]}\n\nsentenceCorrections 必须逐句覆盖考生全文；vocabulary 提取10条本题可复用表达。`;}
+  async function copyText(text){
+    const area=document.createElement('textarea');area.value=text;area.setAttribute('readonly','');area.style.position='fixed';area.style.opacity='0';area.style.left='-9999px';document.body.append(area);area.focus();area.select();area.setSelectionRange(0,area.value.length);
+    let ok=false;try{ok=document.execCommand('copy')}catch(_){}
+    if(!ok&&navigator.clipboard?.writeText){try{await navigator.clipboard.writeText(text);ok=true}catch(_){}}
+    area.remove();return ok;
+  }
+  $('#openWritingAI').onclick=async()=>{
+    if(!currentSession)return;
+    const prompt=aiPrompt(currentSession),ok=await copyText(prompt);
+    if(!ok){$('#writingAIImport').value=prompt;$('#writingAIImport').focus();$('#writingAIImport').select();alert('浏览器阻止了自动复制。完整批改指令已放进下面文本框并全选，请按 Ctrl+C 复制；复制后先清空文本框，再粘贴 ChatGPT 的回复。');return}
+    const chat=window.open('https://chatgpt.com/','_blank');
+    alert('✓ 完整批改指令已复制（包含题目、作文、逐句批改要求和自动归类 JSON 格式）。请在 ChatGPT 中按 Ctrl+V 粘贴并发送，再把完整回复粘贴回本页。');
+    if(!chat)location.href='https://chatgpt.com/';
+  };
   $('#saveWritingAI').onclick=()=>{if(!currentSession)return;const text=$('#writingAIImport').value.trim();if(!text)return alert('请先粘贴 ChatGPT 的批改报告。');const parsed=parseAIReport(text,currentSession),items=getHistory(),item=items.find(x=>x.id===currentSession.id);if(item)item.aiReport=text;currentSession.aiReport=text;saveHistory(items);renderReport(currentSession);alert(`ChatGPT 批改已自动归类并覆盖站内初评：逐句修改 ${parsed.sentenceCorrections.length} 条，表达 ${parsed.vocabulary.length} 条${parsed.revisedEssay?'，修改稿已归档':'。'}`)};
   $('#removeWritingAI').onclick=()=>{if(!currentSession||!confirm('恢复站内初评并删除本次保存的 ChatGPT 批改吗？'))return;const items=getHistory(),item=items.find(x=>x.id===currentSession.id);if(item)item.aiReport='';currentSession.aiReport='';saveHistory(items);renderReport(currentSession)};
   $('#writingQuestionSearch').oninput=renderQuestions;$('#randomWritingQuestion').onclick=()=>{const rows=filtered();if(rows.length)startExam(rows[Math.floor(Math.random()*rows.length)])};
