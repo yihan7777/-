@@ -154,8 +154,10 @@
   }
   function injectBridge(html, audioUrl, title, part) {
     const replaced = html.replace(/"audio"\s*:\s*"[^"]*"/, '"audio":' + JSON.stringify(audioUrl));
+    const layoutFix = '<style id="ielts-embedded-layout-fix">html{margin:0!important;padding:0!important;min-height:0!important;height:auto!important;scroll-behavior:auto}body{margin:0!important;padding:18px 22px 80px!important;min-height:0!important;height:auto!important;box-sizing:border-box!important;background:#fff!important}body>header:first-child,body>main:first-child,body>#app:first-child,body>.app:first-child,body>.container:first-child,body>.wrapper:first-child,body>.page:first-child{margin-top:0!important;padding-top:0!important;min-height:0!important}main,#app,.app,.container,.wrapper,.page{min-height:0!important;height:auto!important}audio{max-width:100%}@media(max-width:700px){body{padding:12px 12px 64px!important}}</style>';
     const bridge = '<script>(function(){function plain(v){var d=document.createElement("div");d.innerHTML=String(v||"");return d.textContent.trim()}document.addEventListener("click",function(e){if(e.target&&e.target.id==="finish"){setTimeout(function(){var wrong=[].slice.call(document.querySelectorAll("#nav .incorrect")).map(function(x){return x.dataset.q});var correct=document.querySelectorAll("#nav .correct").length;var rows=[].slice.call(document.querySelectorAll(".review-table tbody tr"));var details={};wrong.forEach(function(q){var row=rows.find(function(r){return r.cells&&r.cells[0]&&r.cells[0].textContent.trim()===String(q)});var cues=(typeof DATA!=="undefined"&&DATA.transcriptLines||[]).filter(function(x){var h=String(x&&x.html||"");return h.indexOf("q"+q)>=0||h.indexOf("Q"+q)>=0});details[q]={userAnswer:row&&row.cells[1]?row.cells[1].textContent.trim():"",correctAnswer:row&&row.querySelector(".answer-value")?row.querySelector(".answer-value").dataset.answer:"",transcript:cues.map(function(x){return plain(x.html)}).join(" "),analysis:cues.map(function(x){return plain(x.analysis)}).filter(Boolean).join(" ")}});parent.postMessage({type:"ielts-test-result",title:' + JSON.stringify(title) + ',part:' + JSON.stringify(part) + ',correct:correct,wrongQuestions:wrong,total:correct+wrong.length,questionDetails:details},"*")},800)}})})();<\/script>';
-    return replaced.replace('</body>', bridge + '</body>');
+    const withStyle=/<\/head>/i.test(replaced)?replaced.replace(/<\/head>/i,layoutFix+'</head>'):layoutFix+replaced;
+    return withStyle.replace('</body>', bridge + '</body>');
   }
   function status(text, bad=false) {
     const el = $('#practiceImportStatus');
@@ -356,13 +358,15 @@
   });
   $('#fullscreenListeningTest')?.addEventListener('click', async () => {
     const wrap=$('#practiceFrameWrap');
-    if (document.fullscreenElement) { await document.exitFullscreen?.(); wrap.classList.remove('fullscreen-test'); return; }
+    const button=$('#fullscreenListeningTest');
+    if (document.fullscreenElement||wrap.classList.contains('fullscreen-test')) { if(document.fullscreenElement)await document.exitFullscreen?.();wrap.classList.remove('fullscreen-test');button.textContent='⛶ 全屏做题';return; }
     wrap.classList.toggle('fullscreen-test');
     if (wrap.classList.contains('fullscreen-test')) {
+      button.textContent='退出全屏';
       try { await wrap.requestFullscreen?.(); } catch (_) {}
     }
   });
-  document.addEventListener('fullscreenchange',()=>{ if(!document.fullscreenElement) $('#practiceFrameWrap')?.classList.remove('fullscreen-test'); });
+  document.addEventListener('fullscreenchange',()=>{ if(!document.fullscreenElement){$('#practiceFrameWrap')?.classList.remove('fullscreen-test');if($('#fullscreenListeningTest'))$('#fullscreenListeningTest').textContent='⛶ 全屏做题'} });
   function showResultReview(data,label='') {
     editingAttemptId=null;
     pendingResult={...data,id:'attempt-'+Date.now()+'-'+Math.random().toString(36).slice(2,7),date:new Date().toISOString(),reviews:{},reviewPlan:[{label:'D+1',due:dayStamp(1),done:false},{label:'D+3',due:dayStamp(3),done:false},{label:'D+7',due:dayStamp(7),done:false}]};
