@@ -208,6 +208,19 @@
     paperObjectUrls.forEach(url=>URL.revokeObjectURL(url));paperObjectUrls=[];
     $('#paperFrames').innerHTML='';$('#paperFrames').hidden=true;$('#paperPartNav').hidden=true;
   }
+  function focusPaperContent(frame) {
+    if(!frame)return;
+    try {
+      const doc=frame.contentDocument, win=frame.contentWindow;
+      if(!doc||!win)return;
+      const nodes=[...doc.querySelectorAll('h1,h2,h3,[role="heading"],header,.title')];
+      const target=nodes.find(el=>/IELTS\s+Listening\s+Practice/i.test(el.textContent||''))||nodes.find(el=>(el.textContent||'').trim().length>3)||doc.body?.firstElementChild;
+      if(target){
+        const top=target.getBoundingClientRect().top+win.scrollY;
+        win.scrollTo(0,Math.max(0,top-12));
+      } else win.scrollTo(0,0);
+    } catch(_){}
+  }
   function showPaperPart(index) {
     paperIndex=index;
     document.querySelectorAll('[data-paper-frame]').forEach(frame=>{
@@ -218,7 +231,9 @@
     const record=paperQueue[index];
     if(record)$('#practiceTitle').textContent='IELTS 套题 · '+record.part+' · '+record.title;
     const activeFrame=document.querySelector('[data-paper-frame="'+index+'"]');
-    try { activeFrame?.contentWindow?.scrollTo(0,0); } catch (_) {}
+    requestAnimationFrame(()=>focusPaperContent(activeFrame));
+    setTimeout(()=>focusPaperContent(activeFrame),120);
+    setTimeout(()=>focusPaperContent(activeFrame),500);
   }
   function launchPaperWorkspace() {
     cleanupPaperWorkspace();paperResults=new Map();paperReviewQueue=[];paperIndex=0;
@@ -231,7 +246,11 @@
       const pageUrl=URL.createObjectURL(new Blob([source],{type:'text/html'}));paperObjectUrls.push(pageUrl);
       return '<iframe data-paper-frame="'+i+'" src="'+esc(pageUrl)+'" title="'+esc(record.part+' '+record.title)+'" loading="eager" '+(i?'hidden':'')+'></iframe>';
     }).join('');
-    document.querySelectorAll('[data-paper-frame]').forEach(frame=>frame.addEventListener('load',()=>{try{frame.contentWindow.scrollTo(0,0)}catch(_){}}));
+    document.querySelectorAll('[data-paper-frame]').forEach(frame=>frame.addEventListener('load',()=>{
+      focusPaperContent(frame);
+      setTimeout(()=>focusPaperContent(frame),120);
+      setTimeout(()=>focusPaperContent(frame),500);
+    }));
     document.querySelectorAll('[data-paper-switch]').forEach(btn=>btn.onclick=()=>showPaperPart(Number(btn.dataset.paperSwitch)));
     $('#practiceFrameWrap').classList.remove('hidden');$('#causePanel').classList.add('hidden');
     showPaperPart(0);$('#practiceFrameWrap').scrollIntoView({behavior:'smooth',block:'start'});
