@@ -20,6 +20,11 @@
   let paperReviewQueue = [];
   let paperObjectUrls = [];
   const dbName = 'ielts-private-listening-bank-v1';
+  async function requestPersistentStorage() {
+    try {
+      if (navigator.storage?.persist) await navigator.storage.persist();
+    } catch (_) {}
+  }
   function openDb() {
     return new Promise((resolve,reject) => {
       const request = indexedDB.open(dbName, 1);
@@ -315,6 +320,7 @@
     if(!chatWindow)location.href='https://chatgpt.com/';
   }
   $('#practiceFolder')?.addEventListener('change', async event => {
+    await requestPersistentStorage();
     const files = [...(event.target.files || [])].filter(file => !(file.webkitRelativePath || '').startsWith('__MACOSX/') && !/\.DS_Store$/.test(file.name));
     const htmlFiles = files.filter(file => /\.html$/i.test(file.name));
     if (!htmlFiles.length) { status('这个文件夹中没有找到 HTML 题目文件。', true); return; }
@@ -340,9 +346,14 @@
     if (!htmlFile || !audioFile) { status('需要同时选择同一篇的 HTML 题目和 audio.mp3。', true); return; }
     const title = htmlFile.name.replace(/\.html$/i,'');
     const part = inferPart(title);
+    await requestPersistentStorage();
+    const htmlText = await htmlFile.text();
+    const recordId = 'manual/' + part + '/' + htmlFile.name;
+    await dbPut({id:recordId,part,title,frequency:'手动导入',html:htmlText,audio:audioFile,updatedAt:Date.now()});
     paperQueue=[];paperReviewQueue=[];paperIndex=-1;
-    await launchTest(await htmlFile.text(), audioFile, title, part);
-    status('✓ 题目已在本机打开。完成后请点击题目页面底部的 Finish。');
+    await launchTest(htmlText, audioFile, title, part);
+    await renderPrivateBank();
+    status('✓ 题目已打开并保存到“我的私人真题库”，刷新后仍可找到。完成后请点击题目页面底部的 Finish。');
   });
   $('#clearPrivateBank')?.addEventListener('click', async () => {
     if (!confirm('确认删除保存在本机的全部私人真题吗？练习成绩统计不会被删除。')) return;
