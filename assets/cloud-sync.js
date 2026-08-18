@@ -8,7 +8,7 @@
   const DB_NAME = 'ielts-private-listening-bank-v1';
   const STORE_NAME = 'tests';
   const BUCKET = 'ielts-private-files';
-  const SYNC_VERSION = '4.0';
+  const SYNC_VERSION = '4.1';
 
   const state = { session: loadJson(SESSION_KEY), busy: false, cooldownUntil: 0, cooldownTimer: null };
 
@@ -94,6 +94,17 @@
   function safePath(value) {
     return encodeURIComponent(String(value || 'item')).replace(/%/g, '_').slice(0, 160);
   }
+  function recoverStoredMeta(item) {
+    const folder = String(item.htmlPath || item.id || '').split('/')[1] || String(item.id || '');
+    let decoded = folder;
+    try { decoded = decodeURIComponent(folder.replace(/_/g, '%')); } catch (_) {}
+    const part = decoded.match(/\/(P[1-4])\//i)?.[1]?.toUpperCase() || item.part || 'P1';
+    const title = decoded.match(/(?:^|\/)(\d+\.\s*P[1-4][^/]+)/i)?.[1]
+      || decoded.split('/').filter(Boolean).at(-2)
+      || item.title
+      || '云端听力';
+    return { id: decoded || item.id, part, title };
+  }
   function extension(name, type) {
     const match = String(name || '').match(/\.([a-zA-Z0-9]{2,5})$/);
     if (match) return match[1].toLowerCase();
@@ -164,7 +175,8 @@
         const blob = await downloadObject(token, item.audioPath);
         audio = new File([blob], item.audioName || `audio.${extension('', item.audioType)}`, { type: item.audioType || blob.type });
       }
-      await dbPut({ id: item.id, part: item.part, title: item.title, frequency: item.frequency || 0, updatedAt: item.updatedAt || Date.now(), html, audio });
+      const recovered = recoverStoredMeta(item);
+      await dbPut({ id: recovered.id, part: recovered.part, title: recovered.title, frequency: item.frequency || 0, updatedAt: item.updatedAt || Date.now(), html, audio });
     }
   }
 
@@ -174,7 +186,12 @@
       const uid = session.user?.id;
       if (!uid) throw new Error('无法识别账号，请重新登录');
       setStatus('正在整理本机学习记录…');
-      const listeningManifest = await uploadListening(session.access_token, uid, setStatus);
+      const existingRows = await api(`/rest/v1/user_sync_state?user_id=eq.${encodeURIComponent(uid)}&select=payload&limit=1`, { headers: authHeaders(session.access_token) });
+      const existingManifest = existingRows?.[0]?.payload?.listeningManifest || [];
+      const localManifest = await uploadListening(session.access_token, uid, setStatus);
+      const manifestMap = new Map(existingManifest.map(item => [item.htmlPath || item.id, item]));
+      localManifest.forEach(item => manifestMap.set(item.htmlPath || item.id, item));
+      const listeningManifest = [...manifestMap.values()];
       const payload = { localStorage: collectLocalStorage(), listeningManifest, exportedAt: new Date().toISOString() };
       const latest = await ensureSession(true);
       await api('/rest/v1/user_sync_state?on_conflict=user_id', {
