@@ -8,7 +8,7 @@
   const DB_NAME = 'ielts-private-listening-bank-v1';
   const STORE_NAME = 'tests';
   const BUCKET = 'ielts-private-files';
-  const SYNC_VERSION = '4.4';
+  const SYNC_VERSION = '5.0';
 
   const state = { session: loadJson(SESSION_KEY), busy: false, cooldownUntil: 0, cooldownTimer: null, localCount: null, cloudCount: null };
 
@@ -131,19 +131,30 @@
       throw error;
     }
   }
-  async function downloadObject(token, path, retried = false) {
-    const response = await fetch(`${SUPABASE_URL}/storage/v1/object/authenticated/${BUCKET}/${path}`, { headers: authHeaders(token) });
-    if (!response.ok) {
-      const detail = await response.text();
-      const error = new Error(detail || `私人听力文件下载失败 ${response.status}`);
-      if (!retried && isExpiredTokenError(error)) {
-        setStatus('登录令牌已更新，正在从当前文件继续下载…');
-        const fresh = await ensureSession(true);
-        return downloadObject(fresh.access_token, path, true);
+  async function downloadObject(token, path, attempt = 0) {
+    try {
+      const activeToken = state.session?.access_token || token;
+      const response = await fetch(`${SUPABASE_URL}/storage/v1/object/authenticated/${BUCKET}/${path}`, { headers: authHeaders(activeToken) });
+      if (!response.ok) {
+        const detail = await response.text();
+        const error = new Error(detail || `私人听力文件下载失败 ${response.status}`);
+        if (isExpiredTokenError(error)) {
+          const fresh = await ensureSession(true);
+          return downloadObject(fresh.access_token, path, attempt);
+        }
+        throw error;
+      }
+      return response.blob();
+    } catch (error) {
+      if (attempt < 4 && !isExpiredTokenError(error)) {
+        const delay = 800 * (2 ** attempt);
+        setStatus(`网络中断，${Math.round(delay / 1000)} 秒后自动重试当前文件（${attempt + 1}/4）…`);
+        await new Promise(resolve => setTimeout(resolve, delay));
+        const fresh = await ensureSession(false);
+        return downloadObject(fresh.access_token, path, attempt + 1);
       }
       throw error;
     }
-    return response.blob();
   }
   async function uploadListening(token, uid, progress) {
     const tests = await dbAll();
@@ -164,13 +175,28 @@
     }
     return manifest;
   }
-  async function downloadListening(token, manifest, progress) {
+  function titleFromHtml(html, item, recovered) {
+    try {
+      const doc = new DOMParser().parseFromString(html, 'text/html');
+      const candidates = [...doc.querySelectorAll('[data-title],h1,h2,h3,title')]
+        .map(node => String(node.getAttribute?.('data-title') || node.textContent || '').replace(/\s+/g, ' ').trim())
+        .filter(Boolean);
+      const exact = candidates.find(value => /^\d+\.\s*P[1-4]\b/i.test(value));
+      const useful = candidates.find(value => value.length > 4 && value.length < 140 && !/IELTS Listening Practice|Questions?\s*\d|Text Size|Color/i.test(value));
+      if (exact || useful) return exact || useful;
+    } catch (_) {}
+    return recovered.title;
+  }
+  async function downloadListening(token, manifest, progress, uid, snapshotId) {
     const list = Array.isArray(manifest) ? manifest : [];
     const existing = await dbAll();
     const existingIds = new Map(existing.map(record => [`${record.part || ''}|${String(record.title || '').trim().toLowerCase()}`, record.id]));
-    for (let i = 0; i < list.length; i += 1) {
+    const checkpointKey = `ielts-cloud-download-progress-${uid}`;
+    const checkpoint = loadJson(checkpointKey);
+    const startIndex = checkpoint?.snapshotId === snapshotId ? Math.min(Number(checkpoint.index) || 0, list.length) : 0;
+    for (let i = startIndex; i < list.length; i += 1) {
       const item = list[i];
-      progress(`正在恢复听力 ${i + 1}/${list.length}：${item.title || item.id}`);
+      progress(`${startIndex ? '断点续传' : '正在恢复'} ${i + 1}/${list.length}：${item.title || item.id}`);
       const html = await (await downloadObject(token, item.htmlPath)).text();
       let audio = null;
       if (item.audioPath) {
@@ -178,9 +204,13 @@
         audio = new File([blob], item.audioName || `audio.${extension('', item.audioType)}`, { type: item.audioType || blob.type });
       }
       const recovered = recoverStoredMeta(item);
-      const sameTitleId = existingIds.get(`${recovered.part}|${String(recovered.title).trim().toLowerCase()}`);
-      await dbPut({ id: sameTitleId || recovered.id, part: recovered.part, title: recovered.title, frequency: item.frequency || 0, updatedAt: item.updatedAt || Date.now(), html, audio });
+      const restoredTitle = titleFromHtml(html, item, recovered);
+      const sameTitleId = existingIds.get(`${recovered.part}|${String(restoredTitle).trim().toLowerCase()}`);
+      await dbPut({ id: sameTitleId || recovered.id, part: recovered.part, title: restoredTitle, frequency: item.frequency || 0, updatedAt: item.updatedAt || Date.now(), html, audio, cloudPath: item.htmlPath });
+      localStorage.setItem(checkpointKey, JSON.stringify({ snapshotId, index: i + 1 }));
+      await new Promise(resolve => setTimeout(resolve, 80));
     }
+    localStorage.removeItem(checkpointKey);
   }
 
   async function uploadAll() {
@@ -217,7 +247,7 @@
       const row = rows?.[0];
       if (!row?.payload) throw new Error('云端还没有备份，请先在原设备点击“上传本机到云端”');
       Object.entries(row.payload.localStorage || {}).forEach(([key, value]) => localStorage.setItem(key, value));
-      await downloadListening(session.access_token, row.payload.listeningManifest, setStatus);
+      await downloadListening(session.access_token, row.payload.listeningManifest, setStatus, uid, `${row.updated_at}|${row.payload.listeningManifest?.length || 0}`);
       localStorage.setItem(LAST_SYNC_KEY, new Date().toISOString());
       setStatus('恢复完成，正在刷新页面…');
       setTimeout(() => location.reload(), 900);
