@@ -31,10 +31,10 @@
     if (!response.ok) throw new Error(data?.msg || data?.message || data?.error_description || data?.error || `请求失败 ${response.status}`);
     return data;
   }
-  async function ensureSession() {
+  async function ensureSession(forceRefresh = false) {
     const s = state.session;
     if (!s?.access_token) throw new Error('请先登录同步账号');
-    if (!s.expires_at || Date.now() < (s.expires_at * 1000 - 60000)) return s;
+    if (!forceRefresh && (!s.expires_at || Date.now() < (s.expires_at * 1000 - 60000))) return s;
     if (!s.refresh_token) throw new Error('登录已过期，请重新登录');
     const refreshed = await api('/auth/v1/token?grant_type=refresh_token', {
       method: 'POST', headers: authHeaders('', { 'Content-Type': 'application/json' }),
@@ -148,7 +148,7 @@
 
   async function uploadAll() {
     return withBusy(async () => {
-      const session = await ensureSession();
+      const session = await ensureSession(true);
       const uid = session.user?.id;
       if (!uid) throw new Error('无法识别账号，请重新登录');
       setStatus('正在整理本机学习记录…');
@@ -167,7 +167,7 @@
   async function downloadAll() {
     if (!confirm('将云端学习记录恢复到本机，并覆盖同名记录。确定继续吗？')) return;
     return withBusy(async () => {
-      const session = await ensureSession();
+      const session = await ensureSession(true);
       const uid = session.user?.id;
       setStatus('正在读取云端记录…');
       const rows = await api(`/rest/v1/user_sync_state?user_id=eq.${encodeURIComponent(uid)}&select=payload,updated_at&limit=1`, { headers: authHeaders(session.access_token) });
