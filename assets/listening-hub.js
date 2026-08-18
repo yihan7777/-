@@ -507,6 +507,15 @@
     saveHistory([]);
     renderAnalysis();
   });
+  window.openIELTSListeningTestByTitle = async title => {
+    const record=(await dbAll()).find(x=>x.title===title);
+    if(!record){alert('原题文件当前不在这台设备，请先下载云端题库或重新导入这一篇。');return false}
+    activate('practice');await launchTest(record.html,record.audio,record.title,record.part);return true;
+  };
+  window.openIELTSListeningAnalysis = attemptId => {
+    activate('analysis');
+    setTimeout(()=>{const box=document.querySelector('[data-attempt-id="'+CSS.escape(String(attemptId||''))+'"]');if(box){box.open=true;box.classList.add('part-focus');box.scrollIntoView({behavior:'smooth',block:'center'})}},80);
+  };
   let initial = 'reaction';
   try { initial = localStorage.getItem(pageKey) || initial; } catch (_) {}
   renderPrivateBank().catch(() => status('当前浏览器无法读取私人题库存储。', true));
