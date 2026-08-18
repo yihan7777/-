@@ -60,8 +60,22 @@
 
   function setupSpeakingMemory(){
     if(!$('#speakingMemorySection'))return;
-    const key='ielts-speaking-memory-cards-v1',categoryKey='ielts-speaking-memory-categories-v1';
+    const key='ielts-speaking-memory-cards-v1',categoryKey='ielts-speaking-memory-categories-v1',seedKey='ielts-speaking-memory-seed-oral-md-v1';
     const presets=['Part 1','人物类','地点类','经历类','物品类','活动类','观点与习惯','Part 3 观点'];
+    async function importPracticeNoteSeed(){
+      if(localStorage.getItem(seedKey)==='done')return;
+      try{
+        const seed=await fetch('data/speaking-memory-seed.json?v=1').then(r=>{if(!r.ok)throw new Error('seed '+r.status);return r.json()});
+        const all=cards(),known=new Set(all.map(x=>String(x.front||'').trim().toLowerCase()));let added=0;
+        seed.forEach(item=>{const front=String(item.front||'').trim(),norm=front.toLowerCase();if(front&&!known.has(norm)){all.push({...item,id:item.id||uid('sm'),archived:false,createdAt:item.createdAt||new Date().toISOString()});known.add(norm);added++}});
+        if(added)save(all);
+        const custom=read(categoryKey,[]);let changed=false;
+        seed.map(x=>x.category).filter(Boolean).forEach(x=>{if(!custom.includes(x)&&!presets.includes(x)){custom.push(x);changed=true}});
+        if(changed)write(categoryKey,custom);
+        localStorage.setItem(seedKey,'done');render();
+        if(added)setTimeout(()=>alert('已从《口语.md》整理并导入 '+added+' 张口语记忆卡。'),300);
+      }catch(err){console.warn('Speaking memory seed import failed',err)}
+    }
     let filter='全部',studyIndex=0;
     const cards=()=>read(key,[]),save=x=>write(key,x),cats=()=>[...new Set([...presets,...read(categoryKey,[])])];
     function renderCats(){const all=cats();$('#smCategory').innerHTML=all.map(x=>'<option>'+esc(x)+'</option>').join('');$('#smFilters').innerHTML=['全部',...all].map(x=>'<button class="'+(x===filter?'active':'')+'" data-sm-filter="'+esc(x)+'">'+esc(x)+'</button>').join('');$$('[data-sm-filter]').forEach(b=>b.onclick=()=>{filter=b.dataset.smFilter;render()})}
@@ -73,7 +87,7 @@
     $('#smImportFeedback').onclick=()=>{const text=($('#speakingAIImport')?.value||$('#speakingAIReport')?.textContent||$('#speakingExtractedLanguage')?.textContent||'').trim();const lines=splitLines(text).filter(x=>/[A-Za-z]{3}/.test(x)).slice(0,20);if(!lines.length)return alert('当前没有可导入的口语反馈。先完成一次练习，或把 ChatGPT 反馈粘贴到练习页。');const all=cards(),known=new Set(all.map(x=>x.front.toLowerCase()));let added=0;lines.forEach(line=>{const parts=line.split(/\s*(?:—|->|→|：|:)\s*/);const front=parts.shift().replace(/^\*+|\*+$/g,'').trim();if(front&&front.length<180&&!known.has(front.toLowerCase())){all.unshift({id:uid('sm'),category:$('#smCategory').value,front,back:parts.join(' — ')||'来自口语练习反馈',example:'',archived:false,createdAt:new Date().toISOString()});known.add(front.toLowerCase());added++}});save(all);render();alert('已导入 '+added+' 张口语记忆卡。')};
     $('#smStudyCard').onclick=()=>$('#smStudyCard').classList.toggle('revealed');$('#smNext').onclick=()=>{studyIndex++;renderStudy()};$('#smRestore').onclick=()=>{const all=cards();all.forEach(x=>x.archived=false);save(all);render()};
     window.addIELTSSpeakingCard=item=>{const all=cards(),front=String(item.front||'').trim();if(!front||all.some(x=>x.front.toLowerCase()===front.toLowerCase()))return false;all.unshift({id:uid('sm'),category:item.category||'Part 1',front,back:item.back||item.meaning||'',example:item.example||'',archived:false,createdAt:new Date().toISOString()});save(all);render();return true};
-    render();
+    render();importPracticeNoteSeed();
   }
 
   function setupReadingSuite(){
