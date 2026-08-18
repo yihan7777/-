@@ -8,7 +8,7 @@
   const DB_NAME = 'ielts-private-listening-bank-v1';
   const STORE_NAME = 'tests';
   const BUCKET = 'ielts-private-files';
-  const SYNC_VERSION = '4.2';
+  const SYNC_VERSION = '4.3';
 
   const state = { session: loadJson(SESSION_KEY), busy: false, cooldownUntil: 0, cooldownTimer: null };
 
@@ -166,6 +166,8 @@
   }
   async function downloadListening(token, manifest, progress) {
     const list = Array.isArray(manifest) ? manifest : [];
+    const existing = await dbAll();
+    const existingIds = new Map(existing.map(record => [`${record.part || ''}|${String(record.title || '').trim().toLowerCase()}`, record.id]));
     for (let i = 0; i < list.length; i += 1) {
       const item = list[i];
       progress(`正在恢复听力 ${i + 1}/${list.length}：${item.title || item.id}`);
@@ -176,7 +178,8 @@
         audio = new File([blob], item.audioName || `audio.${extension('', item.audioType)}`, { type: item.audioType || blob.type });
       }
       const recovered = recoverStoredMeta(item);
-      await dbPut({ id: recovered.id, part: recovered.part, title: recovered.title, frequency: item.frequency || 0, updatedAt: item.updatedAt || Date.now(), html, audio });
+      const sameTitleId = existingIds.get(`${recovered.part}|${String(recovered.title).trim().toLowerCase()}`);
+      await dbPut({ id: sameTitleId || recovered.id, part: recovered.part, title: recovered.title, frequency: item.frequency || 0, updatedAt: item.updatedAt || Date.now(), html, audio });
     }
   }
 
