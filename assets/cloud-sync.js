@@ -8,6 +8,7 @@
   const DB_NAME = 'ielts-private-listening-bank-v1';
   const STORE_NAME = 'tests';
   const BUCKET = 'ielts-private-files';
+  const SYNC_VERSION = '4.0';
 
   const state = { session: loadJson(SESSION_KEY), busy: false, cooldownUntil: 0, cooldownTimer: null };
 
@@ -101,15 +102,36 @@
     if (type?.includes('ogg')) return 'ogg';
     return 'bin';
   }
-  async function uploadObject(token, path, blob, contentType) {
-    const safeContentType = String(contentType || 'application/octet-stream').split(';')[0].trim();
-    await api(`/storage/v1/object/${BUCKET}/${path}`, {
-      method: 'POST', headers: authHeaders(token, { 'Content-Type': safeContentType, 'x-upsert': 'true' }), body: blob
-    });
+  function isExpiredTokenError(error) {
+    return /exp.*claim.*timestamp|jwt.*expired|expired.*jwt|token.*expired/i.test(String(error?.message || error || ''));
   }
-  async function downloadObject(token, path) {
+  async function uploadObject(token, path, blob, contentType, retried = false) {
+    const safeContentType = String(contentType || 'application/octet-stream').split(';')[0].trim();
+    try {
+      await api(`/storage/v1/object/${BUCKET}/${path}`, {
+        method: 'POST', headers: authHeaders(token, { 'Content-Type': safeContentType, 'x-upsert': 'true' }), body: blob
+      });
+    } catch (error) {
+      if (!retried && isExpiredTokenError(error)) {
+        setStatus('登录令牌已更新，正在从当前文件继续上传…');
+        const fresh = await ensureSession(true);
+        return uploadObject(fresh.access_token, path, blob, contentType, true);
+      }
+      throw error;
+    }
+  }
+  async function downloadObject(token, path, retried = false) {
     const response = await fetch(`${SUPABASE_URL}/storage/v1/object/authenticated/${BUCKET}/${path}`, { headers: authHeaders(token) });
-    if (!response.ok) throw new Error(`私人听力文件下载失败 ${response.status}`);
+    if (!response.ok) {
+      const detail = await response.text();
+      const error = new Error(detail || `私人听力文件下载失败 ${response.status}`);
+      if (!retried && isExpiredTokenError(error)) {
+        setStatus('登录令牌已更新，正在从当前文件继续下载…');
+        const fresh = await ensureSession(true);
+        return downloadObject(fresh.access_token, path, true);
+      }
+      throw error;
+    }
     return response.blob();
   }
   async function uploadListening(token, uid, progress) {
@@ -154,9 +176,10 @@
       setStatus('正在整理本机学习记录…');
       const listeningManifest = await uploadListening(session.access_token, uid, setStatus);
       const payload = { localStorage: collectLocalStorage(), listeningManifest, exportedAt: new Date().toISOString() };
+      const latest = await ensureSession(true);
       await api('/rest/v1/user_sync_state?on_conflict=user_id', {
         method: 'POST',
-        headers: authHeaders(session.access_token, { 'Content-Type': 'application/json', Prefer: 'resolution=merge-duplicates,return=minimal' }),
+        headers: authHeaders(latest.access_token, { 'Content-Type': 'application/json', Prefer: 'resolution=merge-duplicates,return=minimal' }),
         body: JSON.stringify({ user_id: uid, payload, version: Date.now(), device_name: navigator.userAgent.slice(0, 180), updated_at: new Date().toISOString() })
       });
       localStorage.setItem(LAST_SYNC_KEY, new Date().toISOString());
@@ -259,7 +282,7 @@
         <div class="cloud-sync-actions" id="cloudGuestActions"><button id="cloudSignup">注册</button><button class="primary" id="cloudLogin">登录</button></div>
         <div class="cloud-sync-actions" id="cloudUserActions"><button class="primary" id="cloudUpload">↑ 上传本机到云端</button><button id="cloudDownload">↓ 下载云端到本机</button><button id="cloudLogout">退出账号</button></div>
         <p class="cloud-sync-status" id="cloudStatus">准备同步。听力音频较大时，请保持页面打开。</p>
-        <p class="cloud-sync-note">会同步：做题记录、错题复盘、词汇与记忆卡片、作文/口语记录，以及私人听力 HTML 和音频。账号之间的数据互相隔离。</p>
+        <p class="cloud-sync-note">同步版本 v${SYNC_VERSION}。会同步：做题记录、错题复盘、词汇与记忆卡片、作文/口语记录，以及私人听力 HTML 和音频。账号之间的数据互相隔离。</p>
       </section></div>`);
     const modal = document.getElementById('cloudSyncModal');
     document.getElementById('cloudSyncTrigger').onclick = () => { modal.hidden = false; renderAccount(); };
