@@ -8,7 +8,7 @@
   const DB_NAME = 'ielts-private-listening-bank-v1';
   const STORE_NAME = 'tests';
   const BUCKET = 'ielts-private-files';
-  const SYNC_VERSION = '4.1';
+  const SYNC_VERSION = '4.2';
 
   const state = { session: loadJson(SESSION_KEY), busy: false, cooldownUntil: 0, cooldownTimer: null };
 
@@ -278,6 +278,20 @@
     el.textContent = message;
     el.classList.toggle('error', error);
   }
+  async function refreshCountDisplay() {
+    if (!state.session?.access_token || state.busy) return;
+    try {
+      const localCount = (await dbAll()).length;
+      const session = await ensureSession(false);
+      const rows = await api(`/rest/v1/user_sync_state?user_id=eq.${encodeURIComponent(session.user.id)}&select=payload&limit=1`, { headers: authHeaders(session.access_token) });
+      const cloudCount = rows?.[0]?.payload?.listeningManifest?.length || 0;
+      const account = document.getElementById('cloudAccount');
+      if (account) account.textContent = `已登录：${session.user?.email || '同步账号'} · 本机 ${localCount} 篇 / 云端 ${cloudCount} 篇`;
+      const trigger = document.getElementById('cloudSyncTrigger');
+      if (trigger) trigger.textContent = `☁ 本机${localCount} / 云端${cloudCount}`;
+      if (cloudCount > localCount) setStatus(`云端比本机多 ${cloudCount - localCount} 篇。请点击“↓ 下载云端到本机”，并保持页面打开直到自动刷新。`);
+    } catch (_) {}
+  }
 
   function injectUi() {
     const style = document.createElement('style');
@@ -302,7 +316,7 @@
         <p class="cloud-sync-note">同步版本 v${SYNC_VERSION}。会同步：做题记录、错题复盘、词汇与记忆卡片、作文/口语记录，以及私人听力 HTML 和音频。账号之间的数据互相隔离。</p>
       </section></div>`);
     const modal = document.getElementById('cloudSyncModal');
-    document.getElementById('cloudSyncTrigger').onclick = () => { modal.hidden = false; renderAccount(); };
+    document.getElementById('cloudSyncTrigger').onclick = () => { modal.hidden = false; renderAccount(); refreshCountDisplay(); };
     document.getElementById('cloudSyncClose').onclick = () => { modal.hidden = true; };
     modal.addEventListener('click', e => { if (e.target === modal) modal.hidden = true; });
     document.getElementById('cloudSignup').onclick = signup;
