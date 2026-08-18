@@ -208,22 +208,6 @@
     paperObjectUrls.forEach(url=>URL.revokeObjectURL(url));paperObjectUrls=[];
     $('#paperFrames').innerHTML='';$('#paperFrames').hidden=true;$('#paperPartNav').hidden=true;
   }
-  function focusPaperContent(frame) {
-    if(!frame)return;
-    try {
-      const doc=frame.contentDocument,win=frame.contentWindow,holder=frame.parentElement;
-      if(!doc||!win||!holder)return;
-      frame.style.setProperty('transform','none','important');frame.style.setProperty('height','100%','important');win.scrollTo(0,0);
-      const nodes=[...doc.querySelectorAll('h1,h2,h3,[role="heading"],header,.title')];
-      const target=nodes.find(el=>/IELTS\s+Listening\s+Practice/i.test(el.textContent||''))||nodes.find(el=>/Questions?\s*1/i.test(el.textContent||''))||doc.body?.firstElementChild;
-      if(!target)return;
-      const top=Math.max(0,target.getBoundingClientRect().top),crop=top>180?Math.max(0,top-18):0;
-      holder.style.setProperty('overflow','hidden','important');holder.style.setProperty('position','relative','important');
-      frame.style.setProperty('height',(Math.max(holder.clientHeight,win.innerHeight)+crop)+'px','important');
-      frame.style.setProperty('transform','translateY(-'+crop+'px)','important');frame.style.setProperty('transform-origin','top left','important');
-      frame.dataset.cropOffset=String(Math.round(crop));
-    }catch(_){}
-  }
   function showPaperPart(index) {
     paperIndex=index;
     document.querySelectorAll('[data-paper-frame]').forEach(frame=>{
@@ -234,9 +218,7 @@
     const record=paperQueue[index];
     if(record)$('#practiceTitle').textContent='IELTS 套题 · '+record.part+' · '+record.title;
     const activeFrame=document.querySelector('[data-paper-frame="'+index+'"]');
-    requestAnimationFrame(()=>focusPaperContent(activeFrame));
-    setTimeout(()=>focusPaperContent(activeFrame),120);
-    setTimeout(()=>focusPaperContent(activeFrame),500);
+    try { activeFrame?.contentWindow?.scrollTo(0,0); } catch (_) {}
   }
   function launchPaperWorkspace() {
     cleanupPaperWorkspace();paperResults=new Map();paperReviewQueue=[];paperIndex=0;
@@ -249,11 +231,7 @@
       const pageUrl=URL.createObjectURL(new Blob([source],{type:'text/html'}));paperObjectUrls.push(pageUrl);
       return '<iframe data-paper-frame="'+i+'" src="'+esc(pageUrl)+'" title="'+esc(record.part+' '+record.title)+'" loading="eager" '+(i?'hidden':'')+'></iframe>';
     }).join('');
-    document.querySelectorAll('[data-paper-frame]').forEach(frame=>frame.addEventListener('load',()=>{
-      focusPaperContent(frame);
-      setTimeout(()=>focusPaperContent(frame),120);
-      setTimeout(()=>focusPaperContent(frame),500);
-    }));
+    document.querySelectorAll('[data-paper-frame]').forEach(frame=>frame.addEventListener('load',()=>{try{frame.contentWindow.scrollTo(0,0)}catch(_){}}));
     document.querySelectorAll('[data-paper-switch]').forEach(btn=>btn.onclick=()=>showPaperPart(Number(btn.dataset.paperSwitch)));
     $('#practiceFrameWrap').classList.remove('hidden');$('#causePanel').classList.add('hidden');
     showPaperPart(0);$('#practiceFrameWrap').scrollIntoView({behavior:'smooth',block:'start'});
@@ -471,12 +449,15 @@
   });
   function renderAnalysis() {
     const items = loadHistory();
-    $('#analysisPartGrid').innerHTML = ['P1','P2','P3','P4'].map(part => {
+    const grandTotal=items.reduce((n,x)=>n+(x.total||0),0);
+    const grandCorrect=items.reduce((n,x)=>n+(Number.isFinite(Number(x.correct))?Number(x.correct):Math.max(0,(x.total||0)-(x.wrongQuestions?.length||0))),0);
+    $('#analysisPartGrid').innerHTML = '<article class="part-stat overall" data-analysis-part="ALL"><span>全部 · '+items.length+' 篇</span><strong>'+(grandTotal?Math.round(grandCorrect/grandTotal*100):0)+'%</strong><small>总正确率 · '+grandCorrect+'/'+grandTotal+' 题正确</small></article>'+['P1','P2','P3','P4'].map(part => {
       const rows = items.filter(x => x.part === part);
       const total = rows.reduce((n,x) => n + (x.total || 0), 0);
       const wrong = rows.reduce((n,x) => n + (x.wrongQuestions?.length || 0), 0);
-      const rate = total ? Math.round(wrong / total * 100) : 0;
-      return '<article class="part-stat"><span>' + part + ' · ' + rows.length + ' 篇</span><strong>' + rate + '%</strong><small>错误率 · ' + (total-wrong) + '/' + total + ' 题正确</small></article>';
+      const correct = rows.reduce((n,x)=>n+(Number.isFinite(Number(x.correct))?Number(x.correct):Math.max(0,(x.total||0)-(x.wrongQuestions?.length||0))),0);
+      const rate = total ? Math.round(correct / total * 100) : 0;
+      return '<article class="part-stat" data-analysis-part="'+part+'"><span>' + part + ' · ' + rows.length + ' 篇</span><strong>' + rate + '%</strong><small>正确率 · ' + correct + '/' + total + ' 题正确</small></article>';
     }).join('');
     const counts = {};
     items.forEach(x => {
@@ -506,11 +487,20 @@
       if(!record) return alert('这篇题目尚未保存在本机私人题库，请先重新导入题库文件夹。');
       activate('practice'); await launchTest(record.html,record.audio,record.title,record.part);
     });
-    $('#attemptHistory').innerHTML = items.length ? items.slice(0,20).map(x => {
+    $('#attemptHistory').innerHTML = items.length ? items.slice(0,40).map(x => {
       const reviews=x.reviews||{};
       const details=Object.entries(reviews).map(([q,r]) => '<div class="attempt-wrong"><b>第 '+esc(q)+'题 · '+esc(r.primary||'未标记')+'</b><span>'+esc(r.synonym||r.evidence||r.reminder||'暂无补充分析')+'</span></div>').join('');
-      return '<details class="attempt-details"><summary><span><b>'+esc(x.part)+'</b> · '+esc(x.title)+'</span><b>'+x.correct+'/'+x.total+'</b></summary><div class="attempt-wrong-list">'+(details||'<p class="empty-analysis">旧记录暂无逐题详情。</p>')+'</div></details>';
+      return '<details class="attempt-details" data-attempt-part="'+esc(x.part)+'" data-attempt-id="'+esc(x.id||'')+'"><summary><span><b>'+esc(x.part)+'</b> · '+esc(x.title)+'</span><b>'+x.correct+'/'+x.total+' · '+(x.total?Math.round(x.correct/x.total*100):0)+'%</b></summary><div class="attempt-wrong-list"><div class="attempt-actions"><button data-attempt-original="'+esc(x.title)+'">打开原文 / 重新做</button><button data-attempt-analysis="'+esc(x.id||'')+'">定位错题解析</button><button data-attempt-intensive="'+esc(x.title)+'">进入精听</button></div>'+(details||'<p class="empty-analysis">旧记录暂无逐题详情。</p>')+'</div></details>';
     }).join('') : '<p class="empty-analysis">暂无练习记录。</p>';
+    document.querySelectorAll('[data-analysis-part]').forEach(card=>card.onclick=()=>{
+      const part=card.dataset.analysisPart,rows=[...document.querySelectorAll('.attempt-details')];
+      rows.forEach(x=>x.classList.remove('part-focus'));
+      const target=part==='ALL'?rows[0]:rows.find(x=>x.dataset.attemptPart===part);
+      if(target){target.open=true;target.classList.add('part-focus');target.scrollIntoView({behavior:'smooth',block:'center'})}
+    });
+    document.querySelectorAll('[data-attempt-original]').forEach(btn=>btn.onclick=async e=>{e.stopPropagation();const record=(await dbAll()).find(x=>x.title===btn.dataset.attemptOriginal);if(!record)return alert('原题文件当前不在这台设备，请先下载云端题库或重新导入这一篇。');activate('practice');await launchTest(record.html,record.audio,record.title,record.part)});
+    document.querySelectorAll('[data-attempt-analysis]').forEach(btn=>btn.onclick=e=>{e.stopPropagation();const box=btn.closest('.attempt-details');box.open=true;box.querySelector('.attempt-wrong')?.scrollIntoView({behavior:'smooth',block:'center'})});
+    document.querySelectorAll('[data-attempt-intensive]').forEach(btn=>btn.onclick=e=>{e.stopPropagation();activate('intensive');setTimeout(()=>{const open=[...document.querySelectorAll('[data-intensive-open]')].find(x=>x.dataset.intensiveOpen===btn.dataset.attemptIntensive);open?.click()},120)});
   }
   $('#clearListeningHistory')?.addEventListener('click', () => {
     if (!confirm('确认清空全部听力真题统计吗？')) return;
