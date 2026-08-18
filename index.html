@@ -16,7 +16,7 @@
   <link rel="stylesheet" href="assets/private-review.css?v=2">
   <link rel="stylesheet" href="assets/writing-mock.css?v=4">
   <link rel="stylesheet" href="assets/speaking-center.css?v=1">
-  <link rel="stylesheet" href="assets/review-memory.css?v=1">
+  <link rel="stylesheet" href="assets/review-memory.css?v=2">
 </head>
 <body>
   <header class="hero">
@@ -425,7 +425,7 @@
     </section>
     <section class="section tool-section review-suite" id="speakingMemorySection" data-page-section="speaking" data-speaking-view="memory" hidden>
       <div class="section-head"><div><p class="kicker">SPEAKING MEMORY</p><h2>口语专用记忆卡</h2></div><p class="aside" id="smTotal">0 张在学</p></div>
-      <div class="suite-grid"><aside class="suite-panel soft"><h3>添加口语表达</h3><label>题库类型<select id="smCategory"></select></label><div class="form-row"><input id="smNewCategory" placeholder="自定义新主题"><button id="smAddCategory">新增主题</button></div><label>英文表达 / 句式<textarea id="smFront"></textarea></label><label>中文与使用提示<textarea id="smBack"></textarea></label><label>自己的口语例句<textarea id="smExample"></textarea></label><button class="primary" id="smAdd">加入记忆卡</button><button id="smImportFeedback">从最近口语 / ChatGPT 反馈导入</button><button id="smRestore">恢复已熟练卡片</button></aside><section class="suite-panel"><div class="chip-row" id="smFilters"></div><div class="study-card" id="smStudyCard"></div><div class="study-tools"><span id="smStudyCount">0 张</span><button id="smNext">下一张 →</button></div><h3>当前卡片</h3><div class="card-list" id="smList"></div></section></div>
+      <div class="suite-grid"><aside class="suite-panel soft"><h3>添加口语表达</h3><label>题库类型<select id="smCategory"></select></label><div class="form-row"><input id="smNewCategory" placeholder="自定义新主题"><button id="smAddCategory">新增主题</button></div><label>英文表达 / 句式<textarea id="smFront"></textarea></label><label>中文与使用提示<textarea id="smBack"></textarea></label><label>自己的口语例句<textarea id="smExample"></textarea></label><button class="primary" id="smAdd">加入记忆卡</button><button id="smImportFeedback">从最近口语 / ChatGPT 反馈导入</button><button id="smRestore">恢复已熟练卡片</button></aside><section class="suite-panel"><div class="speaking-part-switch" id="smPartSwitch" aria-label="口语卡片类型"><button class="active" data-sm-part="全部">全部</button><button data-sm-part="P1">P1</button><button data-sm-part="P2">P2</button><button data-sm-part="其他">其他主题</button></div><div class="chip-row speaking-filter-scroll" id="smFilters" aria-label="可左右滑动的题库主题"></div><details class="sm-auto-add"><summary>＋ 自动整理并加入当前分类</summary><p>一行一张，支持“英文 — 中文 — 例句”或直接粘贴多条表达；系统会去除项目符号并自动去重。</p><strong id="smAutoTarget">当前分类：Part 1</strong><textarea id="smAutoInput" placeholder="例如：offer emotional support — 提供情绪支持 — Lily always offers me emotional support."></textarea><button class="primary" id="smAutoAdd">自动整理并加入</button></details><div class="study-card" id="smStudyCard"></div><div class="study-tools"><span id="smStudyCount">0 张</span><button id="smNext">下一张 →</button></div><h3>当前卡片</h3><div class="card-list" id="smList"></div></section></div>
     </section>
   </main>
 
@@ -442,6 +442,6 @@
   <script src="assets/writing-mock.js?v=8" defer></script>
   <script src="assets/speaking-center.js?v=2" defer></script>
   <script src="assets/cloud-sync.js?v=5.0" defer></script>
-  <script src="assets/review-memory.js?v=3" defer></script>
+  <script src="assets/review-memory.js?v=4" defer></script>
 </body>
 </html>
