@@ -16,6 +16,7 @@
   <link rel="stylesheet" href="assets/private-review.css?v=2">
   <link rel="stylesheet" href="assets/writing-mock.css?v=4">
   <link rel="stylesheet" href="assets/speaking-center.css?v=1">
+  <link rel="stylesheet" href="assets/review-memory.css?v=1">
 </head>
 <body>
   <header class="hero">
@@ -68,7 +69,7 @@
 
     <section class="section speaking-center-head" data-page-section="speaking" data-speaking-view="all" hidden>
       <div class="section-head"><div><p class="kicker">IELTS SPEAKING STUDIO</p><h2>口语训练中心</h2></div><p class="aside">题库、串题素材、录音练习和反馈记录集中在一个板块内，不再来回切换。</p></div>
-      <nav class="speaking-page-tabs"><button class="active" data-speaking-page="bank">全部题库</button><button data-speaking-page="materials">串题素材</button><button data-speaking-page="practice">录音练习</button><button data-speaking-page="history">练习记录</button></nav>
+      <nav class="speaking-page-tabs"><button class="active" data-speaking-page="bank">全部题库</button><button data-speaking-page="materials">串题素材</button><button data-speaking-page="practice">录音练习</button><button data-speaking-page="history">练习记录</button><button data-speaking-page="memory">口语记忆卡</button></nav>
     </section>
 
     <section class="section" id="clusters" data-page-section="speaking" data-speaking-view="materials" hidden>
@@ -120,7 +121,7 @@
 
     <section class="section writing-mode-head" data-page-section="writing" hidden>
       <div class="section-head"><div><p class="kicker">IELTS WRITING STUDIO</p><h2>作文训练中心</h2></div><p class="aside">真题计时模拟与范文打字训练分开保存。</p></div>
-      <nav class="writing-mode-tabs"><button class="active" data-writing-mode="mock">真题模拟考试</button><button data-writing-mode="typing">范文打字训练</button></nav>
+      <nav class="writing-mode-tabs"><button class="active" data-writing-mode="mock">真题模拟考试</button><button data-writing-mode="typing">范文打字训练</button><button data-writing-mode="memory">作文记忆卡</button></nav>
     </section>
     <section class="section tool-section" id="typing" data-page-section="writing" data-writing-view="typing" hidden>
       <div class="section-head">
@@ -188,6 +189,15 @@
       </div>
     </section>
 
+    <section class="section tool-section review-suite" id="writingMemorySection" data-page-section="writing" data-writing-view="memory" hidden>
+      <div class="section-head"><div><p class="kicker">WRITING MEMORY</p><h2>作文专用记忆卡</h2></div><p class="aside" id="wmTotal">0 张在学</p></div>
+      <nav class="suite-tabs"><button class="active" data-writing-memory-kind="task2">大作文表达</button><button data-writing-memory-kind="task1">小作文表达</button><button data-writing-memory-kind="logic">大作文逻辑链</button></nav>
+      <div class="suite-grid">
+        <aside class="suite-panel soft"><h3>添加卡片</h3><label>已有分类<select id="wmCategory"></select></label><label>自定义新主题<input id="wmCustomCategory" placeholder="例如：动物福利 / 媒体影响"></label><label>表达、句式或逻辑链<textarea id="wmFront" placeholder="例如：habitat loss → food shortage → population decline"></textarea></label><label>中文含义 / 展开逻辑<textarea id="wmBack" placeholder="解释如何用于作文"></textarea></label><label>例句或论证<textarea id="wmExample" placeholder="可选：放一条能直接套用的例句"></textarea></label><button class="primary" id="wmAdd">加入作文记忆卡</button><button id="wmRestore">恢复已熟练卡片</button></aside>
+        <div class="suite-panel"><div class="chip-row" id="wmFilters"></div><div class="study-card" id="wmStudyCard"></div><div class="study-tools"><span id="wmStudyCount">0 张</span><button id="wmNext">下一张 →</button></div><h3>当前卡片</h3><div class="card-list" id="wmList"></div></div>
+      </div>
+    </section>
+
     <section class="section listening-hub-head" data-page-section="listening-hub" data-listening-view="all" hidden>
       <div class="section-head"><div><p class="kicker">LISTENING CENTER</p><h2>听力训练中心</h2></div><p class="aside">一个板块内翻页：反应力、答案词听写、真题做题与复盘。</p></div>
       <nav class="listening-page-tabs" aria-label="听力页面切换">
@@ -195,6 +205,7 @@
         <button data-listening-page="dictation">答案词听写</button>
         <button data-listening-page="practice">真题做题</button>
         <button data-listening-page="analysis">成绩分析</button>
+        <button data-listening-page="intensive">精听复盘</button>
       </nav>
     </section>
     <section class="section tool-section" id="listening" data-page-section="listening-hub" data-listening-view="reaction" hidden>
@@ -328,6 +339,11 @@
       <div class="analysis-grid"><article><h3>高频错因</h3><div id="causeRanking"></div></article><article><h3>近期练习</h3><div id="attemptHistory"></div></article></div>
     </section>
 
+    <section class="section tool-section review-suite" id="listeningIntensive" data-page-section="listening-hub" data-listening-view="intensive" hidden>
+      <div class="section-head"><div><p class="kicker">INTENSIVE LISTENING</p><h2>精听做过的题</h2></div><p class="aside">只显示已经做过的真题；可回到原文、循环片段并保存听写与错因笔记。</p></div>
+      <div class="suite-grid"><aside class="suite-panel"><h3>已完成题目</h3><div class="card-list" id="intensiveDoneList"></div></aside><section class="suite-panel soft" id="intensiveWorkspace" hidden><header><small>当前精听</small><h3 id="intensiveTitle"></h3><b class="accuracy-badge" id="intensiveAccuracy"></b></header><div class="intensive-player"><audio id="intensiveAudio" controls></audio><div class="form-row"><label>速度<select id="intensiveSpeed"><option value="0.75">0.75×</option><option value="0.9">0.9×</option><option value="1" selected>1.0×</option><option value="1.25">1.25×</option></select></label><label>片段（秒）<span class="form-row"><input id="segmentStart" type="number" step="0.1" placeholder="开始"><input id="segmentEnd" type="number" step="0.1" placeholder="结束"></span></label></div><div class="segment-tools"><button id="markSegmentStart">标记 A</button><button id="markSegmentEnd">标记 B</button><button class="primary" id="repeatSegment">循环 A–B</button><button id="openIntensiveOriginal">打开原题</button></div><label>逐句听写 / 原文对照<textarea id="intensiveTranscript" placeholder="把没听清的句子写下来，再对照原文修改"></textarea></label><label>错因与下次警觉点<textarea id="intensiveNotes" placeholder="例如：连读没识别；同义替换没反应；复数 -s 漏听"></textarea></label><button class="primary" id="saveIntensiveNotes">保存精听记录</button></div></section></div>
+    </section>
+
     <section class="section tool-section" id="reading" data-page-section="reading" hidden>
       <div class="section-head">
         <div><p class="kicker">READING VOCABULARY</p><h2>阅读生词与表达卡</h2></div>
@@ -371,6 +387,16 @@
       </details>
     </section>
 
+    <section class="section tool-section review-suite" id="readingReviewSuite" data-page-section="reading" hidden>
+      <div class="section-head"><div><p class="kicker">READING REVIEW</p><h2>阅读真题入口、正确率与背题库</h2></div><p class="aside">练习记录、正确率和背题卡会保存并同步；本机 C 盘题库只能在原电脑打开。</p></div>
+      <div class="suite-panel soft"><h3>阅读真题题库入口</h3><label>题库地址<input id="readingBankLink" type="text"></label><div class="reading-link-actions"><button class="primary" id="openReadingLink">打开题库</button><button id="saveReadingLink">保存入口</button><label class="button">选择本机 index.html<input id="readingLocalFile" type="file" accept=".html,text/html" hidden></label></div><p class="local-link-warning">file:///C:/… 是电脑本地地址，手机和线上网页无法访问。若要手机也能做题，需要把题库整个文件夹上传到可访问的服务器；练习结果请在下方记录，刷新不会丢。</p></div>
+      <div class="suite-grid">
+        <aside class="suite-panel"><h3>记录一次阅读练习</h3><label>题目 / 文章标题<input id="readingAttemptTitle" placeholder="例如：Cambridge 18 Test 1 Passage 2"></label><label>题型或主题<select id="readingAttemptType"><option>判断题</option><option>填空题</option><option>匹配题</option><option>选择题</option><option>标题匹配</option><option>混合题</option></select></label><div class="form-row"><label>正确题数<input id="readingCorrect" type="number" min="0"></label><label>总题数<input id="readingTotal" type="number" min="1"></label></div><label>生词、同义替换与错因<textarea id="readingAttemptNotes" placeholder="原文定位、同义替换、为什么错"></textarea></label><button class="primary" id="saveReadingAttempt">保存练习记录</button></aside>
+        <section class="suite-panel"><div class="summary-cards" id="readingSummary"></div><h3>做过的题目</h3><div class="card-list" id="readingHistory"></div></section>
+      </div>
+      <div class="suite-grid" style="margin-top:20px"><aside class="suite-panel soft"><h3>新增背题卡</h3><label>分类<input id="readingBacklogCategory" placeholder="例如：判断题 / 环境主题"></label><label>题干或关键问题<textarea id="readingBacklogFront"></textarea></label><label>答案、定位句和同义替换<textarea id="readingBacklogBack"></textarea></label><button class="primary" id="addReadingBacklog">加入背题库</button></aside><section class="suite-panel"><div class="study-card" id="readingBacklogCard"></div><div class="study-tools"><span id="readingBacklogCount">0 张</span><button id="readingBacklogNext">下一张 →</button></div><h3>背题清单</h3><div class="card-list" id="readingBacklogList"></div></section></div>
+    </section>
+
     <section class="section timeline-wrap" data-page-section="plan" hidden>
       <div class="section-head"><div><p class="kicker">EBBINGHAUS PLAN</p><h2>8.11 → 9.1 路线图</h2></div><div class="legend"><i></i>首轮 <i></i>复习 <i></i>模考</div></div>
       <div class="timeline" id="timeline"></div>
@@ -397,6 +423,10 @@
       <div class="section-head"><div><p class="kicker">PRACTICE HISTORY</p><h2>口语练习记录</h2></div><button id="clearSpeakingHistory">清空记录</button></div>
       <div class="speaking-history-summary" id="speakingHistorySummary"></div><div id="speakingHistoryList"></div>
     </section>
+    <section class="section tool-section review-suite" id="speakingMemorySection" data-page-section="speaking" data-speaking-view="memory" hidden>
+      <div class="section-head"><div><p class="kicker">SPEAKING MEMORY</p><h2>口语专用记忆卡</h2></div><p class="aside" id="smTotal">0 张在学</p></div>
+      <div class="suite-grid"><aside class="suite-panel soft"><h3>添加口语表达</h3><label>题库类型<select id="smCategory"></select></label><div class="form-row"><input id="smNewCategory" placeholder="自定义新主题"><button id="smAddCategory">新增主题</button></div><label>英文表达 / 句式<textarea id="smFront"></textarea></label><label>中文与使用提示<textarea id="smBack"></textarea></label><label>自己的口语例句<textarea id="smExample"></textarea></label><button class="primary" id="smAdd">加入记忆卡</button><button id="smImportFeedback">从最近口语 / ChatGPT 反馈导入</button><button id="smRestore">恢复已熟练卡片</button></aside><section class="suite-panel"><div class="chip-row" id="smFilters"></div><div class="study-card" id="smStudyCard"></div><div class="study-tools"><span id="smStudyCount">0 张</span><button id="smNext">下一张 →</button></div><h3>当前卡片</h3><div class="card-list" id="smList"></div></section></div>
+    </section>
   </main>
 
   <footer><span>IELTS SPEAKING 2026</span><p>GitHub 每日生成 Context → ChatGPT Live → 反馈同步 → 下一轮复习</p></footer>
@@ -412,5 +442,6 @@
   <script src="assets/writing-mock.js?v=7" defer></script>
   <script src="assets/speaking-center.js?v=1" defer></script>
   <script src="assets/cloud-sync.js?v=5.0" defer></script>
+  <script src="assets/review-memory.js?v=1" defer></script>
 </body>
 </html>
