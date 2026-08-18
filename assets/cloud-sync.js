@@ -9,7 +9,7 @@
   const STORE_NAME = 'tests';
   const BUCKET = 'ielts-private-files';
 
-  const state = { session: loadJson(SESSION_KEY), busy: false };
+  const state = { session: loadJson(SESSION_KEY), busy: false, cooldownUntil: 0, cooldownTimer: null };
 
   function loadJson(key) {
     try { return JSON.parse(localStorage.getItem(key) || 'null'); } catch (_) { return null; }
@@ -102,8 +102,9 @@
     return 'bin';
   }
   async function uploadObject(token, path, blob, contentType) {
+    const safeContentType = String(contentType || 'application/octet-stream').split(';')[0].trim();
     await api(`/storage/v1/object/${BUCKET}/${path}`, {
-      method: 'POST', headers: authHeaders(token, { 'Content-Type': contentType || 'application/octet-stream', 'x-upsert': 'true' }), body: blob
+      method: 'POST', headers: authHeaders(token, { 'Content-Type': safeContentType, 'x-upsert': 'true' }), body: blob
     });
   }
   async function downloadObject(token, path) {
@@ -119,8 +120,8 @@
       progress(`正在上传听力 ${i + 1}/${tests.length}：${test.title || test.id}`);
       const folder = `${uid}/${safePath(test.id)}`;
       const htmlPath = `${folder}/question.html`;
-      const htmlBlob = new Blob([test.html || ''], { type: 'text/html;charset=utf-8' });
-      await uploadObject(token, htmlPath, htmlBlob, htmlBlob.type);
+      const htmlBlob = new Blob([test.html || ''], { type: 'text/html' });
+      await uploadObject(token, htmlPath, htmlBlob, 'text/html');
       let audioPath = null;
       if (test.audio instanceof Blob) {
         audioPath = `${folder}/audio.${extension(test.audio.name, test.audio.type)}`;
@@ -182,8 +183,29 @@
   async function withBusy(task) {
     if (state.busy) return;
     state.busy = true; renderAccount();
-    try { await task(); } catch (error) { setStatus(`失败：${error.message}`, true); }
+    try { await task(); } catch (error) {
+      const seconds = Number(String(error.message).match(/after\s+(\d+)\s+seconds?/i)?.[1] || 0);
+      if (seconds) startCooldown(seconds);
+      else setStatus(`失败：${error.message}`, true);
+    }
     finally { state.busy = false; renderAccount(); }
+  }
+  function startCooldown(seconds) {
+    state.cooldownUntil = Date.now() + seconds * 1000;
+    clearInterval(state.cooldownTimer);
+    const tick = () => {
+      const left = Math.max(0, Math.ceil((state.cooldownUntil - Date.now()) / 1000));
+      if (left > 0) setStatus(`请求过于频繁，请等待 ${left} 秒后再点登录或注册。`, true);
+      else {
+        clearInterval(state.cooldownTimer);
+        state.cooldownTimer = null;
+        state.cooldownUntil = 0;
+        setStatus('现在可以重新登录或注册。');
+      }
+      renderAccount();
+    };
+    tick();
+    state.cooldownTimer = setInterval(tick, 1000);
   }
   async function signup() {
     return withBusy(async () => {
@@ -223,7 +245,7 @@
       .cloud-sync-trigger{position:fixed;right:18px;bottom:86px;z-index:9998;border:0;border-radius:999px;background:#17634d;color:#fff;padding:13px 18px;font-weight:800;box-shadow:0 8px 25px #163e3038;cursor:pointer}
       .cloud-sync-modal{position:fixed;inset:0;z-index:9999;background:#0b2019a8;display:grid;place-items:center;padding:18px}.cloud-sync-modal[hidden]{display:none}
       .cloud-sync-card{width:min(560px,100%);max-height:90vh;overflow:auto;background:#f7fcf9;border-radius:24px;padding:24px;color:#173b30;box-shadow:0 20px 70px #0005}.cloud-sync-card h2{margin:0 0 8px}.cloud-sync-card p{line-height:1.6}
-      .cloud-sync-close{float:right;border:0;background:transparent;font-size:25px}.cloud-sync-fields{display:grid;gap:10px}.cloud-sync-fields input{font:inherit;padding:13px;border:1px solid #b9d8cc;border-radius:12px}.cloud-sync-actions{display:flex;flex-wrap:wrap;gap:9px;margin:14px 0}.cloud-sync-actions button{border:1px solid #17634d;border-radius:999px;background:#fff;color:#17634d;padding:10px 15px;font-weight:750}.cloud-sync-actions .primary{background:#17634d;color:#fff}.cloud-sync-actions button:disabled{opacity:.45}
+      .cloud-sync-close{float:right;border:0;background:transparent;font-size:25px}.cloud-sync-fields{display:grid;gap:10px}.cloud-sync-fields input{font:inherit;padding:13px;border:1px solid #b9d8cc;border-radius:12px}.cloud-sync-actions{display:flex;flex-wrap:wrap;gap:9px;margin:14px 0}.cloud-sync-actions button{border:1px solid #17634d;border-radius:999px;background:#fff;color:#17634d;padding:10px 15px;font-weight:750}.cloud-sync-actions .primary{background:#17634d;color:#fff}.cloud-sync-actions button:disabled{opacity:.45}.cloud-sync-fields[hidden],.cloud-sync-actions[hidden]{display:none!important}
       .cloud-sync-account{padding:11px 13px;background:#e4f4ed;border-radius:12px}.cloud-sync-status{min-height:48px;padding:10px 12px;border-left:4px solid #43a27e;background:#fff}.cloud-sync-status.error{border-color:#df654f;color:#9d2f20}.cloud-sync-note{font-size:13px;color:#527166}
     `;
     document.head.appendChild(style);
@@ -258,7 +280,7 @@
     document.getElementById('cloudFields').hidden = logged;
     document.getElementById('cloudGuestActions').hidden = logged;
     document.getElementById('cloudUserActions').hidden = !logged;
-    document.querySelectorAll('#cloudSyncModal button').forEach(button => { if (!button.classList.contains('cloud-sync-close')) button.disabled = state.busy; });
+    document.querySelectorAll('#cloudSyncModal button').forEach(button => { if (!button.classList.contains('cloud-sync-close')) button.disabled = state.busy || state.cooldownUntil > Date.now(); });
     const last = localStorage.getItem(LAST_SYNC_KEY);
     const trigger = document.getElementById('cloudSyncTrigger');
     if (trigger) trigger.textContent = last ? '☁ 已同步' : '☁ 云同步';
