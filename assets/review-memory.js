@@ -85,11 +85,12 @@
       const all=cats(),select=$('#smCategory'),previous=select.value;
       select.innerHTML=all.map(x=>'<option>'+esc(x)+'</option>').join('');if(all.includes(previous))select.value=previous;
       const shown=partView==='全部'?all:all.filter(x=>categoryPart(x)===partView);
+      if(partView!=='全部'&&!shown.includes(select.value))select.value=shown[0]||all[0]||'';
       $('#smFilters').innerHTML=['全部',...shown].map(x=>'<button class="'+(x===filter?'active':'')+'" data-sm-filter="'+esc(x)+'">'+esc(x)+'</button>').join('');
       document.querySelectorAll('[data-sm-filter]').forEach(b=>b.onclick=()=>{filter=b.dataset.smFilter;if(filter!=='全部')select.value=filter;studyIndex=0;render()});
       document.querySelectorAll('[data-sm-part]').forEach(b=>b.classList.toggle('active',b.dataset.smPart===partView));updateAutoTarget();
     }
-    function visible(){return cards().filter(x=>!x.archived&&(filter==='全部'||x.category===filter))}
+    function visible(){return cards().filter(x=>!x.archived&&(partView==='全部'||categoryPart(x.category)===partView)&&(filter==='全部'||x.category===filter))}
     function renderStudy(){const rows=visible(),x=rows[studyIndex%Math.max(rows.length,1)],box=$('#smStudyCard');box.classList.remove('revealed');box.innerHTML=x?'<span>'+esc(x.category)+'</span><b>'+esc(x.front)+'</b><div class="answer"><strong>'+esc(x.back||'')+'</strong><p>'+esc(x.example||'')+'</p></div>':'<span>当前分类还没有卡片</span><div class="answer">先添加口语表达。</div>';$('#smStudyCount').textContent=x?(studyIndex%rows.length+1)+' / '+rows.length:'0 张'}
     function render(){renderCats();const rows=visible();$('#smList').innerHTML=rows.length?rows.map(x=>'<article class="memory-row"><header><div><small>'+esc(x.category)+'</small><h3>'+esc(x.front)+'</h3></div></header><p>'+esc(x.back||'')+'</p>'+(x.example?'<small>'+esc(x.example)+'</small>':'')+'<div class="row-actions"><button data-sm-study="'+x.id+'">复习这张</button><button data-sm-master="'+x.id+'">✓ 已熟练</button><button class="danger" data-sm-delete="'+x.id+'">删除</button></div></article>').join(''):'<div class="empty-state">这个分类还没有口语卡片。</div>';$('#smTotal').textContent=cards().filter(x=>!x.archived).length+' 张在学';$$('[data-sm-study]').forEach(b=>b.onclick=()=>{studyIndex=Math.max(0,rows.findIndex(x=>x.id===b.dataset.smStudy));renderStudy()});$$('[data-sm-master]').forEach(b=>b.onclick=()=>{const all=cards(),x=all.find(v=>v.id===b.dataset.smMaster);if(x)x.archived=true;save(all);render()});$$('[data-sm-delete]').forEach(b=>b.onclick=()=>{if(confirm('删除这张口语卡片吗？')){save(cards().filter(x=>x.id!==b.dataset.smDelete));render()}});renderStudy()}
     document.querySelectorAll('[data-sm-part]').forEach(b=>b.onclick=()=>{partView=b.dataset.smPart;filter='全部';studyIndex=0;render()});
