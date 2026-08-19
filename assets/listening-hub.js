@@ -13,6 +13,7 @@
   let editingAttemptId = null;
   let privatePart = 'P1';
   let privateVipOnly = false;
+  let privateDoneView = 'all';
   let paperSelection = new Set();
   let paperQueue = [];
   let paperIndex = -1;
@@ -184,12 +185,13 @@
     return [...records].sort((a,b)=>(partOrder[a.part]||9)-(partOrder[b.part]||9)||testOrder(a)-testOrder(b)||a.title.localeCompare(b.title,undefined,{numeric:true}));
   }
   function renderPaperBuilder(records) {
-    const selected=sortPaper(records.filter(x=>paperSelection.has(x.id)));
+    const doneTitles=new Set(loadHistory().map(x=>x.title));
+    const selected=sortPaper(records.filter(x=>paperSelection.has(x.id)&&!doneTitles.has(x.title)));
     $('#paperBuilder').innerHTML='<div class="paper-builder-head"><div><b>组卷做套题</b><small>手动加入，或一键从 P1–P4 各抽一篇</small></div><strong>'+selected.length+' 篇</strong></div><div class="paper-builder-actions"><button data-random-paper>随机完整套题</button><button data-start-paper '+(selected.length?'':'disabled')+'>开始套题</button><button data-clear-paper '+(selected.length?'':'disabled')+'>清空</button></div><div class="paper-selected-strip">'+(selected.length?selected.map((x,i)=>'<span><i>'+x.part+'</i>'+(i+1)+'. '+esc(x.title)+'<button data-remove-paper="'+esc(x.id)+'" aria-label="移除">×</button></span>').join(''):'<p>还没有选题。你可以在题目下方点击“加入组卷”。</p>')+'</div>';
     document.querySelector('[data-random-paper]').onclick=()=>{
       const chosen=[];
       for(const part of ['P1','P2','P3','P4']){
-        const pool=records.filter(x=>x.part===part&&(!privateVipOnly||isVipTest(x)));
+        const pool=records.filter(x=>x.part===part&&(!privateVipOnly||isVipTest(x))&&!doneTitles.has(x.title));
         if(!pool.length)return alert(part+' 没有可用题目，请先导入该部分或关闭“仅看 VIP”。');
         chosen.push(pool[Math.floor(Math.random()*pool.length)]);
       }
@@ -208,6 +210,19 @@
     paperObjectUrls.forEach(url=>URL.revokeObjectURL(url));paperObjectUrls=[];
     $('#paperFrames').innerHTML='';$('#paperFrames').hidden=true;$('#paperPartNav').hidden=true;
   }
+  function jumpFrameToQuestion(frame, smooth=true) {
+    try {
+      const doc=frame?.contentDocument, win=frame?.contentWindow;if(!doc||!win)return false;
+      const target=doc.querySelector('input:not([type="hidden"]), textarea, select, [contenteditable="true"]')||[...doc.querySelectorAll('h1,h2,h3,b,strong')].find(x=>/questions?\s*\d|complete the|choose the|write no more/i.test(x.textContent||''));
+      if(!target)return false;
+      const top=target.getBoundingClientRect().top+win.scrollY-Math.min(180,frame.clientHeight*.18);
+      win.scrollTo({top:Math.max(0,top),behavior:smooth?'smooth':'auto'});return true;
+    } catch (_) { return false; }
+  }
+  function jumpActiveQuestion(smooth=true) {
+    const active=document.querySelector('[data-paper-frame]:not([hidden])')||$('#practiceFrame');
+    return jumpFrameToQuestion(active,smooth);
+  }
   function showPaperPart(index) {
     paperIndex=index;
     document.querySelectorAll('[data-paper-frame]').forEach(frame=>{
@@ -218,7 +233,7 @@
     const record=paperQueue[index];
     if(record)$('#practiceTitle').textContent='IELTS 套题 · '+record.part+' · '+record.title;
     const activeFrame=document.querySelector('[data-paper-frame="'+index+'"]');
-    try { activeFrame?.contentWindow?.scrollTo(0,0); } catch (_) {}
+    setTimeout(()=>jumpFrameToQuestion(activeFrame),80);
   }
   function launchPaperWorkspace() {
     cleanupPaperWorkspace();paperResults=new Map();paperReviewQueue=[];paperIndex=0;
@@ -231,7 +246,7 @@
       const pageUrl=URL.createObjectURL(new Blob([source],{type:'text/html'}));paperObjectUrls.push(pageUrl);
       return '<iframe data-paper-frame="'+i+'" src="'+esc(pageUrl)+'" title="'+esc(record.part+' '+record.title)+'" loading="eager" '+(i?'hidden':'')+'></iframe>';
     }).join('');
-    document.querySelectorAll('[data-paper-frame]').forEach(frame=>frame.addEventListener('load',()=>{try{frame.contentWindow.scrollTo(0,0)}catch(_){}}));
+    document.querySelectorAll('[data-paper-frame]').forEach(frame=>frame.addEventListener('load',()=>setTimeout(()=>jumpFrameToQuestion(frame,false),120)));
     document.querySelectorAll('[data-paper-switch]').forEach(btn=>btn.onclick=()=>showPaperPart(Number(btn.dataset.paperSwitch)));
     $('#practiceFrameWrap').classList.remove('hidden');$('#causePanel').classList.add('hidden');
     showPaperPart(0);$('#practiceFrameWrap').scrollIntoView({behavior:'smooth',block:'start'});
@@ -245,6 +260,7 @@
     const source = injectBridge(htmlText, activeAudioUrl, title, part);
     activeUrl = URL.createObjectURL(new Blob([source], {type:'text/html'}));
     $('#practiceFrame').src = activeUrl;
+    $('#practiceFrame').onload=()=>setTimeout(()=>jumpFrameToQuestion($('#practiceFrame'),false),120);
     $('#practiceTitle').textContent = part + ' · ' + title;
     $('#practiceFrameWrap').classList.remove('hidden');
     $('#causePanel').classList.add('hidden');
@@ -253,6 +269,8 @@
   async function renderPrivateBank() {
     const records = await dbAll();
     const history = loadHistory();
+    const doneTitles=new Set(history.map(x=>x.title));
+    for(const id of [...paperSelection]){const record=records.find(x=>x.id===id);if(record&&doneTitles.has(record.title))paperSelection.delete(id)}
     $('#privateBankCount').textContent = records.length ? records.length + ' 篇已保存在本机' : '尚未导入';
     $('#privatePartTabs').innerHTML = ['P1','P2','P3','P4'].map(part => {
       const count=records.filter(x=>x.part===part&&(!privateVipOnly||isVipTest(x))).length;
@@ -260,17 +278,19 @@
     }).join('');
     document.querySelectorAll('[data-private-part]').forEach(btn => btn.onclick = () => { privatePart = btn.dataset.privatePart; renderPrivateBank(); });
     const vipCount=records.filter(x=>x.part===privatePart&&isVipTest(x)).length;
-    $('#privateBankFilters').innerHTML='<button class="'+(!privateVipOnly?'active':'')+'" data-private-vip="all">全部题目</button><button class="'+(privateVipOnly?'active':'')+'" data-private-vip="vip">仅看 VIP（'+vipCount+'）</button><span>已按题号从小到大排列</span>';
+    const doneCount=records.filter(x=>x.part===privatePart&&doneTitles.has(x.title)).length;
+    $('#privateBankFilters').innerHTML='<button class="'+(!privateVipOnly?'active':'')+'" data-private-vip="all">全部题目</button><button class="'+(privateVipOnly?'active':'')+'" data-private-vip="vip">仅看 VIP（'+vipCount+'）</button><button class="'+(privateDoneView==='todo'?'active':'')+'" data-private-done="todo">未做（'+(records.filter(x=>x.part===privatePart).length-doneCount)+'）</button><button class="'+(privateDoneView==='done'?'active':'')+'" data-private-done="done">已做（'+doneCount+'）</button><span>已按题号从小到大排列</span>';
     document.querySelectorAll('[data-private-vip]').forEach(btn=>btn.onclick=()=>{privateVipOnly=btn.dataset.privateVip==='vip';renderPrivateBank()});
+    document.querySelectorAll('[data-private-done]').forEach(btn=>btn.onclick=()=>{privateDoneView=privateDoneView===btn.dataset.privateDone?'all':btn.dataset.privateDone;renderPrivateBank()});
     renderPaperBuilder(records);
-    const filtered = records.filter(x => x.part === privatePart && (!privateVipOnly || isVipTest(x))).sort((a,b) => testOrder(a)-testOrder(b) || a.title.localeCompare(b.title,undefined,{numeric:true,sensitivity:'base'}));
+    const filtered = records.filter(x => x.part === privatePart && (!privateVipOnly || isVipTest(x)) && (privateDoneView==='all'||(privateDoneView==='done')===doneTitles.has(x.title))).sort((a,b) => testOrder(a)-testOrder(b) || a.title.localeCompare(b.title,undefined,{numeric:true,sensitivity:'base'}));
     $('#privateTestList').innerHTML = filtered.length ? filtered.map(x => {
       const attempts=history.filter(a=>a.title===x.title);
       const attemptHtml=attempts.length?attempts.map(a=>{
         const wrong=Object.entries(a.reviews||{}).map(([q,r])=>esc('Q'+q+' '+(r.primary||'未标记')+(r.synonym?' · '+r.synonym:''))).join('<br>');
         return '<div class="private-attempt"><div class="private-attempt-head"><span>'+esc(new Date(a.date).toLocaleDateString())+' · '+a.correct+'/'+a.total+'</span><button class="edit-attempt" data-edit-attempt="'+esc(a.id||'')+'">重新编辑</button></div><div class="private-attempt-errors">'+(wrong||'本次没有逐题复盘记录')+'</div></div>';
       }).join(''):'<p class="no-private-errors">完成这篇并保存复盘后，错题会显示在这里。</p>';
-      return '<details class="private-test-entry"><summary><span><b>'+esc(x.title)+(isVipTest(x)?' <i class="vip-test-badge">VIP</i>':'')+'</b><small>'+esc(x.frequency)+' · '+attempts.length+' 次练习</small></span><em>展开 ↓</em></summary><div class="private-test-body"><div class="private-test-actions"><button data-private-test="'+esc(x.id)+'">开始做题</button><button class="'+(paperSelection.has(x.id)?'paper-added':'')+'" data-add-paper="'+esc(x.id)+'">'+(paperSelection.has(x.id)?'✓ 已加入组卷':'＋ 加入组卷')+'</button><button class="chatgpt-review" data-chatgpt-title="'+esc(x.title)+'">复制复盘并打开 ChatGPT</button></div>'+attemptHtml+'</div></details>';
+      return '<details class="private-test-entry"><summary><span><b>'+esc(x.title)+(isVipTest(x)?' <i class="vip-test-badge">VIP</i>':'')+(doneTitles.has(x.title)?' <i class="done-test-badge">已做</i>':'')+'</b><small>'+esc(x.frequency)+' · '+attempts.length+' 次练习</small></span><em>展开 ↓</em></summary><div class="private-test-body"><div class="private-test-actions"><button data-private-test="'+esc(x.id)+'">'+(doneTitles.has(x.title)?'重新做题':'开始做题')+'</button><button class="'+(paperSelection.has(x.id)?'paper-added':'')+'" data-add-paper="'+esc(x.id)+'" '+(doneTitles.has(x.title)?'disabled title="已做题目不会加入新套题"':'')+'>'+(doneTitles.has(x.title)?'已做 · 不参与组卷':paperSelection.has(x.id)?'✓ 已加入组卷':'＋ 加入组卷')+'</button><button class="chatgpt-review" data-chatgpt-title="'+esc(x.title)+'">复制复盘并打开 ChatGPT</button></div>'+attemptHtml+'</div></details>';
     }).join('') : '<p>'+(privateVipOnly?'这个部分暂时没有标记为 VIP 的题目。':'这个部分还没有导入篇目。')+'</p>';
     document.querySelectorAll('[data-private-test]').forEach(btn => btn.onclick = async () => {
       const record = (await dbAll()).find(x => x.id === btn.dataset.privateTest);
@@ -370,6 +390,7 @@
     $('#practiceFrameWrap').classList.add('hidden');
     $('#practiceFrame').src = 'about:blank';
   });
+  $('#jumpListeningQuestion')?.addEventListener('click',()=>{if(!jumpActiveQuestion())alert('题目仍在载入，请稍等一秒再点。')});
   $('#fullscreenListeningTest')?.addEventListener('click', async () => {
     const wrap=$('#practiceFrameWrap');
     const button=$('#fullscreenListeningTest');
@@ -385,8 +406,8 @@
     editingAttemptId=null;
     pendingResult={...data,id:'attempt-'+Date.now()+'-'+Math.random().toString(36).slice(2,7),date:new Date().toISOString(),reviews:{},reviewPlan:[{label:'D+1',due:dayStamp(1),done:false},{label:'D+3',due:dayStamp(3),done:false},{label:'D+7',due:dayStamp(7),done:false}]};
     const wrong=pendingResult.wrongQuestions||[];
-    const rate=pendingResult.total?Math.round(wrong.length/pendingResult.total*100):0;
-    $('#practiceScore').textContent=(label?label+' · ':'')+pendingResult.correct+'/'+pendingResult.total+' · 错误率 '+rate+'%';
+    const rate=pendingResult.total?Math.round(pendingResult.correct/pendingResult.total*100):0;
+    $('#practiceScore').textContent=(label?label+' · ':'')+pendingResult.correct+'/'+pendingResult.total+' · 正确率 '+rate+'%';
     $('#causeQuestions').innerHTML=wrong.length?wrong.map(q=>reviewCard(q,pendingResult.questionDetails?.[q]||{})).join(''):'<p>本篇全部正确，无需标记错因。</p>';
     $('#saveTestAnalysis').textContent=paperReviewQueue.length&&paperIndex<paperReviewQueue.length-1?'保存并复盘下一篇':'保存本次复盘';
     $('#causePanel').classList.remove('hidden');$('#causePanel').scrollIntoView({behavior:'smooth',block:'start'});
@@ -490,7 +511,7 @@
     $('#attemptHistory').innerHTML = items.length ? items.slice(0,40).map(x => {
       const reviews=x.reviews||{};
       const details=Object.entries(reviews).map(([q,r]) => '<div class="attempt-wrong"><b>第 '+esc(q)+'题 · '+esc(r.primary||'未标记')+'</b><span>'+esc(r.synonym||r.evidence||r.reminder||'暂无补充分析')+'</span></div>').join('');
-      return '<details class="attempt-details" data-attempt-part="'+esc(x.part)+'" data-attempt-id="'+esc(x.id||'')+'"><summary><span><b>'+esc(x.part)+'</b> · '+esc(x.title)+'</span><b>'+x.correct+'/'+x.total+' · '+(x.total?Math.round(x.correct/x.total*100):0)+'%</b></summary><div class="attempt-wrong-list"><div class="attempt-actions"><button data-attempt-original="'+esc(x.title)+'">打开原文 / 重新做</button><button data-attempt-analysis="'+esc(x.id||'')+'">定位错题解析</button><button data-attempt-intensive="'+esc(x.title)+'">进入精听</button></div>'+(details||'<p class="empty-analysis">旧记录暂无逐题详情。</p>')+'</div></details>';
+      return '<details class="attempt-details" data-attempt-part="'+esc(x.part)+'" data-attempt-id="'+esc(x.id||'')+'"><summary><span><b>'+esc(x.part)+'</b> · '+esc(x.title)+'<small>'+esc(new Date(x.date||Date.now()).toLocaleDateString())+'</small></span><b>'+x.correct+'/'+x.total+' · '+(x.total?Math.round(x.correct/x.total*100):0)+'%</b></summary><div class="attempt-wrong-list"><div class="attempt-actions"><button data-attempt-original="'+esc(x.title)+'">打开原文 / 重新做</button><button data-attempt-analysis="'+esc(x.id||'')+'">定位错题解析</button><button data-attempt-intensive="'+esc(x.title)+'">进入精听</button></div>'+(details||'<p class="empty-analysis">旧记录暂无逐题详情。</p>')+'</div></details>';
     }).join('') : '<p class="empty-analysis">暂无练习记录。</p>';
     document.querySelectorAll('[data-analysis-part]').forEach(card=>card.onclick=()=>{
       const part=card.dataset.analysisPart,rows=[...document.querySelectorAll('.attempt-details')];
