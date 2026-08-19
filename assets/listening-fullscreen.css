@@ -5,3 +5,7 @@
 /* Keep the active paper iframe pinned to the available fullscreen area. */
 .practice-frame-wrap.fullscreen-test .paper-frames{position:relative!important}
 .practice-frame-wrap.fullscreen-test .paper-frames iframe{position:absolute!important;inset:0!important;width:100%!important;height:100%!important}
+
+/* v5: question-first workspace */
+.practice-frame-wrap:not(.hidden){scroll-margin-top:12px}.practice-frame-wrap iframe{background:#fff;scrollbar-gutter:stable}
+.practice-frame-wrap.fullscreen-test .practice-frame-head{background:#142f3f}.practice-frame-wrap.fullscreen-test .paper-part-nav{background:#f3f6f7}
