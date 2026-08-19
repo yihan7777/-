@@ -8,7 +8,7 @@
   const DB_NAME = 'ielts-private-listening-bank-v1';
   const STORE_NAME = 'tests';
   const BUCKET = 'ielts-private-files';
-  const SYNC_VERSION = '6.0';
+  const SYNC_VERSION = '6.1';
 
   const state = { session: loadJson(SESSION_KEY), busy: false, cooldownUntil: 0, cooldownTimer: null, localCount: null, cloudCount: null };
 
@@ -410,7 +410,7 @@
       <button class="cloud-sync-trigger" id="cloudSyncTrigger">☁ 云同步</button>
       <div class="cloud-sync-modal" id="cloudSyncModal" hidden><section class="cloud-sync-card" role="dialog" aria-modal="true" aria-label="跨设备云同步">
         <button class="cloud-sync-close" id="cloudSyncClose" aria-label="关闭">×</button>
-        <h2>电脑和手机数据互通</h2><p>两台设备登录同一个账号。先在原设备上传，再到新设备下载。</p>
+        <h2>电脑和手机数据互通</h2><p>两台设备登录同一个账号。打开云头像后会自动双向合并；也可以使用下面的手动按钮。</p>
         <div class="cloud-sync-account" id="cloudAccount"></div>
         <div class="cloud-sync-fields" id="cloudFields"><input id="cloudEmail" type="email" autocomplete="email" placeholder="邮箱"><input id="cloudPassword" type="password" autocomplete="current-password" placeholder="密码（至少6位）"></div>
         <div class="cloud-sync-actions" id="cloudGuestActions"><button id="cloudSignup">注册</button><button class="primary" id="cloudLogin">登录</button></div>
@@ -419,7 +419,19 @@
         <p class="cloud-sync-note">同步版本 v${SYNC_VERSION}。会同步：做题记录、错题复盘、词汇与记忆卡片、作文/口语记录，以及私人听力 HTML 和音频。账号之间的数据互相隔离。</p>
       </section></div>`);
     const modal = document.getElementById('cloudSyncModal');
-    document.getElementById('cloudSyncTrigger').onclick = () => { modal.hidden = false; renderAccount(); refreshCountDisplay(); };
+    document.getElementById('cloudSyncTrigger').onclick = async () => {
+      modal.hidden = false;
+      renderAccount();
+      await refreshCountDisplay();
+      const active = loadSession();
+      const autoKey = 'ielts-cloud-auto-merge-v6.1';
+      if (active?.access_token && !sessionStorage.getItem(autoKey)) {
+        sessionStorage.setItem(autoKey, 'running');
+        setStatus('正在自动合并电脑、手机与云端数据，请保持页面打开…');
+        try { await syncBoth(); sessionStorage.setItem(autoKey, 'done'); }
+        catch (error) { sessionStorage.removeItem(autoKey); setStatus('自动合并未完成：' + (error?.message || error), true); }
+      }
+    };
     document.getElementById('cloudSyncClose').onclick = () => { modal.hidden = true; };
     modal.addEventListener('click', e => { if (e.target === modal) modal.hidden = true; });
     document.getElementById('cloudSignup').onclick = signup;
