@@ -8,7 +8,7 @@
   const DB_NAME = 'ielts-private-listening-bank-v1';
   const STORE_NAME = 'tests';
   const BUCKET = 'ielts-private-files';
-  const SYNC_VERSION = '5.0';
+  const SYNC_VERSION = '6.0';
 
   const state = { session: loadJson(SESSION_KEY), busy: false, cooldownUntil: 0, cooldownTimer: null, localCount: null, cloudCount: null };
 
@@ -94,16 +94,49 @@
   function safePath(value) {
     return encodeURIComponent(String(value || 'item')).replace(/%/g, '_').slice(0, 160);
   }
+  function normalizeTitle(value) {
+    return String(value || '').replace(/\s+/g, ' ').replace(/^[\d０-９]+[.、]\s*/, '').trim().toLowerCase();
+  }
+  function canonicalTestKey(item) {
+    return String(item?.part || 'P1').toUpperCase() + '|' + normalizeTitle(item?.title || item?.id);
+  }
+  function dedupeManifest(list) {
+    const byFile = new Map();
+    (Array.isArray(list) ? list : []).forEach(item => {
+      if (!item?.htmlPath) return;
+      const identity = item.htmlPath || item.id || canonicalTestKey(item);
+      const previous = byFile.get(identity);
+      if (!previous || Number(item.updatedAt || 0) >= Number(previous.updatedAt || 0)) byFile.set(identity, item);
+    });
+    const byTitle = new Map();
+    [...byFile.values()].forEach(item => {
+      const key = canonicalTestKey(item);
+      const previous = byTitle.get(key);
+      if (!previous || Number(item.updatedAt || 0) >= Number(previous.updatedAt || 0)) byTitle.set(key, item);
+    });
+    return [...byTitle.values()];
+  }
+  function mergeStorageValue(remoteValue, localValue) {
+    if (localValue == null) return remoteValue;
+    try {
+      const remote = JSON.parse(remoteValue), local = JSON.parse(localValue);
+      if (Array.isArray(remote) && Array.isArray(local)) {
+        const map = new Map();
+        [...remote, ...local].forEach((item, index) => map.set(item?.id || item?.title || JSON.stringify(item) || index, item));
+        return JSON.stringify([...map.values()]);
+      }
+      if (remote && local && typeof remote === 'object' && typeof local === 'object') return JSON.stringify({ ...remote, ...local });
+    } catch (_) {}
+    return localValue;
+  }
   function recoverStoredMeta(item) {
     const folder = String(item.htmlPath || item.id || '').split('/')[1] || String(item.id || '');
     let decoded = folder;
     try { decoded = decodeURIComponent(folder.replace(/_/g, '%')); } catch (_) {}
-    const part = decoded.match(/\/(P[1-4])\//i)?.[1]?.toUpperCase() || item.part || 'P1';
-    const title = decoded.match(/(?:^|\/)(\d+\.\s*P[1-4][^/]+)/i)?.[1]
-      || decoded.split('/').filter(Boolean).at(-2)
-      || item.title
-      || '云端听力';
-    return { id: decoded || item.id, part, title };
+    const part = String(item.part || decoded.match(/\/(P[1-4])\//i)?.[1] || 'P1').toUpperCase();
+    const decodedTitle = decoded.match(/(?:^|\/)(\d+\.\s*P[1-4][^/]+)/i)?.[1] || decoded.split('/').filter(Boolean).at(-2);
+    const title = item.title || decodedTitle || '云端听力';
+    return { id: item.id || decoded || crypto.randomUUID(), part, title };
   }
   function extension(name, type) {
     const match = String(name || '').match(/\.([a-zA-Z0-9]{2,5})$/);
@@ -222,9 +255,7 @@
       const existingRows = await api(`/rest/v1/user_sync_state?user_id=eq.${encodeURIComponent(uid)}&select=payload&limit=1`, { headers: authHeaders(session.access_token) });
       const existingManifest = existingRows?.[0]?.payload?.listeningManifest || [];
       const localManifest = await uploadListening(session.access_token, uid, setStatus);
-      const manifestMap = new Map(existingManifest.map(item => [item.htmlPath || item.id, item]));
-      localManifest.forEach(item => manifestMap.set(item.htmlPath || item.id, item));
-      const listeningManifest = [...manifestMap.values()];
+      const listeningManifest = dedupeManifest([...existingManifest, ...localManifest]);
       const payload = { localStorage: collectLocalStorage(), listeningManifest, exportedAt: new Date().toISOString() };
       const latest = await ensureSession(true);
       await api('/rest/v1/user_sync_state?on_conflict=user_id', {
@@ -247,12 +278,48 @@
       const row = rows?.[0];
       if (!row?.payload) throw new Error('云端还没有备份，请先在原设备点击“上传本机到云端”');
       Object.entries(row.payload.localStorage || {}).forEach(([key, value]) => localStorage.setItem(key, value));
-      await downloadListening(session.access_token, row.payload.listeningManifest, setStatus, uid, `${row.updated_at}|${row.payload.listeningManifest?.length || 0}`);
+      const cleanManifest = dedupeManifest(row.payload.listeningManifest);
+      await downloadListening(session.access_token, cleanManifest, setStatus, uid, `${row.updated_at}|${cleanManifest.length}`);
       localStorage.setItem(LAST_SYNC_KEY, new Date().toISOString());
       setStatus('恢复完成，正在刷新页面…');
       setTimeout(() => location.reload(), 900);
     });
   }
+  async function syncBoth() {
+    return withBusy(async () => {
+      const session = await ensureSession(true), uid = session.user?.id;
+      if (!uid) throw new Error('无法识别账号，请重新登录');
+      setStatus('正在比对电脑、手机与云端题库…');
+      const rows = await api(`/rest/v1/user_sync_state?user_id=eq.${encodeURIComponent(uid)}&select=payload,updated_at&limit=1`, { headers: authHeaders(session.access_token) });
+      const row = rows?.[0], remotePayload = row?.payload || {};
+      const remoteManifest = dedupeManifest(remotePayload.listeningManifest);
+      const localBefore = await dbAll();
+      const localMap = new Map(localBefore.map(item => [canonicalTestKey(item), item]));
+      const missing = remoteManifest.filter(item => {
+        const local = localMap.get(canonicalTestKey(item));
+        return !local || Number(item.updatedAt || 0) > Number(local.updatedAt || 0);
+      });
+      Object.entries(remotePayload.localStorage || {}).forEach(([key, value]) => {
+        localStorage.setItem(key, mergeStorageValue(value, localStorage.getItem(key)));
+      });
+      if (missing.length) await downloadListening(session.access_token, missing, setStatus, uid, `smart|${row?.updated_at || Date.now()}|${missing.length}`);
+      setStatus('云端内容已合并，正在上传统一后的题库…');
+      const uploadedManifest = await uploadListening((await ensureSession(true)).access_token, uid, setStatus);
+      const listeningManifest = dedupeManifest(uploadedManifest);
+      const payload = { localStorage: collectLocalStorage(), listeningManifest, exportedAt: new Date().toISOString() };
+      const latest = await ensureSession(true);
+      await api('/rest/v1/user_sync_state?on_conflict=user_id', {
+        method: 'POST',
+        headers: authHeaders(latest.access_token, { 'Content-Type': 'application/json', Prefer: 'resolution=merge-duplicates,return=minimal' }),
+        body: JSON.stringify({ user_id: uid, payload, version: Date.now(), device_name: navigator.userAgent.slice(0, 180), updated_at: new Date().toISOString() })
+      });
+      state.localCount = listeningManifest.length; state.cloudCount = listeningManifest.length;
+      localStorage.setItem(LAST_SYNC_KEY, new Date().toISOString());
+      setStatus(`双向同步完成：电脑、手机与云端均为 ${listeningManifest.length} 篇。正在刷新…`);
+      setTimeout(() => location.reload(), 1100);
+    });
+  }
+
   async function withBusy(task) {
     if (state.busy) return;
     state.busy = true; renderAccount();
@@ -317,7 +384,7 @@
       const localCount = (await dbAll()).length;
       const session = await ensureSession(false);
       const rows = await api(`/rest/v1/user_sync_state?user_id=eq.${encodeURIComponent(session.user.id)}&select=payload&limit=1`, { headers: authHeaders(session.access_token) });
-      const cloudCount = rows?.[0]?.payload?.listeningManifest?.length || 0;
+      const cloudCount = dedupeManifest(rows?.[0]?.payload?.listeningManifest).length;
       state.localCount = localCount;
       state.cloudCount = cloudCount;
       const account = document.getElementById('cloudAccount');
@@ -347,7 +414,7 @@
         <div class="cloud-sync-account" id="cloudAccount"></div>
         <div class="cloud-sync-fields" id="cloudFields"><input id="cloudEmail" type="email" autocomplete="email" placeholder="邮箱"><input id="cloudPassword" type="password" autocomplete="current-password" placeholder="密码（至少6位）"></div>
         <div class="cloud-sync-actions" id="cloudGuestActions"><button id="cloudSignup">注册</button><button class="primary" id="cloudLogin">登录</button></div>
-        <div class="cloud-sync-actions" id="cloudUserActions"><button class="primary" id="cloudUpload">↑ 上传本机到云端</button><button id="cloudDownload">↓ 下载云端到本机</button><button id="cloudLogout">退出账号</button></div>
+        <div class="cloud-sync-actions" id="cloudUserActions"><button class="primary" id="cloudSmartSync">↕ 智能双向同步</button><button id="cloudUpload">↑ 仅上传</button><button id="cloudDownload">↓ 仅下载</button><button id="cloudLogout">退出账号</button></div>
         <p class="cloud-sync-status" id="cloudStatus">准备同步。听力音频较大时，请保持页面打开。</p>
         <p class="cloud-sync-note">同步版本 v${SYNC_VERSION}。会同步：做题记录、错题复盘、词汇与记忆卡片、作文/口语记录，以及私人听力 HTML 和音频。账号之间的数据互相隔离。</p>
       </section></div>`);
@@ -357,6 +424,7 @@
     modal.addEventListener('click', e => { if (e.target === modal) modal.hidden = true; });
     document.getElementById('cloudSignup').onclick = signup;
     document.getElementById('cloudLogin').onclick = login;
+    document.getElementById('cloudSmartSync').onclick = syncBoth;
     document.getElementById('cloudUpload').onclick = uploadAll;
     document.getElementById('cloudDownload').onclick = downloadAll;
     document.getElementById('cloudLogout').onclick = () => { saveSession(null); setStatus('已退出账号。'); };
