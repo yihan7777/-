@@ -5,12 +5,12 @@
 }
 html{width:100%;max-width:100%;overflow-x:hidden;background:var(--app-bg)}
 body{width:100%!important;max-width:100%!important;min-width:0!important;overflow-x:clip!important;background:linear-gradient(180deg,#f8fcff 0,#f3f9f7 48%,#f8fbfd 100%)!important;padding-top:68px}
-*,*::before,*::after{box-sizing:border-box}
+*,*::before,*::after{box-sizing:border-box}\nbody *{min-width:0}
 body>header,body>main,body>footer,body>.app-tabs-shell,[data-page-section]{max-width:100%!important;min-width:0!important}
 main>*{min-width:0}
 img,video,canvas,svg,iframe,table,input,select,textarea{max-width:100%}
 .app-topbar{position:fixed;z-index:10020;left:0;right:0;top:0;height:68px;display:grid;grid-template-columns:52px 1fr 52px;align-items:center;gap:10px;padding:8px max(14px,env(safe-area-inset-left));background:rgba(255,255,255,.92);border-bottom:1px solid rgba(203,224,217,.8);box-shadow:0 8px 28px rgba(51,84,77,.07);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px)}
-.app-menu-button,.app-cloud-avatar{width:48px;height:48px;border:0;border-radius:17px;background:#fff;box-shadow:0 8px 22px rgba(46,75,68,.10);cursor:pointer;color:var(--app-ink)}
+.app-menu-button,.app-cloud-avatar{position:relative;width:48px;height:48px;border:0;border-radius:17px;background:#fff;box-shadow:0 8px 22px rgba(46,75,68,.10);cursor:pointer;color:var(--app-ink)}
 .app-menu-button{display:grid;place-items:center;font-size:0}.app-menu-button::before{content:"";width:22px;height:14px;border-top:2px solid;border-bottom:2px solid}.app-menu-button::after{content:"";position:absolute;width:14px;border-top:2px solid;transform:translateY(0)}
 .app-topbar-title{text-align:center;min-width:0}.app-topbar-title small{display:block;color:#77a48f;font-size:9px;font-weight:900;letter-spacing:.16em}.app-topbar-title strong{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font:700 18px/1.35 Georgia,"Songti SC",serif}
 .app-cloud-avatar{position:relative;display:grid;place-items:center;background:linear-gradient(145deg,#dff3fb,#f7e2dd);font-weight:900;font-size:17px}.app-cloud-avatar::after{content:"";position:absolute;right:3px;bottom:3px;width:11px;height:11px;border:2px solid #fff;border-radius:50%;background:#aab8b2}.app-cloud-avatar.logged-in::after{background:#37a779}
