@@ -212,12 +212,41 @@
   }
   function jumpFrameToQuestion(frame, smooth=true) {
     try {
-      const doc=frame?.contentDocument, win=frame?.contentWindow;if(!doc||!win)return false;
-      const target=doc.querySelector('input:not([type="hidden"]), textarea, select, [contenteditable="true"]')||[...doc.querySelectorAll('h1,h2,h3,b,strong')].find(x=>/questions?\s*\d|complete the|choose the|write no more/i.test(x.textContent||''));
+      const doc=frame?.contentDocument, win=frame?.contentWindow;
+      if(!doc||!win)return false;
+      const candidates=[...doc.querySelectorAll('input:not([type="hidden"]):not([type="range"]):not([type="button"]):not([type="submit"]), textarea, select, [contenteditable="true"]')];
+      const target=candidates.find(node=>{
+        const r=node.getBoundingClientRect();
+        return node.offsetParent!==null&&r.width>2&&r.height>2;
+      })||[...doc.querySelectorAll('h1,h2,h3,h4,b,strong,p')].find(node=>/questions?\s*\d|complete the|choose the|write no more|notes below|form below/i.test(node.textContent||''));
       if(!target)return false;
-      const top=target.getBoundingClientRect().top+win.scrollY-Math.min(180,frame.clientHeight*.18);
-      win.scrollTo({top:Math.max(0,top),behavior:smooth?'smooth':'auto'});return true;
+      if(!doc.getElementById('ielts-auto-focus-style')){
+        const style=doc.createElement('style');style.id='ielts-auto-focus-style';
+        style.textContent='html{scroll-behavior:auto!important} input,textarea,select,[contenteditable="true"]{scroll-margin-top:110px!important}';
+        doc.head?.appendChild(style);
+      }
+      const scrollTarget=(container)=>{
+        const tr=target.getBoundingClientRect(),cr=container.getBoundingClientRect();
+        const next=container.scrollTop+tr.top-cr.top-Math.min(110,container.clientHeight*.14);
+        container.scrollTo?.({top:Math.max(0,next),behavior:smooth?'smooth':'auto'});
+        if(!container.scrollTo)container.scrollTop=Math.max(0,next);
+      };
+      let parent=target.parentElement;
+      while(parent&&parent!==doc.body&&parent!==doc.documentElement){
+        const style=win.getComputedStyle(parent);
+        if(parent.scrollHeight>parent.clientHeight+30&&/(auto|scroll|overlay)/.test(style.overflowY+style.overflow))scrollTarget(parent);
+        parent=parent.parentElement;
+      }
+      target.scrollIntoView({behavior:'auto',block:'start',inline:'nearest'});
+      const root=doc.scrollingElement||doc.documentElement;
+      const top=target.getBoundingClientRect().top+(root.scrollTop||win.scrollY)-Math.min(130,frame.clientHeight*.15);
+      root.scrollTop=Math.max(0,top);doc.body.scrollTop=Math.max(0,top);
+      win.scrollTo({top:Math.max(0,top),behavior:smooth?'smooth':'auto'});
+      return true;
     } catch (_) { return false; }
+  }
+  function scheduleFrameJump(frame) {
+    [80,260,700,1400,2400].forEach((delay,index)=>setTimeout(()=>jumpFrameToQuestion(frame,index>2),delay));
   }
   function jumpActiveQuestion(smooth=true) {
     const active=document.querySelector('[data-paper-frame]:not([hidden])')||$('#practiceFrame');
@@ -233,7 +262,7 @@
     const record=paperQueue[index];
     if(record)$('#practiceTitle').textContent='IELTS 套题 · '+record.part+' · '+record.title;
     const activeFrame=document.querySelector('[data-paper-frame="'+index+'"]');
-    setTimeout(()=>jumpFrameToQuestion(activeFrame),80);
+    scheduleFrameJump(activeFrame);
   }
   function launchPaperWorkspace() {
     cleanupPaperWorkspace();paperResults=new Map();paperReviewQueue=[];paperIndex=0;
@@ -246,7 +275,7 @@
       const pageUrl=URL.createObjectURL(new Blob([source],{type:'text/html'}));paperObjectUrls.push(pageUrl);
       return '<iframe data-paper-frame="'+i+'" src="'+esc(pageUrl)+'" title="'+esc(record.part+' '+record.title)+'" loading="eager" '+(i?'hidden':'')+'></iframe>';
     }).join('');
-    document.querySelectorAll('[data-paper-frame]').forEach(frame=>frame.addEventListener('load',()=>setTimeout(()=>jumpFrameToQuestion(frame,false),120)));
+    document.querySelectorAll('[data-paper-frame]').forEach(frame=>frame.addEventListener('load',()=>scheduleFrameJump(frame)));
     document.querySelectorAll('[data-paper-switch]').forEach(btn=>btn.onclick=()=>showPaperPart(Number(btn.dataset.paperSwitch)));
     $('#practiceFrameWrap').classList.remove('hidden');$('#causePanel').classList.add('hidden');
     showPaperPart(0);$('#practiceFrameWrap').scrollIntoView({behavior:'smooth',block:'start'});
@@ -260,7 +289,7 @@
     const source = injectBridge(htmlText, activeAudioUrl, title, part);
     activeUrl = URL.createObjectURL(new Blob([source], {type:'text/html'}));
     $('#practiceFrame').src = activeUrl;
-    $('#practiceFrame').onload=()=>setTimeout(()=>jumpFrameToQuestion($('#practiceFrame'),false),120);
+    $('#practiceFrame').onload=()=>scheduleFrameJump($('#practiceFrame'));
     $('#practiceTitle').textContent = part + ' · ' + title;
     $('#practiceFrameWrap').classList.remove('hidden');
     $('#causePanel').classList.add('hidden');
