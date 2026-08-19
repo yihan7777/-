@@ -5,18 +5,18 @@
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="theme-color" content="#eaf7f0">
   <title>IELTS Speaking · 9.1 冲刺面板</title>
-  <link rel="stylesheet" href="assets/style.css">
+  <link rel="stylesheet" href="assets/style.css?v=2">
   <link rel="stylesheet" href="assets/training.css?v=5">
   <link rel="stylesheet" href="assets/ui.css?v=2">
   <link rel="stylesheet" href="assets/mnemonic.css?v=1">
-  <link rel="stylesheet" href="assets/listening-hub.css?v=1">
-  <link rel="stylesheet" href="assets/private-bank.css?v=2">
+  <link rel="stylesheet" href="assets/listening-hub.css?v=2">
+  <link rel="stylesheet" href="assets/private-bank.css?v=3">
   <link rel="stylesheet" href="assets/listening-review.css?v=1">
-  <link rel="stylesheet" href="assets/listening-fullscreen.css?v=4">
+  <link rel="stylesheet" href="assets/listening-fullscreen.css?v=5">
   <link rel="stylesheet" href="assets/private-review.css?v=2">
   <link rel="stylesheet" href="assets/writing-mock.css?v=4">
   <link rel="stylesheet" href="assets/speaking-center.css?v=1">
-  <link rel="stylesheet" href="assets/review-memory.css?v=2">
+  <link rel="stylesheet" href="assets/review-memory.css?v=3">
 </head>
 <body>
   <header class="hero">
@@ -299,14 +299,17 @@
 
     <section class="section tool-section listening-practice" id="listeningPractice" data-page-section="listening-hub" data-listening-view="practice" hidden>
       <div class="section-head"><div><p class="kicker">REAL TEST PRACTICE</p><h2>听力真题做题平台</h2></div><p class="aside">题目和音频只在当前设备打开，不上传公开网站。交卷后自动统计，并让你给每道错题标记原因。</p></div>
-      <div class="practice-import">
-        <label class="folder-import"><span>推荐：一次导入整个私人题库文件夹</span><input id="practiceFolder" type="file" webkitdirectory directory multiple></label>
-        <label><span>① 选择题目网页（.html）</span><input id="practiceHtmlFile" type="file" accept=".html,text/html"></label>
-        <label><span>② 选择同篇音频（audio.mp3）</span><input id="practiceAudioFile" type="file" accept=".mp3,audio/mpeg,audio/*"></label>
-        <label><span>③ 所属部分</span><select id="practicePart"><option>P1</option><option>P2</option><option>P3</option><option>P4</option></select></label>
-        <button class="button primary" id="openListeningTest">打开真题</button>
-        <p id="practiceImportStatus">请从解压后的同一篇文件夹中选择 HTML 和 audio.mp3。</p>
-      </div>
+      <details class="listening-import-panel" id="listeningImportPanel">
+        <summary><span>导入 / 更新私人题库</span><small>平时可收起，不影响做题</small></summary>
+        <div class="practice-import">
+          <label class="folder-import"><span>推荐：一次导入整个私人题库文件夹</span><input id="practiceFolder" type="file" webkitdirectory directory multiple></label>
+          <label><span>① 选择题目网页（.html）</span><input id="practiceHtmlFile" type="file" accept=".html,text/html"></label>
+          <label><span>② 选择同篇音频（audio.mp3）</span><input id="practiceAudioFile" type="file" accept=".mp3,audio/mpeg,audio/*"></label>
+          <label><span>③ 所属部分</span><select id="practicePart"><option>P1</option><option>P2</option><option>P3</option><option>P4</option></select></label>
+          <button class="button primary" id="openListeningTest">打开真题</button>
+          <p id="practiceImportStatus">请从解压后的同一篇文件夹中选择 HTML 和 audio.mp3。</p>
+        </div>
+      </details>
       <div class="private-test-bank">
         <div class="private-bank-head"><div><b>我的私人真题库</b><small id="privateBankCount">尚未导入</small></div><button id="clearPrivateBank">清除本机题库</button></div>
         <div class="private-part-tabs" id="privatePartTabs"></div>
@@ -315,7 +318,7 @@
         <div class="private-test-list" id="privateTestList"><p>选择上方整个解压文件夹后，篇目会自动出现在这里。</p></div>
       </div>
       <div class="practice-frame-wrap hidden" id="practiceFrameWrap">
-        <div class="practice-frame-head"><b id="practiceTitle">真题练习</b><div><button id="fullscreenListeningTest">⛶ 全屏做题</button><button id="closeListeningTest">关闭题目</button></div></div>
+        <div class="practice-frame-head"><b id="practiceTitle">真题练习</b><div><button id="jumpListeningQuestion">↓ 跳到题目</button><button id="fullscreenListeningTest">⛶ 全屏做题</button><button id="closeListeningTest">关闭题目</button></div></div>
         <nav class="paper-part-nav" id="paperPartNav" aria-label="套题部分切换" hidden></nav>
         <iframe id="practiceFrame" title="IELTS 听力真题练习"></iframe>
         <div class="paper-frames" id="paperFrames" hidden></div>
@@ -341,7 +344,7 @@
 
     <section class="section tool-section review-suite" id="listeningIntensive" data-page-section="listening-hub" data-listening-view="intensive" hidden>
       <div class="section-head"><div><p class="kicker">INTENSIVE LISTENING</p><h2>精听做过的题</h2></div><p class="aside">只显示已经做过的真题；可回到原文、循环片段并保存听写与错因笔记。</p></div>
-      <div class="suite-grid"><aside class="suite-panel"><h3>已完成题目</h3><div class="card-list" id="intensiveDoneList"></div></aside><section class="suite-panel soft" id="intensiveWorkspace" hidden><header><small>当前精听</small><h3 id="intensiveTitle"></h3><b class="accuracy-badge" id="intensiveAccuracy"></b></header><div class="intensive-player"><audio id="intensiveAudio" controls></audio><div class="form-row"><label>速度<select id="intensiveSpeed"><option value="0.75">0.75×</option><option value="0.9">0.9×</option><option value="1" selected>1.0×</option><option value="1.25">1.25×</option></select></label><label>片段（秒）<span class="form-row"><input id="segmentStart" type="number" step="0.1" placeholder="开始"><input id="segmentEnd" type="number" step="0.1" placeholder="结束"></span></label></div><div class="segment-tools"><button id="markSegmentStart">标记 A</button><button id="markSegmentEnd">标记 B</button><button class="primary" id="repeatSegment">循环 A–B</button><button id="openIntensiveOriginal">打开原题</button></div><label>逐句听写 / 原文对照<textarea id="intensiveTranscript" placeholder="把没听清的句子写下来，再对照原文修改"></textarea></label><label>错因与下次警觉点<textarea id="intensiveNotes" placeholder="例如：连读没识别；同义替换没反应；复数 -s 漏听"></textarea></label><button class="primary" id="saveIntensiveNotes">保存精听记录</button></div></section></div>
+      <div class="suite-grid"><aside class="suite-panel"><h3>已完成题目</h3><div class="card-list" id="intensiveDoneList"></div></aside><section class="suite-panel soft" id="intensiveWorkspace" hidden><header><small>当前精听</small><h3 id="intensiveTitle"></h3><b class="accuracy-badge" id="intensiveAccuracy"></b></header><div class="intensive-player"><audio id="intensiveAudio" controls></audio><div class="form-row"><label>速度<select id="intensiveSpeed"><option value="0.75">0.75×</option><option value="0.9">0.9×</option><option value="1" selected>1.0×</option><option value="1.25">1.25×</option></select></label><label>片段（秒）<span class="form-row"><input id="segmentStart" type="number" step="0.1" placeholder="开始"><input id="segmentEnd" type="number" step="0.1" placeholder="结束"></span></label></div><div class="segment-tools"><button id="markSegmentStart">标记 A</button><button id="markSegmentEnd">标记 B</button><button class="primary" id="repeatSegment">循环 A–B</button><button id="openIntensiveOriginal">打开原题</button></div><label>逐句听写 / 原文对照<textarea id="intensiveTranscript" placeholder="[00:12] First sentence…&#10;[00:18] Second sentence…&#10;每行前面写时间，生成后点哪句就从哪句播放"></textarea></label><div class="sync-transcript-tools"><button id="buildIntensiveSync">生成可点击同步原文</button><small>格式：[分:秒] 原文。播放时会自动高亮当前句。</small></div><div class="sync-transcript-list" id="intensiveSyncList"></div><label>错因与下次警觉点<textarea id="intensiveNotes" placeholder="例如：连读没识别；同义替换没反应；复数 -s 漏听"></textarea></label><button class="primary" id="saveIntensiveNotes">保存精听记录</button></div></section></div>
     </section>
 
     <section class="section tool-section" id="reading" data-page-section="reading" hidden>
@@ -389,7 +392,7 @@
 
     <section class="section tool-section review-suite" id="readingReviewSuite" data-page-section="reading" hidden>
       <div class="section-head"><div><p class="kicker">READING REVIEW</p><h2>阅读真题入口、正确率与背题库</h2></div><p class="aside">练习记录、正确率和背题卡会保存并同步；本机 C 盘题库只能在原电脑打开。</p></div>
-      <div class="suite-panel soft"><h3>阅读真题题库入口</h3><label>题库地址<input id="readingBankLink" type="text"></label><div class="reading-link-actions"><button class="primary" id="openReadingLink">打开题库</button><button id="saveReadingLink">保存入口</button><label class="button">选择本机 index.html<input id="readingLocalFile" type="file" accept=".html,text/html" hidden></label></div><p class="local-link-warning">file:///C:/… 是电脑本地地址，手机和线上网页无法访问。若要手机也能做题，需要把题库整个文件夹上传到可访问的服务器；练习结果请在下方记录，刷新不会丢。</p></div>
+      <div class="suite-panel soft"><h3>阅读真题题库入口</h3><label>题库地址<input id="readingBankLink" type="text"></label><div class="reading-link-actions"><button class="primary" id="openReadingLink">打开题库</button><button id="saveReadingLink">保存入口</button><label class="button">选择本机 index.html<input id="readingLocalFile" type="file" accept=".html,text/html" hidden></label></div><p class="local-link-warning">如果题库不是“单个自包含 HTML”，就必须保留并上传整个大文件夹（index.html、脚本、图片、音频的相对位置不能改变）。file:///C:/… 只能在原电脑打开；手机要访问，需要把整个文件夹部署成线上网站。</p></div>
       <div class="suite-grid">
         <aside class="suite-panel"><h3>记录一次阅读练习</h3><label>题目 / 文章标题<input id="readingAttemptTitle" placeholder="例如：Cambridge 18 Test 1 Passage 2"></label><label>题型或主题<select id="readingAttemptType"><option>判断题</option><option>填空题</option><option>匹配题</option><option>选择题</option><option>标题匹配</option><option>混合题</option></select></label><div class="form-row"><label>正确题数<input id="readingCorrect" type="number" min="0"></label><label>总题数<input id="readingTotal" type="number" min="1"></label></div><label>生词、同义替换与错因<textarea id="readingAttemptNotes" placeholder="原文定位、同义替换、为什么错"></textarea></label><button class="primary" id="saveReadingAttempt">保存练习记录</button></aside>
         <section class="suite-panel"><div class="summary-cards" id="readingSummary"></div><h3>做过的题目</h3><div class="card-list" id="readingHistory"></div></section>
@@ -425,7 +428,7 @@
     </section>
     <section class="section tool-section review-suite" id="speakingMemorySection" data-page-section="speaking" data-speaking-view="memory" hidden>
       <div class="section-head"><div><p class="kicker">SPEAKING MEMORY</p><h2>口语专用记忆卡</h2></div><p class="aside" id="smTotal">0 张在学</p></div>
-      <div class="suite-grid"><aside class="suite-panel soft"><h3>添加口语表达</h3><label>题库类型<select id="smCategory"></select></label><div class="form-row"><input id="smNewCategory" placeholder="自定义新主题"><button id="smAddCategory">新增主题</button></div><label>英文表达 / 句式<textarea id="smFront"></textarea></label><label>中文与使用提示<textarea id="smBack"></textarea></label><label>自己的口语例句<textarea id="smExample"></textarea></label><button class="primary" id="smAdd">加入记忆卡</button><button id="smImportFeedback">从最近口语 / ChatGPT 反馈导入</button><button id="smRestore">恢复已熟练卡片</button></aside><section class="suite-panel"><div class="speaking-part-switch" id="smPartSwitch" aria-label="口语卡片类型"><button class="active" data-sm-part="全部">全部</button><button data-sm-part="P1">P1</button><button data-sm-part="P2">P2</button><button data-sm-part="其他">其他主题</button></div><div class="chip-row speaking-filter-scroll" id="smFilters" aria-label="可左右滑动的题库主题"></div><details class="sm-auto-add"><summary>＋ 自动整理并加入当前分类</summary><p>一行一张，支持“英文 — 中文 — 例句”或直接粘贴多条表达；系统会去除项目符号并自动去重。</p><strong id="smAutoTarget">当前分类：Part 1</strong><textarea id="smAutoInput" placeholder="例如：offer emotional support — 提供情绪支持 — Lily always offers me emotional support."></textarea><button class="primary" id="smAutoAdd">自动整理并加入</button></details><div class="study-card" id="smStudyCard"></div><div class="study-tools"><span id="smStudyCount">0 张</span><button id="smNext">下一张 →</button></div><h3>当前卡片</h3><div class="card-list" id="smList"></div></section></div>
+      <div class="suite-grid"><aside class="suite-panel soft"><h3>添加口语表达</h3><label>题库类型<select id="smCategory"></select></label><div class="form-row"><input id="smNewCategory" placeholder="自定义新主题"><button id="smAddCategory">新增主题</button></div><label>英文表达 / 句式<textarea id="smFront"></textarea></label><label>中文与使用提示<textarea id="smBack"></textarea></label><label>自己的口语例句<textarea id="smExample"></textarea></label><button class="primary" id="smAdd">加入记忆卡</button><button id="smImportFeedback">从最近口语 / ChatGPT 反馈导入</button><button id="smRestore">恢复已熟练卡片</button></aside><section class="suite-panel"><div class="speaking-part-switch" id="smPartSwitch" aria-label="口语卡片类型"><button class="active" data-sm-part="全部">全部</button><button data-sm-part="P1">P1</button><button data-sm-part="P2">P2</button><button data-sm-part="P3">P3</button><button data-sm-part="其他">其他主题</button></div><div class="chip-row speaking-filter-scroll" id="smFilters" aria-label="可左右滑动的题库主题"></div><details class="sm-auto-add"><summary>＋ 自动整理并加入当前分类</summary><p>一行一张，支持“英文 — 中文 — 例句”或直接粘贴多条表达；系统会去除项目符号并自动去重。</p><strong id="smAutoTarget">当前分类：Part 1</strong><textarea id="smAutoInput" placeholder="例如：offer emotional support — 提供情绪支持 — Lily always offers me emotional support."></textarea><button class="primary" id="smAutoAdd">自动整理并加入</button></details><div class="study-card" id="smStudyCard"></div><div class="study-tools"><span id="smStudyCount">0 张</span><button id="smNext">下一张 →</button></div><h3>当前卡片</h3><div class="card-list" id="smList"></div></section></div>
     </section>
   </main>
 
@@ -435,13 +438,13 @@
   <script src="assets/listening.js?v=7" defer></script>
   <script src="assets/dictation.js?v=2" defer></script>
   <script src="assets/mnemonic.js?v=3" defer></script>
-  <script src="assets/listening-hub.js?v=17" defer></script>
+  <script src="assets/listening-hub.js?v=18" defer></script>
   <script src="assets/overview.js?v=3" defer></script>
   <script src="assets/ui.js?v=1" defer></script>
   <script src="assets/training.js?v=7" defer></script>
   <script src="assets/writing-mock.js?v=8" defer></script>
   <script src="assets/speaking-center.js?v=2" defer></script>
   <script src="assets/cloud-sync.js?v=5.0" defer></script>
-  <script src="assets/review-memory.js?v=7" defer></script>
+  <script src="assets/review-memory.js?v=8" defer></script>
 </body>
 </html>
