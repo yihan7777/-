@@ -210,6 +210,39 @@
     paperObjectUrls.forEach(url=>URL.revokeObjectURL(url));paperObjectUrls=[];
     $('#paperFrames').innerHTML='';$('#paperFrames').hidden=true;$('#paperPartNav').hidden=true;
   }
+  function compactFrameLayout(frame) {
+    try {
+      const doc=frame?.contentDocument,win=frame?.contentWindow;
+      if(!doc||!win)return false;
+      const target=[...doc.querySelectorAll('input:not([type="hidden"]):not([type="range"]):not([type="button"]):not([type="submit"]),textarea,select,[contenteditable="true"]')].find(node=>node.offsetParent!==null&&node.getBoundingClientRect().width>2)||[...doc.querySelectorAll('h1,h2,h3,h4,b,strong,p')].find(node=>/questions?\s*\d|complete the|choose the|write no more|notes below|form below/i.test(node.textContent||''));
+      if(!target)return false;
+      let node=target;
+      while(node&&node!==doc.body){
+        ['min-height','height','max-height','margin-top','padding-top','top','transform'].forEach(prop=>node.style.removeProperty(prop));
+        node.style.setProperty('min-height','0','important');
+        node.style.setProperty('height','auto','important');
+        node.style.setProperty('max-height','none','important');
+        node.style.setProperty('margin-top','0','important');
+        node.style.setProperty('padding-top','0','important');
+        node.style.setProperty('top','auto','important');
+        node.style.setProperty('transform','none','important');
+        if(node.parentElement){
+          let sibling=node.parentElement.firstElementChild;
+          while(sibling&&sibling!==node){
+            const rect=sibling.getBoundingClientRect(),text=(sibling.textContent||'').replace(/\s+/g,' ').trim();
+            const useful=sibling.querySelector?.('audio,input,textarea,select,button,[contenteditable="true"]');
+            if(!useful&&rect.height>140&&text.length<90)sibling.style.setProperty('display','none','important');
+            sibling=sibling.nextElementSibling;
+          }
+        }
+        node=node.parentElement;
+      }
+      doc.documentElement.style.setProperty('min-height','0','important');
+      doc.body.style.setProperty('min-height','0','important');
+      doc.body.style.setProperty('height','auto','important');
+      return true;
+    } catch (_) { return false; }
+  }
   function jumpFrameToQuestion(frame, smooth=true) {
     try {
       const doc=frame?.contentDocument, win=frame?.contentWindow;
@@ -246,7 +279,7 @@
     } catch (_) { return false; }
   }
   function scheduleFrameJump(frame) {
-    [80,260,700,1400,2400].forEach((delay,index)=>setTimeout(()=>jumpFrameToQuestion(frame,index>2),delay));
+    [80,260,700,1400,2400].forEach((delay,index)=>setTimeout(()=>{compactFrameLayout(frame);jumpFrameToQuestion(frame,index>2)},delay));
   }
   function jumpActiveQuestion(smooth=true) {
     const active=document.querySelector('[data-paper-frame]:not([hidden])')||$('#practiceFrame');
