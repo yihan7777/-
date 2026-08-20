@@ -15,7 +15,7 @@
     if(document.querySelector('.app-topbar'))return;
     document.body.insertAdjacentHTML('afterbegin',`
       <header class="app-topbar" aria-label="应用导航">
-        <button class="app-menu-button" id="appMenuToggle" aria-label="打开学习板块"></button>
+        <button class="app-menu-button" id="appMenuToggle" aria-label="打开学习板块" aria-expanded="false" aria-controls="appDrawer"></button>
         <div class="app-topbar-title"><small>IELTS LAB</small><strong id="appPageTitle">今日学习</strong></div>
         <button class="app-cloud-avatar" id="appCloudAvatar" aria-label="云端账号">Y</button>
       </header>
@@ -24,25 +24,15 @@
         <div class="app-drawer-profile"><i id="appDrawerAvatar">Y</i><div><b>IELTS Lab</b><span id="appDrawerAccount">点击头像登录云端</span></div></div>
         <nav class="app-drawer-nav">${pages.map(x=>`<button data-app-jump="${x[0]}"><i>${x[1]}</i><span>${x[2]}<small>${x[3]}</small></span><b>›</b></button>`).join('')}</nav>
       </aside>`);
-    const desktop=()=>window.matchMedia('(min-width:1180px)').matches;
-    const close=()=>{if(!desktop())document.body.classList.remove('app-drawer-open')};
-    const applyDesktopState=()=>{
-      if(desktop()){
-        document.body.classList.remove('app-drawer-open');
-        document.body.classList.toggle('app-desktop-drawer-collapsed',localStorage.getItem('ielts-desktop-drawer-collapsed')==='1');
-      }else{
-        document.body.classList.remove('app-desktop-drawer-collapsed');
-      }
-    };
-    applyDesktopState();
-    window.addEventListener('resize',applyDesktopState);
-    document.getElementById('appMenuToggle').onclick=()=>{
-      if(desktop()){
-        const collapsed=document.body.classList.toggle('app-desktop-drawer-collapsed');
-        localStorage.setItem('ielts-desktop-drawer-collapsed',collapsed?'1':'0');
-      }else document.body.classList.toggle('app-drawer-open');
+    const menu=document.getElementById('appMenuToggle');
+    const close=()=>{document.body.classList.remove('app-drawer-open');menu?.setAttribute('aria-expanded','false')};
+    menu?.setAttribute('aria-expanded','false');
+    menu.onclick=()=>{
+      const open=document.body.classList.toggle('app-drawer-open');
+      menu.setAttribute('aria-expanded',open?'true':'false');
     };
     document.getElementById('appDrawerBackdrop').onclick=close;
+    document.addEventListener('keydown',e=>{if(e.key==='Escape')close()});
     document.querySelectorAll('[data-app-jump]').forEach(btn=>btn.onclick=()=>{
       const target=document.querySelector(`.app-tabs [data-page="${btn.dataset.appJump}"]`);
       if(target)target.click();
