@@ -24,8 +24,24 @@
         <div class="app-drawer-profile"><i id="appDrawerAvatar">Y</i><div><b>IELTS Lab</b><span id="appDrawerAccount">点击头像登录云端</span></div></div>
         <nav class="app-drawer-nav">${pages.map(x=>`<button data-app-jump="${x[0]}"><i>${x[1]}</i><span>${x[2]}<small>${x[3]}</small></span><b>›</b></button>`).join('')}</nav>
       </aside>`);
-    const close=()=>document.body.classList.remove('app-drawer-open');
-    document.getElementById('appMenuToggle').onclick=()=>document.body.classList.toggle('app-drawer-open');
+    const desktop=()=>window.matchMedia('(min-width:1180px)').matches;
+    const close=()=>{if(!desktop())document.body.classList.remove('app-drawer-open')};
+    const applyDesktopState=()=>{
+      if(desktop()){
+        document.body.classList.remove('app-drawer-open');
+        document.body.classList.toggle('app-desktop-drawer-collapsed',localStorage.getItem('ielts-desktop-drawer-collapsed')==='1');
+      }else{
+        document.body.classList.remove('app-desktop-drawer-collapsed');
+      }
+    };
+    applyDesktopState();
+    window.addEventListener('resize',applyDesktopState);
+    document.getElementById('appMenuToggle').onclick=()=>{
+      if(desktop()){
+        const collapsed=document.body.classList.toggle('app-desktop-drawer-collapsed');
+        localStorage.setItem('ielts-desktop-drawer-collapsed',collapsed?'1':'0');
+      }else document.body.classList.toggle('app-drawer-open');
+    };
     document.getElementById('appDrawerBackdrop').onclick=close;
     document.querySelectorAll('[data-app-jump]').forEach(btn=>btn.onclick=()=>{
       const target=document.querySelector(`.app-tabs [data-page="${btn.dataset.appJump}"]`);
