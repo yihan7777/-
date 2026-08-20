@@ -154,3 +154,61 @@ button:hover,.button:hover,.btn:hover{transform:translateY(-1px)}
   .app-menu-button::before{transition:transform .2s}
   body:not(.app-desktop-drawer-collapsed) .app-menu-button::before{transform:rotate(90deg)}
 }
+
+
+/* v5: every control has a clear filled colour */
+button:not(.app-menu-button):not(.app-cloud-avatar):not(.flashcard),
+.button,.btn{
+  background:#d9eef8!important;
+  color:#245c78!important;
+  border:1px solid #afd5e6!important;
+  box-shadow:0 6px 15px rgba(55,122,155,.12)!important;
+}
+button:not(.app-menu-button):not(.app-cloud-avatar):not(.flashcard):nth-of-type(4n+2),
+.button:nth-of-type(4n+2),.btn:nth-of-type(4n+2){
+  background:#f8ddd6!important;color:#8c4d42!important;border-color:#efbdb2!important;
+}
+button:not(.app-menu-button):not(.app-cloud-avatar):not(.flashcard):nth-of-type(4n+3),
+.button:nth-of-type(4n+3),.btn:nth-of-type(4n+3){
+  background:#faeac0!important;color:#775b19!important;border-color:#ecd48f!important;
+}
+button:not(.app-menu-button):not(.app-cloud-avatar):not(.flashcard):nth-of-type(4n),
+.button:nth-of-type(4n),.btn:nth-of-type(4n){
+  background:#e6e0f5!important;color:#5f5289!important;border-color:#cfc3ea!important;
+}
+button:not(.app-menu-button):not(.app-cloud-avatar):not(.flashcard):hover,
+.button:hover,.btn:hover{
+  filter:saturate(1.08) brightness(.98);
+  box-shadow:0 9px 20px rgba(55,95,112,.16)!important;
+}
+button.active,.button.active,.btn.active,
+.button.primary,.btn.primary,
+.app-tabs button.active,.speaking-page-tabs button.active,
+.listening-page-tabs button.active,.speaking-part-switch button.active,
+.speaking-filter-scroll button.active,.deck-filter.active{
+  background:linear-gradient(135deg,#5c9fc7,#397fa8)!important;
+  color:#fff!important;border-color:#397fa8!important;
+  box-shadow:0 8px 20px rgba(57,127,168,.26)!important;
+}
+button:disabled,.button:disabled,.btn:disabled{
+  background:#e8edef!important;color:#8a999f!important;border-color:#d6dfe2!important;
+  box-shadow:none!important;opacity:.78!important;
+}
+.delete-btn,.remove-btn,button.danger,.button.danger{
+  background:#f7d8d2!important;color:#a34f43!important;border-color:#e9afa5!important;
+}
+.mastered-btn,button.success,.button.success{
+  background:#d8efe5!important;color:#33745e!important;border-color:#add5c4!important;
+}
+.app-drawer-nav button{box-shadow:none!important}
+.app-drawer-nav button:nth-child(4n+1){background:#d9eef8!important;color:#245c78!important;border-color:#afd5e6!important}
+.app-drawer-nav button:nth-child(4n+2){background:#f8ddd6!important;color:#8c4d42!important;border-color:#efbdb2!important}
+.app-drawer-nav button:nth-child(4n+3){background:#faeac0!important;color:#775b19!important;border-color:#ecd48f!important}
+.app-drawer-nav button:nth-child(4n){background:#e6e0f5!important;color:#5f5289!important;border-color:#cfc3ea!important}
+.app-drawer-nav button.active{background:linear-gradient(135deg,#5c9fc7,#397fa8)!important;color:#fff!important;border-color:#397fa8!important}
+.app-drawer-nav button.active small,.app-drawer-nav button.active b{color:#fff!important}
+.card-tools button{background:#d7e8f1!important;color:#244f65!important;border-color:#a9cbdc!important}
+.rating button:nth-child(1){background:#f3d1ca!important;color:#82493f!important;border-color:#dca99f!important}
+.rating button:nth-child(2){background:#fae7b5!important;color:#705717!important;border-color:#dec982!important}
+.rating button:nth-child(3){background:#d8eafa!important;color:#285e7a!important;border-color:#a9d0e4!important}
+.rating button:nth-child(4){background:#d5ecdf!important;color:#326d58!important;border-color:#a9d0be!important}
