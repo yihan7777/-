@@ -423,7 +423,7 @@
       modal.hidden = false;
       renderAccount();
       await refreshCountDisplay();
-      const active = loadSession();
+      const active = state.session;
       const autoKey = 'ielts-cloud-auto-merge-v6.1';
       if (active?.access_token && !sessionStorage.getItem(autoKey)) {
         sessionStorage.setItem(autoKey, 'running');
