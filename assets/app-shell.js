@@ -15,7 +15,7 @@
     if(document.querySelector('.app-topbar'))return;
     document.body.insertAdjacentHTML('afterbegin',`
       <header class="app-topbar" aria-label="应用导航">
-        <button class="app-menu-button" id="appMenuToggle" aria-label="打开学习板块" aria-expanded="false" aria-controls="appDrawer"></button>
+        <button class="app-menu-button" id="appMenuToggle" aria-label="打开学习板块" aria-expanded="false" aria-controls="appDrawer"><span>菜单</span></button>
         <div class="app-topbar-title"><small>IELTS LAB</small><strong id="appPageTitle">今日学习</strong></div>
         <button class="app-cloud-avatar" id="appCloudAvatar" aria-label="云端账号">Y</button>
       </header>
