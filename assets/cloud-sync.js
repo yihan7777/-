@@ -8,7 +8,7 @@
   const DB_NAME = 'ielts-private-listening-bank-v1';
   const STORE_NAME = 'tests';
   const BUCKET = 'ielts-private-files';
-  const SYNC_VERSION = '6.1';
+  const SYNC_VERSION = '6.2';
 
   const state = { session: loadJson(SESSION_KEY), busy: false, cooldownUntil: 0, cooldownTimer: null, localCount: null, cloudCount: null };
 
@@ -305,17 +305,26 @@
       if (missing.length) await downloadListening(session.access_token, missing, setStatus, uid, `smart|${row?.updated_at || Date.now()}|${missing.length}`);
       setStatus('云端内容已合并，正在上传统一后的题库…');
       const uploadedManifest = await uploadListening((await ensureSession(true)).access_token, uid, setStatus);
-      const listeningManifest = dedupeManifest(uploadedManifest);
-      const payload = { localStorage: collectLocalStorage(), listeningManifest, exportedAt: new Date().toISOString() };
+      const listeningManifest = dedupeManifest([...remoteManifest, ...uploadedManifest]);
+      const localAfter = await dbAll();
+      const localKeys = new Set(localAfter.map(canonicalTestKey));
+      const unresolved = listeningManifest.filter(item => !localKeys.has(canonicalTestKey(item)));
+      if (unresolved.length) {
+        setStatus(`仍有 ${unresolved.length} 篇未落到本机，正在补齐…`);
+        await downloadListening((await ensureSession(true)).access_token, unresolved, setStatus, uid, `repair|${Date.now()}|${unresolved.length}`);
+      }
+      const finalLocal = await dbAll();
+      const finalManifest = dedupeManifest([...listeningManifest, ...await uploadListening((await ensureSession(true)).access_token, uid, setStatus)]);
+      const payload = { localStorage: collectLocalStorage(), listeningManifest: finalManifest, exportedAt: new Date().toISOString() };
       const latest = await ensureSession(true);
       await api('/rest/v1/user_sync_state?on_conflict=user_id', {
         method: 'POST',
         headers: authHeaders(latest.access_token, { 'Content-Type': 'application/json', Prefer: 'resolution=merge-duplicates,return=minimal' }),
         body: JSON.stringify({ user_id: uid, payload, version: Date.now(), device_name: navigator.userAgent.slice(0, 180), updated_at: new Date().toISOString() })
       });
-      state.localCount = listeningManifest.length; state.cloudCount = listeningManifest.length;
+      state.localCount = finalLocal.length; state.cloudCount = finalManifest.length;
       localStorage.setItem(LAST_SYNC_KEY, new Date().toISOString());
-      setStatus(`双向同步完成：电脑、手机与云端均为 ${listeningManifest.length} 篇。正在刷新…`);
+      setStatus(`同步完成：本机 ${finalLocal.length} 篇，云端 ${finalManifest.length} 篇。正在刷新…`);
       setTimeout(() => location.reload(), 1100);
     });
   }
