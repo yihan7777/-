@@ -6,6 +6,7 @@
   if (!tabs.length) return;
   const pageKey = 'ielts-listening-inner-page-v1';
   const historyKey = 'ielts-listening-test-history-v1';
+  const analysisFilterKey = 'ielts-listening-analysis-filter-v1';
   const causes = ['没听出答案词','定位失败','同义替换没反应','拼写或单复数错误','审题或字数限制','走神导致跟丢','选项干扰','其他'];
   let activeUrl = null;
   let activeAudioUrl = null;
@@ -20,6 +21,8 @@
   let paperResults = new Map();
   let paperReviewQueue = [];
   let paperObjectUrls = [];
+  let historyCache = null;
+  let analysisFilter = 'all';
   const dbName = 'ielts-private-listening-bank-v1';
   async function requestPersistentStorage() {
     try {
@@ -74,13 +77,18 @@
     return new Promise((resolve,reject)=>{const req=db.transaction('meta').objectStore('meta').get(key);req.onsuccess=()=>resolve(req.result?.value);req.onerror=()=>reject(req.error)});
   }
   function esc(value) { return String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
-  function loadHistory() { try { return JSON.parse(localStorage.getItem(historyKey) || '[]'); } catch (_) { return []; } }
+  function loadHistory() {
+    if (Array.isArray(historyCache)) return historyCache;
+    try { historyCache = JSON.parse(localStorage.getItem(historyKey) || '[]'); }
+    catch (_) { historyCache = []; }
+    return historyCache;
+  }
   function saveHistory(items) {
-    try {
-      localStorage.setItem(historyKey, JSON.stringify(items));
-      dbPutMeta(historyKey,items).catch(()=>{});
-      window.dispatchEvent(new CustomEvent('ielts-review-data-changed',{detail:{key:historyKey}}));
-    } catch (_) {}
+    historyCache = Array.isArray(items) ? items : [];
+    try { localStorage.setItem(historyKey, JSON.stringify(historyCache)); }
+    catch (error) { console.warn('Listening history localStorage save failed', error); }
+    dbPutMeta(historyKey,historyCache).catch(error=>console.warn('Listening history IndexedDB backup failed',error));
+    window.dispatchEvent(new CustomEvent('ielts-review-data-changed',{detail:{key:historyKey}}));
   }
   function makeAttempt(data) {
     return {
@@ -93,8 +101,9 @@
     };
   }
   function storeAttemptImmediately(data) {
-    const attempt = makeAttempt(data);
     const items = loadHistory();
+    const recent = items.find(x=>x.title===data?.title&&x.part===data?.part&&Math.abs(new Date(x.date||0).getTime()-Date.now())<10000);
+    const attempt = makeAttempt(recent ? {...recent,...data,id:recent.id,date:recent.date} : data);
     const index = items.findIndex(x => x.id === attempt.id);
     if (index >= 0) items[index] = {...items[index], ...attempt};
     else items.unshift(attempt);
@@ -262,8 +271,31 @@
     replaced = replaceAssetReferences(replaced, assets);
     const layoutFix = '<style id="ielts-embedded-layout-fix">html,body{margin:0!important;padding:0!important;min-height:0!important;height:auto!important;scroll-behavior:auto!important;overflow:auto!important}body{display:block!important;box-sizing:border-box!important;background:#fff!important;padding:12px 16px 80px!important}body>*,main,#app,.app,.container,.wrapper,.page,.content,.exam,.test,.question-container{min-height:0!important;max-height:none!important;margin-top:0!important;padding-top:0!important;transform:none!important;top:auto!important}header:empty,.spacer:empty,[class*="spacer"]:empty,[class*="hero"]:empty{display:none!important}audio{max-width:100%!important}input,textarea,select,[contenteditable="true"]{scroll-margin-top:96px!important}@media(max-width:760px){body{padding:8px 8px 72px!important;width:100%!important;max-width:100%!important}table{max-width:100%!important;font-size:14px!important}}</style>';
     const bridge = '<script>(function(){function plain(v){var d=document.createElement("div");d.innerHTML=String(v||"");return d.textContent.trim()}function visible(n){if(!n)return false;var r=n.getBoundingClientRect(),s=getComputedStyle(n);return s.display!=="none"&&s.visibility!=="hidden"&&r.width>2&&r.height>2}function firstQuestion(){var list=[].slice.call(document.querySelectorAll("input:not([type=hidden]):not([type=range]):not([type=button]):not([type=submit]),textarea,select,[contenteditable=true]"));return list.find(visible)||[].slice.call(document.querySelectorAll("h1,h2,h3,h4,b,strong,p")).find(function(n){return /questions?\\s*\\d|complete the|choose the|write no more|notes below|form below/i.test(n.textContent||"")})}function compact(){var target=firstQuestion();if(!target)return;var node=target;while(node&&node!==document.body){node.style.setProperty("min-height","0","important");node.style.setProperty("height","auto","important");node.style.setProperty("max-height","none","important");node.style.setProperty("margin-top","0","important");node.style.setProperty("padding-top","0","important");node.style.setProperty("top","auto","important");node.style.setProperty("transform","none","important");if(node.parentElement){var sib=node.parentElement.firstElementChild;while(sib&&sib!==node){var r=sib.getBoundingClientRect(),txt=(sib.textContent||"").replace(/\\s+/g," ").trim(),interactive=sib.querySelector&&sib.querySelector("audio,input,textarea,select,button,[contenteditable=true]");if(!interactive&&r.height>140&&txt.length<90)sib.style.setProperty("display","none","important");sib=sib.nextElementSibling}}node=node.parentElement}var tr=target.getBoundingClientRect();if(tr.top>220){[].slice.call(document.querySelectorAll("body *")).forEach(function(el){if(el===target||el.contains(target)||target.contains(el))return;var r=el.getBoundingClientRect(),txt=(el.textContent||"").replace(/\\s+/g," ").trim();if(r.bottom<=tr.top&&r.height>180&&txt.length<60&&!el.querySelector("audio,input,textarea,select,button"))el.style.setProperty("display","none","important")})}requestAnimationFrame(function(){target.scrollIntoView({block:"start",inline:"nearest"});var root=document.scrollingElement||document.documentElement;root.scrollTop=Math.max(0,root.scrollTop-92)})}document.addEventListener("DOMContentLoaded",function(){[0,120,420,900,1800].forEach(function(t){setTimeout(compact,t)});new MutationObserver(function(){clearTimeout(window.__ieltsCompactTimer);window.__ieltsCompactTimer=setTimeout(compact,80)}).observe(document.body,{childList:true,subtree:true})});document.addEventListener("click",function(e){if(e.target&&e.target.id==="finish"){setTimeout(function(){var wrong=[].slice.call(document.querySelectorAll("#nav .incorrect")).map(function(x){return x.dataset.q});var correct=document.querySelectorAll("#nav .correct").length;var rows=[].slice.call(document.querySelectorAll(".review-table tbody tr"));var details={};wrong.forEach(function(q){var row=rows.find(function(r){return r.cells&&r.cells[0]&&r.cells[0].textContent.trim()===String(q)});var cues=(typeof DATA!=="undefined"&&DATA.transcriptLines||[]).filter(function(x){var h=String(x&&x.html||"");return h.indexOf("q"+q)>=0||h.indexOf("Q"+q)>=0});details[q]={userAnswer:row&&row.cells[1]?row.cells[1].textContent.trim():"",correctAnswer:row&&row.querySelector(".answer-value")?row.querySelector(".answer-value").dataset.answer:"",transcript:cues.map(function(x){return plain(x.html)}).join(" "),analysis:cues.map(function(x){return plain(x.analysis)}).filter(Boolean).join(" ")}});parent.postMessage({type:"ielts-test-result",title:' + JSON.stringify(title) + ',part:' + JSON.stringify(part) + ',correct:correct,wrongQuestions:wrong,total:correct+wrong.length,questionDetails:details},"*")},800)}})})();<\\/script>';
+    const robustResultBridge = `<script>(function(){
+      var initialTotal=0,lastSent='';
+      function visible(n){if(!n)return false;var r=n.getBoundingClientRect(),s=getComputedStyle(n);return s.display!=='none'&&s.visibility!=='hidden'&&r.width>2&&r.height>2}
+      function controls(){return [].slice.call(document.querySelectorAll('input:not([type=hidden]):not([type=button]):not([type=submit]):not([type=range]),textarea,select,[contenteditable=true]')).filter(visible)}
+      function numberOf(node,index){var raw=(node&&node.dataset&&(node.dataset.q||node.dataset.question||node.dataset.number))||(node&&node.textContent)||'';var m=String(raw).match(/\\d+/);return m?m[0]:String(index+1)}
+      function collect(){
+        var correctNodes=[].slice.call(document.querySelectorAll('#nav .correct,.question-nav .correct,[data-state="correct"],[data-result="correct"]'));
+        var wrongNodes=[].slice.call(document.querySelectorAll('#nav .incorrect,#nav .wrong,.question-nav .incorrect,.question-nav .wrong,[data-state="incorrect"],[data-state="wrong"],[data-result="incorrect"],[data-result="wrong"]'));
+        var wrong=[];wrongNodes.forEach(function(x,i){var q=numberOf(x,i);if(wrong.indexOf(q)<0)wrong.push(q)});
+        var rows=[].slice.call(document.querySelectorAll('.review-table tbody tr,[class*="review"] tbody tr'));
+        rows.forEach(function(row,i){if(/incorrect|wrong|错误|错题/i.test(row.className+' '+row.textContent)){var q=numberOf(row,i);if(wrong.indexOf(q)<0)wrong.push(q)}});
+        var total=Math.max(initialTotal,correctNodes.length+wrong.length,rows.length,controls().length);
+        var correct=correctNodes.length;if(!correct&&total&&wrong.length)correct=Math.max(0,total-wrong.length);
+        var details={};wrong.forEach(function(q){var row=rows.find(function(r){return numberOf(r,0)===String(q)});var cues=(typeof DATA!=='undefined'&&DATA.transcriptLines||[]).filter(function(x){var h=String(x&&x.html||'');return h.indexOf('q'+q)>=0||h.indexOf('Q'+q)>=0});details[q]={userAnswer:row&&row.cells&&row.cells[1]?row.cells[1].textContent.trim():'',correctAnswer:row&&row.querySelector('.answer-value')?(row.querySelector('.answer-value').dataset.answer||row.querySelector('.answer-value').textContent.trim()):'',transcript:cues.map(function(x){var d=document.createElement('div');d.innerHTML=String(x.html||'');return d.textContent.trim()}).join(' '),analysis:cues.map(function(x){return String(x.analysis||'')}).filter(Boolean).join(' ')}});
+        return {type:'ielts-test-result',title:${JSON.stringify(title)},part:${JSON.stringify(part)},correct:correct,wrongQuestions:wrong,total:total,questionDetails:details,capturedAt:new Date().toISOString()}
+      }
+      function send(){var data=collect();if(!data.total)return;var signature=[data.correct,data.total,data.wrongQuestions.join(',')].join('|');if(signature===lastSent)return;lastSent=signature;parent.postMessage(data,'*')}
+      function schedule(){[120,450,900,1800,3200].forEach(function(t){setTimeout(send,t)})}
+      function finishNode(node){if(!node)return false;var raw=[node.id,node.name,node.className,node.getAttribute&&node.getAttribute('aria-label'),node.value,node.textContent].join(' ');return /finish|submit|check\\s*answers?|complete|交卷|提交|完成|查看答案/i.test(raw)}
+      document.addEventListener('DOMContentLoaded',function(){initialTotal=controls().length});
+      document.addEventListener('click',function(e){var node=e.target&&e.target.closest&&e.target.closest('button,input[type=button],input[type=submit],a,[role=button]');if(finishNode(node))schedule()},true);
+      document.addEventListener('submit',schedule,true);
+    })();<\/script>`;
     const withStyle=/<\/head>/i.test(replaced)?replaced.replace(/<\/head>/i,layoutFix+'</head>'):layoutFix+replaced;
-    return /<\/body>/i.test(withStyle)?withStyle.replace(/<\/body>/i,bridge+'</body>'):withStyle+bridge;
+    return /<\/body>/i.test(withStyle)?withStyle.replace(/<\/body>/i,bridge+robustResultBridge+'</body>'):withStyle+bridge+robustResultBridge;
   }
     function status(text, bad=false) {
     const el = $('#practiceImportStatus');
@@ -643,6 +675,7 @@
   });
   function renderAnalysis() {
     const items = loadHistory();
+    try { analysisFilter = localStorage.getItem(analysisFilterKey) || analysisFilter; } catch (_) {}
     const grandTotal=items.reduce((n,x)=>n+(x.total||0),0);
     const grandCorrect=items.reduce((n,x)=>n+(Number.isFinite(Number(x.correct))?Number(x.correct):Math.max(0,(x.total||0)-(x.wrongQuestions?.length||0))),0);
     $('#analysisPartGrid').innerHTML = '<article class="part-stat overall" data-analysis-part="ALL"><span>全部 · '+items.length+' 篇</span><strong>'+(grandTotal?Math.round(grandCorrect/grandTotal*100):0)+'%</strong><small>总正确率 · '+grandCorrect+'/'+grandTotal+' 题正确</small></article>'+['P1','P2','P3','P4'].map(part => {
@@ -681,11 +714,16 @@
       if(!record) return alert('这篇题目尚未保存在本机私人题库，请先重新导入题库文件夹。');
       activate('practice'); await launchTest(record.html,record.audio,record.title,record.part);
     });
-    $('#attemptHistory').innerHTML = items.length ? items.slice(0,40).map(x => {
+    const pendingCount=items.filter(x=>x.reviewStatus!=='completed').length;
+    const completedCount=items.filter(x=>x.reviewStatus==='completed').length;
+    const visibleItems=items.filter(x=>analysisFilter==='all'||(analysisFilter==='pending'?x.reviewStatus!=='completed':x.reviewStatus==='completed'));
+    $('#attemptHistory').innerHTML = '<div class="attempt-history-filters"><button class="'+(analysisFilter==='all'?'active':'')+'" data-attempt-filter="all">全部记录（'+items.length+'）</button><button class="'+(analysisFilter==='pending'?'active':'')+'" data-attempt-filter="pending">待复盘（'+pendingCount+'）</button><button class="'+(analysisFilter==='completed'?'active':'')+'" data-attempt-filter="completed">已复盘（'+completedCount+'）</button></div>'+(visibleItems.length ? visibleItems.slice(0,100).map(x => {
       const reviews=x.reviews||{};
       const details=Object.entries(reviews).map(([q,r]) => '<div class="attempt-wrong"><b>第 '+esc(q)+'题 · '+esc(r.primary||'未标记')+'</b><span>'+esc(r.synonym||r.evidence||r.reminder||'暂无补充分析')+'</span></div>').join('');
-      return '<details class="attempt-details" data-attempt-part="'+esc(x.part)+'" data-attempt-id="'+esc(x.id||'')+'"><summary><span><b>'+esc(x.part)+'</b> · '+esc(x.title)+'<small>'+esc(new Date(x.date||Date.now()).toLocaleDateString())+'</small></span><b>'+x.correct+'/'+x.total+' · '+(x.total?Math.round(x.correct/x.total*100):0)+'%</b></summary><div class="attempt-wrong-list"><div class="attempt-actions"><button data-attempt-original="'+esc(x.title)+'">打开原文 / 重新做</button><button data-attempt-analysis="'+esc(x.id||'')+'">定位错题解析</button><button data-attempt-intensive="'+esc(x.title)+'">进入精听</button></div>'+(details||'<p class="empty-analysis">旧记录暂无逐题详情。</p>')+'</div></details>';
-    }).join('') : '<p class="empty-analysis">暂无练习记录。</p>';
+      return '<details class="attempt-details" data-attempt-part="'+esc(x.part)+'" data-attempt-id="'+esc(x.id||'')+'"><summary><span><b>'+esc(x.part)+'</b> · '+esc(x.title)+'<small>'+esc(new Date(x.date||Date.now()).toLocaleDateString())+' · '+(x.reviewStatus==='completed'?'已复盘':'待复盘')+'</small></span><b>'+x.correct+'/'+x.total+' · '+(x.total?Math.round(x.correct/x.total*100):0)+'%</b></summary><div class="attempt-wrong-list"><div class="attempt-actions"><button data-attempt-review="'+esc(x.id||'')+'">'+(x.reviewStatus==='completed'?'查看 / 重新编辑复盘':'继续错题复盘')+'</button><button data-attempt-original="'+esc(x.title)+'">打开原文 / 重新做</button><button data-attempt-intensive="'+esc(x.title)+'">进入精听</button></div>'+(details||'<p class="empty-analysis">本次还没有逐题复盘，点击“继续错题复盘”即可补充。</p>')+'</div></details>';
+    }).join('') : '<p class="empty-analysis">这个分类暂无记录。</p>');
+    document.querySelectorAll('[data-attempt-filter]').forEach(btn=>btn.onclick=()=>{analysisFilter=btn.dataset.attemptFilter;try{localStorage.setItem(analysisFilterKey,analysisFilter)}catch(_){}renderAnalysis()});
+    document.querySelectorAll('[data-attempt-review]').forEach(btn=>btn.onclick=e=>{e.stopPropagation();activate('practice');setTimeout(()=>openAttemptEditor(btn.dataset.attemptReview),60)});
     document.querySelectorAll('[data-analysis-part]').forEach(card=>card.onclick=()=>{
       const part=card.dataset.analysisPart,rows=[...document.querySelectorAll('.attempt-details')];
       rows.forEach(x=>x.classList.remove('part-focus'));
