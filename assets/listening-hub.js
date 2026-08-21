@@ -28,10 +28,14 @@
   }
   function openDb() {
     return new Promise((resolve,reject) => {
-      const request = indexedDB.open(dbName, 1);
+      const request = indexedDB.open(dbName, 2);
       request.onupgradeneeded = () => {
-        const store = request.result.createObjectStore('tests', {keyPath:'id'});
-        store.createIndex('part', 'part');
+        const db=request.result;
+        if(!db.objectStoreNames.contains('tests')){
+          const store = db.createObjectStore('tests', {keyPath:'id'});
+          store.createIndex('part', 'part');
+        }
+        if(!db.objectStoreNames.contains('meta')) db.createObjectStore('meta', {keyPath:'key'});
       };
       request.onsuccess = () => resolve(request.result);
       request.onerror = () => reject(request.error);
@@ -61,11 +65,20 @@
       tx.oncomplete = resolve; tx.onerror = () => reject(tx.error);
     });
   }
+  async function dbPutMeta(key,value){
+    const db=await openDb();
+    return new Promise((resolve,reject)=>{const tx=db.transaction('meta','readwrite');tx.objectStore('meta').put({key,value,updatedAt:Date.now()});tx.oncomplete=resolve;tx.onerror=()=>reject(tx.error)});
+  }
+  async function dbGetMeta(key){
+    const db=await openDb();
+    return new Promise((resolve,reject)=>{const req=db.transaction('meta').objectStore('meta').get(key);req.onsuccess=()=>resolve(req.result?.value);req.onerror=()=>reject(req.error)});
+  }
   function esc(value) { return String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
   function loadHistory() { try { return JSON.parse(localStorage.getItem(historyKey) || '[]'); } catch (_) { return []; } }
   function saveHistory(items) {
     try {
       localStorage.setItem(historyKey, JSON.stringify(items));
+      dbPutMeta(historyKey,items).catch(()=>{});
       window.dispatchEvent(new CustomEvent('ielts-review-data-changed',{detail:{key:historyKey}}));
     } catch (_) {}
   }
@@ -183,6 +196,7 @@
     document.body.dataset.listeningSubpage = name;
     try { localStorage.setItem(pageKey, name); } catch (_) {}
     if (name === 'analysis') renderAnalysis();
+    if (name === 'intensive') renderIntensive().catch(()=>{});
     requestAnimationFrame(() => window.dispatchEvent(new Event('resize')));
   }
   document.addEventListener('click', event => {
@@ -682,6 +696,60 @@
     document.querySelectorAll('[data-attempt-analysis]').forEach(btn=>btn.onclick=e=>{e.stopPropagation();const box=btn.closest('.attempt-details');box.open=true;box.querySelector('.attempt-wrong')?.scrollIntoView({behavior:'smooth',block:'center'})});
     document.querySelectorAll('[data-attempt-intensive]').forEach(btn=>btn.onclick=e=>{e.stopPropagation();activate('intensive');setTimeout(()=>{const open=[...document.querySelectorAll('[data-intensive-open]')].find(x=>x.dataset.intensiveOpen===btn.dataset.attemptIntensive);open?.click()},120)});
   }
+  const intensiveKey='ielts-listening-intensive-v1';
+  let intensiveRecord=null,intensiveUrl=null,intensiveLines=[];
+  function loadIntensiveNotes(){try{return JSON.parse(localStorage.getItem(intensiveKey)||'{}')}catch(_){return {}}}
+  function plainHtml(value){const node=document.createElement('div');node.innerHTML=String(value||'');return node.textContent.replace(/\s+/g,' ').trim()}
+  function decodeJsString(raw){try{return JSON.parse(raw)}catch(_){return String(raw||'').replace(/^['"]|['"]$/g,'').replace(/\\n/g,' ').replace(/\\(['"\\])/g,'$1')}}
+  function transcriptFromPackage(record,attempts){
+    const html=String(record?.html||''),marker=html.search(/transcriptLines\s*:/i),found=[];
+    if(marker>=0){
+      const block=html.slice(marker,marker+500000);
+      const rx=/\bhtml\s*:\s*("(?:\\.|[^"\\])*"|'(?:\\.|[^'\\])*')/g;let match;
+      while((match=rx.exec(block))&&found.length<500){const text=plainHtml(decodeJsString(match[1]));if(text.length>2&&!found.includes(text))found.push(text)}
+    }
+    if(!found.length){
+      (attempts||[]).forEach(a=>Object.values(a.questionDetails||{}).forEach(d=>{const text=plainHtml(d.transcript||d.analysis||'');if(text&&!found.includes(text))found.push(text)}));
+      (attempts||[]).forEach(a=>Object.values(a.reviews||{}).forEach(r=>{const text=plainHtml(r.evidence||r.autoAnalysis||'');if(text&&!found.includes(text))found.push(text)}));
+    }
+    return found;
+  }
+  function timedTranscript(lines,duration){
+    const usable=Math.max(Number(duration)||0,lines.length*5),step=usable/Math.max(lines.length,1);
+    return lines.map((line,index)=>{const seconds=Math.floor(index*step),m=Math.floor(seconds/60),s=seconds%60;return '['+String(m).padStart(2,'0')+':'+String(s).padStart(2,'0')+'] '+line}).join('\n');
+  }
+  function parseTimedTranscript(raw){return String(raw||'').split(/\r?\n/).map((line,index)=>{const m=line.match(/^\s*\[(\d+):(\d+(?:\.\d+)?)\]\s*(.+)$/);return m?{time:Number(m[1])*60+Number(m[2]),text:m[3]}:{time:index*5,text:line.trim()}}).filter(x=>x.text)}
+  function drawSyncTranscript(){
+    intensiveLines=parseTimedTranscript($('#intensiveTranscript').value);
+    $('#intensiveSyncList').innerHTML=intensiveLines.length?intensiveLines.map((x,i)=>'<button type="button" data-sync-line="'+i+'"><time>'+Math.floor(x.time/60)+':'+String(Math.floor(x.time%60)).padStart(2,'0')+'</time><span>'+esc(x.text)+'</span></button>').join(''):'<p>还没有可同步的原文。</p>';
+    document.querySelectorAll('[data-sync-line]').forEach(btn=>btn.onclick=()=>{const row=intensiveLines[Number(btn.dataset.syncLine)];$('#intensiveAudio').currentTime=row.time;$('#intensiveAudio').play().catch(()=>{})});
+  }
+  async function renderIntensive(){
+    const records=await dbAll(),history=loadHistory(),doneTitles=new Set(history.map(x=>x.title));
+    const done=records.filter(x=>doneTitles.has(x.title)).sort((a,b)=>testOrder(a)-testOrder(b));
+    $('#intensiveDoneList').innerHTML=done.length?done.map(x=>{const attempts=history.filter(a=>a.title===x.title),last=attempts[0],rate=last?.total?Math.round(last.correct/last.total*100):0;return '<button class="intensive-entry" data-intensive-open="'+esc(x.title)+'"><span><b>'+esc(x.part)+' · '+esc(x.title)+'</b><small>'+attempts.length+' 次练习</small></span><strong>'+rate+'%</strong></button>'}).join(''):'<p>完成真题后，这里会自动出现。</p>';
+    document.querySelectorAll('[data-intensive-open]').forEach(btn=>btn.onclick=async()=>{
+      intensiveRecord=records.find(x=>x.title===btn.dataset.intensiveOpen);if(!intensiveRecord)return;
+      const attempts=history.filter(x=>x.title===intensiveRecord.title),last=attempts[0],saved=loadIntensiveNotes()[intensiveRecord.id]||{};
+      if(intensiveUrl)URL.revokeObjectURL(intensiveUrl);intensiveUrl=URL.createObjectURL(intensiveRecord.audio);
+      $('#intensiveAudio').src=intensiveUrl;$('#intensiveTitle').textContent=intensiveRecord.part+' · '+intensiveRecord.title;$('#intensiveAccuracy').textContent=last?.total?last.correct+'/'+last.total+' · '+Math.round(last.correct/last.total*100)+'%':'暂无成绩';
+      $('#intensiveTranscript').value=saved.transcript||'';$('#intensiveNotes').value=saved.notes||'';$('#intensiveWorkspace').hidden=false;drawSyncTranscript();$('#intensiveWorkspace').scrollIntoView({behavior:'smooth',block:'start'});
+    });
+  }
+  $('#buildIntensiveSync')?.addEventListener('click',()=>{
+    if(!intensiveRecord)return alert('请先从左侧选择一篇做过的题。');
+    const packageLines=transcriptFromPackage(intensiveRecord,loadHistory().filter(x=>x.title===intensiveRecord.title));
+    if(packageLines.length)$('#intensiveTranscript').value=timedTranscript(packageLines,$('#intensiveAudio').duration);
+    else if(!$('#intensiveTranscript').value.trim())return alert('这篇题包没有内置原文，系统不能凭空生成录音文本。请粘贴原文后再生成同步对照。');
+    drawSyncTranscript();
+  });
+  $('#intensiveAudio')?.addEventListener('timeupdate',()=>{let current=-1;intensiveLines.forEach((x,i)=>{if(x.time<=$('#intensiveAudio').currentTime)current=i});document.querySelectorAll('[data-sync-line]').forEach((x,i)=>x.classList.toggle('active',i===current));document.querySelector('[data-sync-line].active')?.scrollIntoView({block:'nearest'})});
+  $('#intensiveSpeed')?.addEventListener('change',()=>{$('#intensiveAudio').playbackRate=Number($('#intensiveSpeed').value)||1});
+  $('#markSegmentStart')?.addEventListener('click',()=>{$('#segmentStart').value=$('#intensiveAudio').currentTime.toFixed(1)});
+  $('#markSegmentEnd')?.addEventListener('click',()=>{$('#segmentEnd').value=$('#intensiveAudio').currentTime.toFixed(1)});
+  $('#repeatSegment')?.addEventListener('click',()=>{const audio=$('#intensiveAudio'),a=Number($('#segmentStart').value)||0,b=Number($('#segmentEnd').value)||audio.duration;audio.currentTime=a;audio.play();const loop=()=>{if(audio.currentTime>=b){audio.currentTime=a;audio.play()}else if(!audio.paused)requestAnimationFrame(loop)};requestAnimationFrame(loop)});
+  $('#openIntensiveOriginal')?.addEventListener('click',()=>{if(intensiveRecord)launchTest(intensiveRecord.html,intensiveRecord.audio,intensiveRecord.title,intensiveRecord.part,intensiveRecord.assets||[]).then(()=>activate('practice'))});
+  $('#saveIntensiveNotes')?.addEventListener('click',()=>{if(!intensiveRecord)return;const all=loadIntensiveNotes();all[intensiveRecord.id]={title:intensiveRecord.title,transcript:$('#intensiveTranscript').value,notes:$('#intensiveNotes').value,updatedAt:new Date().toISOString()};localStorage.setItem(intensiveKey,JSON.stringify(all));window.dispatchEvent(new CustomEvent('ielts-review-data-changed',{detail:{key:intensiveKey}}));alert('精听原文与笔记已保存。')});
   $('#clearListeningHistory')?.addEventListener('click', () => {
     if (!confirm('确认清空全部听力真题统计吗？')) return;
     saveHistory([]);
@@ -698,7 +766,15 @@
   };
   let initial = 'reaction';
   try { initial = localStorage.getItem(pageKey) || initial; } catch (_) {}
-  renderPrivateBank().catch(() => status('当前浏览器无法读取私人题库存储。', true));
+  (async()=>{
+    try{
+      const backup=await dbGetMeta(historyKey),local=loadHistory();
+      if(Array.isArray(backup)&&backup.length){const map=new Map(backup.map(x=>[x.id||[x.title,x.part,x.date].join('|'),x]));local.forEach(x=>map.set(x.id||[x.title,x.part,x.date].join('|'),x));saveHistory([...map.values()].sort((a,b)=>new Date(b.date||0)-new Date(a.date||0)).slice(0,2000))}
+      await renderPrivateBank();
+      if(initial==='analysis')renderAnalysis();
+      if(initial==='intensive')await renderIntensive();
+    }catch(_){status('当前浏览器无法读取私人题库存储。', true)}
+  })();
   activate(initial);
   setTimeout(() => { if (location.hash === '#listening-hub') activate(initial); }, 0);
 })();
