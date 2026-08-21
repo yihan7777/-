@@ -8,7 +8,7 @@
   const DB_NAME = 'ielts-private-listening-bank-v1';
   const STORE_NAME = 'tests';
   const BUCKET = 'ielts-private-files';
-  const SYNC_VERSION = '6.2';
+  const SYNC_VERSION = '7.0';
 
   const state = { session: loadJson(SESSION_KEY), busy: false, cooldownUntil: 0, cooldownTimer: null, localCount: null, cloudCount: null };
 
@@ -116,18 +116,35 @@
     });
     return [...byTitle.values()];
   }
+  function arrayItemKey(item, index) {
+    if (item == null || typeof item !== 'object') return typeof item + ':' + JSON.stringify(item);
+    if (item.id) return 'id:' + item.id;
+    if (item.date && item.title) return ['attempt', item.title, item.part || '', item.date, item.correct ?? '', item.total ?? ''].join('|');
+    if (item.word) return 'word:' + String(item.word).toLowerCase();
+    if (item.front) return 'front:' + String(item.category || '') + '|' + String(item.front).toLowerCase();
+    return 'json:' + JSON.stringify(item);
+  }
   function mergeStorageValue(remoteValue, localValue) {
     if (localValue == null) return remoteValue;
+    if (remoteValue == null) return localValue;
     try {
       const remote = JSON.parse(remoteValue), local = JSON.parse(localValue);
       if (Array.isArray(remote) && Array.isArray(local)) {
         const map = new Map();
-        [...remote, ...local].forEach((item, index) => map.set(item?.id || item?.title || JSON.stringify(item) || index, item));
+        remote.forEach((item, index) => map.set(arrayItemKey(item, index), item));
+        local.forEach((item, index) => map.set(arrayItemKey(item, index), item));
         return JSON.stringify([...map.values()]);
       }
       if (remote && local && typeof remote === 'object' && typeof local === 'object') return JSON.stringify({ ...remote, ...local });
     } catch (_) {}
-    return localValue;
+    return localValue || remoteValue;
+  }
+  function mergeStorageMaps(remoteMap = {}, localMap = {}) {
+    const merged = {};
+    new Set([...Object.keys(remoteMap || {}), ...Object.keys(localMap || {})]).forEach(key => {
+      merged[key] = mergeStorageValue(remoteMap?.[key], localMap?.[key]);
+    });
+    return merged;
   }
   function recoverStoredMeta(item) {
     const folder = String(item.htmlPath || item.id || '').split('/')[1] || String(item.id || '');
@@ -149,17 +166,25 @@
   function isExpiredTokenError(error) {
     return /exp.*claim.*timestamp|jwt.*expired|expired.*jwt|token.*expired/i.test(String(error?.message || error || ''));
   }
-  async function uploadObject(token, path, blob, contentType, retried = false) {
+  async function uploadObject(token, path, blob, contentType, attempt = 0) {
     const safeContentType = String(contentType || 'application/octet-stream').split(';')[0].trim();
     try {
+      const activeToken = state.session?.access_token || token;
       await api(`/storage/v1/object/${BUCKET}/${path}`, {
-        method: 'POST', headers: authHeaders(token, { 'Content-Type': safeContentType, 'x-upsert': 'true' }), body: blob
+        method: 'POST', headers: authHeaders(activeToken, { 'Content-Type': safeContentType, 'x-upsert': 'true' }), body: blob
       });
     } catch (error) {
-      if (!retried && isExpiredTokenError(error)) {
+      if (isExpiredTokenError(error)) {
         setStatus('登录令牌已更新，正在从当前文件继续上传…');
         const fresh = await ensureSession(true);
-        return uploadObject(fresh.access_token, path, blob, contentType, true);
+        return uploadObject(fresh.access_token, path, blob, contentType, attempt);
+      }
+      if (attempt < 4) {
+        const delay = 900 * (2 ** attempt);
+        setStatus(`上传暂时中断，${Math.max(1, Math.round(delay / 1000))} 秒后从当前文件重试（${attempt + 1}/4）…`);
+        await new Promise(resolve => setTimeout(resolve, delay));
+        const fresh = await ensureSession(false);
+        return uploadObject(fresh.access_token, path, blob, contentType, attempt + 1);
       }
       throw error;
     }
@@ -189,23 +214,85 @@
       throw error;
     }
   }
-  async function uploadListening(token, uid, progress) {
+  function localAssetEntries(test) {
+    return (Array.isArray(test?.assets) ? test.assets : []).map((item, index) => {
+      const blob = item?.blob instanceof Blob ? item.blob : (item instanceof Blob ? item : null);
+      if (!blob) return null;
+      return { name: item?.name || blob.name || `asset-${index}`, type: item?.type || blob.type || 'application/octet-stream', blob };
+    }).filter(Boolean);
+  }
+  async function persistCloudState(session, uid, localStorageMap, listeningManifest) {
+    const active = await ensureSession(false);
+    await api('/rest/v1/user_sync_state?on_conflict=user_id', {
+      method: 'POST',
+      headers: authHeaders(active.access_token || session.access_token, { 'Content-Type': 'application/json', Prefer: 'resolution=merge-duplicates,return=minimal' }),
+      body: JSON.stringify({
+        user_id: uid,
+        payload: { localStorage: localStorageMap, listeningManifest: dedupeManifest(listeningManifest), exportedAt: new Date().toISOString() },
+        version: Date.now(),
+        device_name: navigator.userAgent.slice(0, 180),
+        updated_at: new Date().toISOString()
+      })
+    });
+  }
+  async function uploadListening(token, uid, progress, existingManifest = [], onCheckpoint = null) {
     const tests = await dbAll();
+    const remoteMap = new Map(dedupeManifest(existingManifest).map(item => [canonicalTestKey(item), item]));
     const manifest = [];
+    let changed = 0;
     for (let i = 0; i < tests.length; i += 1) {
-      const test = tests[i];
+      let test = tests[i];
+      const recovered = recoverStoredMeta(test);
+      const healedTitle = titleFromHtml(test.html || '', test, recovered);
+      if (healedTitle && healedTitle !== test.title && !/^云端听力(?:\s+\d+)?$/i.test(healedTitle)) {
+        test = {...test,title:healedTitle,part:recovered.part || test.part};
+        await dbPut(test);
+      }
+      const key = canonicalTestKey(test);
+      const previous = remoteMap.get(key);
+      const assets = localAssetEntries(test);
+      const needsUpload = !previous ||
+        Number(test.updatedAt || 0) > Number(previous.updatedAt || 0) ||
+        (test.audio instanceof Blob && !previous.audioPath) ||
+        (assets.length && (previous.assets || []).length < assets.length);
+      if (!needsUpload) {
+        manifest.push(previous);
+        progress(`正在核对听力 ${i + 1}/${tests.length}：${test.title || test.id}（云端已有）`);
+        continue;
+      }
       progress(`正在上传听力 ${i + 1}/${tests.length}：${test.title || test.id}`);
       const folder = `${uid}/${safePath(test.id)}`;
       const htmlPath = `${folder}/question.html`;
-      const htmlBlob = new Blob([test.html || ''], { type: 'text/html' });
-      await uploadObject(token, htmlPath, htmlBlob, 'text/html');
-      let audioPath = null;
+      await uploadObject(token, htmlPath, new Blob([test.html || ''], { type: 'text/html' }), 'text/html');
+      let audioPath = previous?.audioPath || null;
+      let audioType = previous?.audioType || '';
+      let audioName = previous?.audioName || '';
       if (test.audio instanceof Blob) {
         audioPath = `${folder}/audio.${extension(test.audio.name, test.audio.type)}`;
-        await uploadObject(token, audioPath, test.audio, test.audio.type);
+        audioType = test.audio.type || 'audio/mpeg';
+        audioName = test.audio.name || 'audio.mp3';
+        await uploadObject(token, audioPath, test.audio, audioType);
       }
-      manifest.push({ id: test.id, part: test.part, title: test.title, frequency: test.frequency || 0, updatedAt: test.updatedAt || Date.now(), htmlPath, audioPath, audioType: test.audio?.type || '', audioName: test.audio?.name || '' });
+      const assetManifest = [];
+      for (let a = 0; a < assets.length; a += 1) {
+        const asset = assets[a];
+        const assetPath = `${folder}/assets/${safePath(asset.name)}`;
+        await uploadObject(token, assetPath, asset.blob, asset.type);
+        assetManifest.push({ name: asset.name, path: assetPath, type: asset.type });
+      }
+      const item = {
+        id: test.id, part: test.part, title: test.title, frequency: test.frequency || 0,
+        updatedAt: test.updatedAt || Date.now(), htmlPath, audioPath, audioType, audioName,
+        assets: assetManifest.length ? assetManifest : (previous?.assets || [])
+      };
+      manifest.push(item);
+      remoteMap.set(key, item);
+      changed += 1;
+      if (onCheckpoint && changed % 8 === 0) {
+        await onCheckpoint(dedupeManifest([...existingManifest, ...manifest]));
+      }
     }
+    if (onCheckpoint && changed) await onCheckpoint(dedupeManifest([...existingManifest, ...manifest]));
     return manifest;
   }
   function titleFromHtml(html, item, recovered) {
@@ -223,29 +310,44 @@
   async function downloadListening(token, manifest, progress, uid, snapshotId) {
     const list = Array.isArray(manifest) ? manifest : [];
     const existing = await dbAll();
-    const existingIds = new Map(existing.map(record => [`${record.part || ''}|${String(record.title || '').trim().toLowerCase()}`, record.id]));
+    const existingByKey = new Map(existing.map(record => [canonicalTestKey(record), record]));
     const checkpointKey = `ielts-cloud-download-progress-${uid}`;
     const checkpoint = loadJson(checkpointKey);
     const startIndex = checkpoint?.snapshotId === snapshotId ? Math.min(Number(checkpoint.index) || 0, list.length) : 0;
     for (let i = startIndex; i < list.length; i += 1) {
       const item = list[i];
+      const local = existingByKey.get(canonicalTestKey(item));
+      if (local && Number(local.updatedAt || 0) >= Number(item.updatedAt || 0) && local.html) {
+        localStorage.setItem(checkpointKey, JSON.stringify({ snapshotId, index: i + 1 }));
+        continue;
+      }
       progress(`${startIndex ? '断点续传' : '正在恢复'} ${i + 1}/${list.length}：${item.title || item.id}`);
       const html = await (await downloadObject(token, item.htmlPath)).text();
-      let audio = null;
+      let audio = local?.audio || null;
       if (item.audioPath) {
         const blob = await downloadObject(token, item.audioPath);
         audio = new File([blob], item.audioName || `audio.${extension('', item.audioType)}`, { type: item.audioType || blob.type });
       }
+      const assets = [];
+      for (const asset of (item.assets || [])) {
+        if (!asset?.path) continue;
+        const blob = await downloadObject(token, asset.path);
+        assets.push({ name: asset.name || 'asset', type: asset.type || blob.type, blob });
+      }
       const recovered = recoverStoredMeta(item);
       const restoredTitle = titleFromHtml(html, item, recovered);
-      const sameTitleId = existingIds.get(`${recovered.part}|${String(restoredTitle).trim().toLowerCase()}`);
-      await dbPut({ id: sameTitleId || recovered.id, part: recovered.part, title: restoredTitle, frequency: item.frequency || 0, updatedAt: item.updatedAt || Date.now(), html, audio, cloudPath: item.htmlPath });
+      const record = {
+        id: local?.id || recovered.id, part: recovered.part, title: restoredTitle,
+        frequency: item.frequency || 0, updatedAt: item.updatedAt || Date.now(),
+        html, audio, assets: assets.length ? assets : (local?.assets || []), cloudPath: item.htmlPath
+      };
+      await dbPut(record);
+      existingByKey.set(canonicalTestKey(record), record);
       localStorage.setItem(checkpointKey, JSON.stringify({ snapshotId, index: i + 1 }));
-      await new Promise(resolve => setTimeout(resolve, 80));
+      await new Promise(resolve => setTimeout(resolve, 60));
     }
     localStorage.removeItem(checkpointKey);
   }
-
   async function uploadAll() {
     return withBusy(async () => {
       const session = await ensureSession(true);
@@ -253,82 +355,89 @@
       if (!uid) throw new Error('无法识别账号，请重新登录');
       setStatus('正在整理本机学习记录…');
       const existingRows = await api(`/rest/v1/user_sync_state?user_id=eq.${encodeURIComponent(uid)}&select=payload&limit=1`, { headers: authHeaders(session.access_token) });
-      const existingManifest = existingRows?.[0]?.payload?.listeningManifest || [];
-      const localManifest = await uploadListening(session.access_token, uid, setStatus);
-      const listeningManifest = dedupeManifest([...existingManifest, ...localManifest]);
-      const payload = { localStorage: collectLocalStorage(), listeningManifest, exportedAt: new Date().toISOString() };
-      const latest = await ensureSession(true);
-      await api('/rest/v1/user_sync_state?on_conflict=user_id', {
-        method: 'POST',
-        headers: authHeaders(latest.access_token, { 'Content-Type': 'application/json', Prefer: 'resolution=merge-duplicates,return=minimal' }),
-        body: JSON.stringify({ user_id: uid, payload, version: Date.now(), device_name: navigator.userAgent.slice(0, 180), updated_at: new Date().toISOString() })
+      const remotePayload = existingRows?.[0]?.payload || {};
+      const existingManifest = dedupeManifest(remotePayload.listeningManifest);
+      const mergedStorage = mergeStorageMaps(remotePayload.localStorage, collectLocalStorage());
+      const localManifest = await uploadListening(session.access_token, uid, setStatus, existingManifest, async partial => {
+        await persistCloudState(session, uid, mergedStorage, partial);
+        setStatus(`已安全保存云端进度：${partial.length} 篇；继续上传…`);
       });
+      const listeningManifest = dedupeManifest([...existingManifest, ...localManifest]);
+      await persistCloudState(session, uid, mergedStorage, listeningManifest);
+      const localCount = (await dbAll()).length;
+      if (listeningManifest.length < localCount) throw new Error(`云端校验未通过：本机 ${localCount} 篇，云端仅 ${listeningManifest.length} 篇；本机数据未被覆盖，请再次点智能同步继续`);
       localStorage.setItem(LAST_SYNC_KEY, new Date().toISOString());
-      setStatus(`上传完成：${Object.keys(payload.localStorage).length} 组学习记录，${listeningManifest.length} 篇听力。`);
+      state.localCount = localCount; state.cloudCount = listeningManifest.length;
+      setStatus(`上传完成并校验：本机 ${localCount} 篇，云端 ${listeningManifest.length} 篇。`);
       renderAccount();
     });
   }
   async function downloadAll() {
-    if (!confirm('将云端学习记录恢复到本机，并覆盖同名记录。确定继续吗？')) return;
     return withBusy(async () => {
       const session = await ensureSession(true);
       const uid = session.user?.id;
-      setStatus('正在读取云端记录…');
+      setStatus('正在读取并合并云端记录…');
       const rows = await api(`/rest/v1/user_sync_state?user_id=eq.${encodeURIComponent(uid)}&select=payload,updated_at&limit=1`, { headers: authHeaders(session.access_token) });
       const row = rows?.[0];
-      if (!row?.payload) throw new Error('云端还没有备份，请先在原设备点击“上传本机到云端”');
-      Object.entries(row.payload.localStorage || {}).forEach(([key, value]) => localStorage.setItem(key, value));
+      if (!row?.payload) throw new Error('云端还没有备份，请先在原设备点击“智能双向同步”');
+      const mergedStorage = mergeStorageMaps(row.payload.localStorage, collectLocalStorage());
+      Object.entries(mergedStorage).forEach(([key, value]) => localStorage.setItem(key, value));
       const cleanManifest = dedupeManifest(row.payload.listeningManifest);
-      await downloadListening(session.access_token, cleanManifest, setStatus, uid, `${row.updated_at}|${cleanManifest.length}`);
+      const local = await dbAll();
+      const localMap = new Map(local.map(item => [canonicalTestKey(item), item]));
+      const needed = cleanManifest.filter(item => {
+        const current = localMap.get(canonicalTestKey(item));
+        return !current || Number(item.updatedAt || 0) > Number(current.updatedAt || 0);
+      });
+      await downloadListening(session.access_token, needed, setStatus, uid, `${row.updated_at}|${needed.length}`);
       localStorage.setItem(LAST_SYNC_KEY, new Date().toISOString());
-      setStatus('恢复完成，正在刷新页面…');
-      setTimeout(() => location.reload(), 900);
+      setStatus(`合并完成：新增或更新 ${needed.length} 篇，原设备数据全部保留。正在刷新…`);
+      setTimeout(() => location.reload(), 1200);
     });
   }
   async function syncBoth() {
     return withBusy(async () => {
       const session = await ensureSession(true), uid = session.user?.id;
       if (!uid) throw new Error('无法识别账号，请重新登录');
-      setStatus('正在比对电脑、手机与云端题库…');
+      setStatus('正在比对电脑、手机与云端；只合并，不删除任何一端的数据…');
       const rows = await api(`/rest/v1/user_sync_state?user_id=eq.${encodeURIComponent(uid)}&select=payload,updated_at&limit=1`, { headers: authHeaders(session.access_token) });
       const row = rows?.[0], remotePayload = row?.payload || {};
       const remoteManifest = dedupeManifest(remotePayload.listeningManifest);
+      const mergedStorage = mergeStorageMaps(remotePayload.localStorage, collectLocalStorage());
+      Object.entries(mergedStorage).forEach(([key, value]) => localStorage.setItem(key, value));
+
       const localBefore = await dbAll();
       const localMap = new Map(localBefore.map(item => [canonicalTestKey(item), item]));
       const missing = remoteManifest.filter(item => {
         const local = localMap.get(canonicalTestKey(item));
         return !local || Number(item.updatedAt || 0) > Number(local.updatedAt || 0);
       });
-      Object.entries(remotePayload.localStorage || {}).forEach(([key, value]) => {
-        localStorage.setItem(key, mergeStorageValue(value, localStorage.getItem(key)));
-      });
-      if (missing.length) await downloadListening(session.access_token, missing, setStatus, uid, `smart|${row?.updated_at || Date.now()}|${missing.length}`);
-      setStatus('云端内容已合并，正在上传统一后的题库…');
-      const uploadedManifest = await uploadListening((await ensureSession(true)).access_token, uid, setStatus);
-      const listeningManifest = dedupeManifest([...remoteManifest, ...uploadedManifest]);
-      const localAfter = await dbAll();
-      const localKeys = new Set(localAfter.map(canonicalTestKey));
-      const unresolved = listeningManifest.filter(item => !localKeys.has(canonicalTestKey(item)));
-      if (unresolved.length) {
-        setStatus(`仍有 ${unresolved.length} 篇未落到本机，正在补齐…`);
-        await downloadListening((await ensureSession(true)).access_token, unresolved, setStatus, uid, `repair|${Date.now()}|${unresolved.length}`);
+      if (missing.length) {
+        setStatus(`云端有 ${missing.length} 篇本机缺少，先安全补到本机…`);
+        await downloadListening(session.access_token, missing, setStatus, uid, `merge|${row?.updated_at || Date.now()}|${missing.length}`);
       }
-      const finalLocal = await dbAll();
-      const finalManifest = dedupeManifest([...listeningManifest, ...await uploadListening((await ensureSession(true)).access_token, uid, setStatus)]);
-      const payload = { localStorage: collectLocalStorage(), listeningManifest: finalManifest, exportedAt: new Date().toISOString() };
-      const latest = await ensureSession(true);
-      await api('/rest/v1/user_sync_state?on_conflict=user_id', {
-        method: 'POST',
-        headers: authHeaders(latest.access_token, { 'Content-Type': 'application/json', Prefer: 'resolution=merge-duplicates,return=minimal' }),
-        body: JSON.stringify({ user_id: uid, payload, version: Date.now(), device_name: navigator.userAgent.slice(0, 180), updated_at: new Date().toISOString() })
+
+      const localAfterDownload = await dbAll();
+      setStatus(`本机现有 ${localAfterDownload.length} 篇，正在把云端缺少的篇目续传…`);
+      const uploaded = await uploadListening((await ensureSession(false)).access_token, uid, setStatus, remoteManifest, async partial => {
+        await persistCloudState(session, uid, mergedStorage, partial);
+        setStatus(`断点已保存：云端现在有 ${partial.length} 篇；继续同步…`);
       });
-      state.localCount = finalLocal.length; state.cloudCount = finalManifest.length;
+      const finalManifest = dedupeManifest([...remoteManifest, ...uploaded]);
+      await persistCloudState(session, uid, mergedStorage, finalManifest);
+
+      const verifyRows = await api(`/rest/v1/user_sync_state?user_id=eq.${encodeURIComponent(uid)}&select=payload&limit=1`, { headers: authHeaders((await ensureSession(false)).access_token) });
+      const verifiedManifest = dedupeManifest(verifyRows?.[0]?.payload?.listeningManifest);
+      const finalLocal = await dbAll();
+      state.localCount = finalLocal.length; state.cloudCount = verifiedManifest.length;
+      if (verifiedManifest.length < finalLocal.length) {
+        throw new Error(`同步未完整：本机 ${finalLocal.length} 篇，云端 ${verifiedManifest.length} 篇。本机内容已保留，请再次点击“智能双向同步”从断点继续`);
+      }
       localStorage.setItem(LAST_SYNC_KEY, new Date().toISOString());
-      setStatus(`同步完成：本机 ${finalLocal.length} 篇，云端 ${finalManifest.length} 篇。正在刷新…`);
-      setTimeout(() => location.reload(), 1100);
+      setStatus(`同步完成并通过校验：本机 ${finalLocal.length} 篇，云端 ${verifiedManifest.length} 篇；做题与复盘记录已合并。正在刷新…`);
+      setTimeout(() => location.reload(), 1400);
     });
   }
-
   async function withBusy(task) {
     if (state.busy) return;
     state.busy = true; renderAccount();
@@ -433,7 +542,7 @@
       renderAccount();
       await refreshCountDisplay();
       const active = state.session;
-      const autoKey = 'ielts-cloud-auto-merge-v6.1';
+      const autoKey = 'ielts-cloud-auto-merge-v7.0';
       if (active?.access_token && !sessionStorage.getItem(autoKey)) {
         sessionStorage.setItem(autoKey, 'running');
         setStatus('正在自动合并电脑、手机与云端数据，请保持页面打开…');
