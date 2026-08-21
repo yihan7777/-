@@ -18,9 +18,24 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - name: Build site and restore direct reading app
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p _site
+          rsync -a --exclude='.git/' --exclude='_site/' ./ _site/
+          work_dir="$(mktemp -d)"
+          cat reading-core/part-*.bin > "$work_dir/reading-core.zip"
+          unzip -q "$work_dir/reading-core.zip" -d "$work_dir/unpacked"
+          reading_entry="$(find "$work_dir/unpacked" -maxdepth 2 -type f -name index.html -print -quit)"
+          test -n "$reading_entry"
+          mkdir -p _site/reading-web
+          cp -a "$(dirname "$reading_entry")/." _site/reading-web/
+          test -f _site/reading-web/index.html
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
-        with: {path: "."}
+        with:
+          path: _site
       - name: Deploy
         id: deployment
         uses: actions/deploy-pages@v4
