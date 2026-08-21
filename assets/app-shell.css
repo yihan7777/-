@@ -371,3 +371,57 @@ input,textarea,select{
   .listening-page-tabs button.active::before,
   .listening-page-tabs button[aria-selected="true"]::before{left:14px!important}
 }
+
+
+/* v9 — durable selected state and clearer listening navigation */
+body[data-listening-subpage] .listening-page-tabs button{
+  position:relative;
+  color:#52627a!important;
+  background:rgba(255,255,255,.88)!important;
+  border:1px solid #d8e2ef!important;
+  box-shadow:0 7px 18px rgba(58,78,111,.07)!important;
+  transition:background .18s ease,color .18s ease,border-color .18s ease,transform .18s ease!important;
+}
+body[data-listening-subpage="reaction"] [data-listening-page="reaction"],
+body[data-listening-subpage="dictation"] [data-listening-page="dictation"],
+body[data-listening-subpage="practice"] [data-listening-page="practice"],
+body[data-listening-subpage="analysis"] [data-listening-page="analysis"],
+body[data-listening-subpage="intensive"] [data-listening-page="intensive"],
+.listening-page-tabs button[data-selected="true"]{
+  color:#fff!important;
+  background:linear-gradient(135deg,#4f78bf,#6e91cf)!important;
+  border-color:#4f78bf!important;
+  box-shadow:0 10px 24px rgba(79,120,191,.26)!important;
+  transform:translateY(-1px)!important;
+}
+body[data-listening-subpage] .listening-page-tabs button[data-selected="true"]::after{
+  content:"";
+  position:absolute;
+  left:24%;
+  right:24%;
+  bottom:6px;
+  height:3px;
+  border-radius:99px;
+  background:#fff;
+  opacity:.92;
+}
+.private-part-tabs button.active,
+.private-bank-filters button.active,
+.overview-tabs button.active,
+[data-analysis-part].active{
+  color:#fff!important;
+  background:linear-gradient(135deg,#4f78bf,#6e91cf)!important;
+  border-color:#4f78bf!important;
+  box-shadow:0 8px 20px rgba(79,120,191,.22)!important;
+}
+.private-test-entry,
+.part-stat,
+.wrong-review-card{
+  border-color:#dfe7f2!important;
+  box-shadow:0 10px 28px rgba(61,79,110,.07)!important;
+}
+@media(max-width:760px){
+  .listening-page-tabs{padding:12px!important;gap:9px!important;scroll-padding-inline:12px!important}
+  .listening-page-tabs button{flex:0 0 auto!important;min-width:116px!important}
+  .listening-practice,.listening-analysis,.listening-review{padding-inline:16px!important}
+}
