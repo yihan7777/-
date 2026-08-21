@@ -651,6 +651,23 @@ body :is(.app-tabs,.speaking-page-tabs,.writing-mode-tabs,.writing-task-tabs,.wr
   background:#fffdf7!important;box-shadow:0 0 0 3px rgba(111,76,19,.15)!important;
 }
 
+/* v15: every regular button belongs to the warm yellow interface */
+button:not(.flashcard):not(.danger):not(.delete-btn):not(.remove-btn),
+.button:not(.danger),a.button:not(.danger),input[type="button"],input[type="submit"]{
+  color:#62491f!important;background:linear-gradient(145deg,#fff9e7,#ffedb4)!important;
+  border-color:#e8cc83!important;box-shadow:0 6px 16px rgba(157,111,29,.10)!important;
+}
+button:not(.flashcard):not(.danger):not(.delete-btn):not(.remove-btn):hover,
+.button:not(.danger):hover,a.button:not(.danger):hover{
+  color:#533a13!important;background:linear-gradient(145deg,#fff1bd,#ffdc78)!important;
+  border-color:#dfa938!important;box-shadow:0 9px 20px rgba(183,126,25,.17)!important;
+}
+body button.active,body button[aria-selected="true"],body button[data-selected="true"],body button[aria-pressed="true"]{
+  color:#52380f!important;background:linear-gradient(135deg,#ffdb70,#eeb744)!important;
+  border-color:#d79b2d!important;box-shadow:0 0 0 3px #fff3cf,0 10px 22px rgba(190,128,24,.25)!important;
+}
+.delete-btn,.remove-btn,button.danger,.button.danger{background:#fff1ec!important;color:#b95843!important;border-color:#efc6bb!important}
+
 /* v11: consistent insets for action buttons; no controls glued to card edges */
 .section-head,.practice-frame-head,.private-bank-head,.paper-builder-head,.recent-listening-review>header{column-gap:16px!important}
 .practice-frame-head{padding:14px 18px!important}.paper-builder,.private-test-bank,.cause-panel,.due-review-panel{overflow:hidden!important}
