@@ -3,6 +3,7 @@
   --app-coral:#ee9c8d;--app-yellow:#f4dca4;--app-ink:#17342f;--app-muted:#6c817a;
   --app-line:#d9e8e3;--app-shadow:0 18px 50px rgba(58,92,85,.10)
 }
+
 html{width:100%;max-width:100%;overflow-x:hidden;background:var(--app-bg)}
 body{width:100%!important;max-width:100%!important;min-width:0!important;overflow-x:clip!important;background:linear-gradient(180deg,#f8fcff 0,#f3f9f7 48%,#f8fbfd 100%)!important;padding-top:68px}
 *,*::before,*::after{box-sizing:border-box}
@@ -617,3 +618,12 @@ input:focus,textarea:focus,select:focus{outline:3px solid rgba(243,183,68,.22)!i
   .speaking-page-tabs button,.writing-mode-tabs button,.writing-task-tabs button,.listening-page-tabs button,.speaking-part-switch button,.speaking-filter-scroll button{flex:0 0 auto!important;scroll-snap-align:start!important}
   .task-card,.private-test-entry,.wrong-review-card,.memory-row,.report-grid article{border-radius:21px!important}
 }
+
+/* v11: consistent insets for action buttons; no controls glued to card edges */
+.section-head,.practice-frame-head,.private-bank-head,.paper-builder-head,.recent-listening-review>header{column-gap:16px!important}
+.practice-frame-head{padding:14px 18px!important}.paper-builder,.private-test-bank,.cause-panel,.due-review-panel{overflow:hidden!important}
+.paper-builder-actions,.private-test-actions,.attempt-actions,.recent-review-actions,.segment-tools,.sync-transcript-tools{align-items:stretch!important;margin-left:0!important;margin-right:0!important}
+[data-page-section="listening-hub"] :is(.actions,.card-tools,.dictation-actions,.sound-actions,.study-tools,.paper-builder-actions,.private-test-actions,.attempt-actions,.recent-review-actions,.segment-tools,.sync-transcript-tools){gap:10px!important;padding-inline:2px!important}
+[data-page-section="listening-hub"] :is(.actions,.card-tools,.dictation-actions,.sound-actions,.study-tools,.paper-builder-actions,.private-test-actions,.attempt-actions,.recent-review-actions,.segment-tools,.sync-transcript-tools)>button{margin-left:0!important;margin-right:0!important}
+#saveTestAnalysis{display:block!important;width:100%!important;margin:18px 0 0!important;min-height:52px!important}
+@media(max-width:700px){.practice-frame-head{padding:12px!important}.practice-frame-head>div{display:grid!important;grid-template-columns:1fr 1fr!important;gap:8px!important}.practice-frame-head>div button{width:100%!important;margin:0!important}.practice-frame-head>div button:first-child{grid-column:1/-1!important}}

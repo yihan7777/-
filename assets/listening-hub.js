@@ -23,6 +23,7 @@
   let paperObjectUrls = [];
   let historyCache = null;
   let analysisFilter = 'all';
+  const frameCaptureSignatures = new WeakMap();
   const dbName = 'ielts-private-listening-bank-v1';
   async function requestPersistentStorage() {
     try {
@@ -109,6 +110,9 @@
     else items.unshift(attempt);
     saveHistory(items.slice(0,2000));
     return attempt;
+  }
+  function titleKey(value) {
+    return String(value || '').replace(/\s+/g,' ').replace(/^[\d０-９]+[.、]\s*/,'').trim().toLowerCase();
   }
   function addReactionWords(raw, title, q) {
     const words=String(raw||'').split(/[\n,，、;；]+/).map(x=>x.trim()).filter(Boolean);
@@ -318,13 +322,13 @@
     return [...records].sort((a,b)=>(partOrder[a.part]||9)-(partOrder[b.part]||9)||testOrder(a)-testOrder(b)||a.title.localeCompare(b.title,undefined,{numeric:true}));
   }
   function renderPaperBuilder(records) {
-    const doneTitles=new Set(loadHistory().map(x=>x.title));
-    const selected=sortPaper(records.filter(x=>paperSelection.has(x.id)&&!doneTitles.has(x.title)));
+    const doneTitles=new Set(loadHistory().map(x=>titleKey(x.title)));
+    const selected=sortPaper(records.filter(x=>paperSelection.has(x.id)&&!doneTitles.has(titleKey(x.title))));
     $('#paperBuilder').innerHTML='<div class="paper-builder-head"><div><b>组卷做套题</b><small>手动加入，或一键从 P1–P4 各抽一篇</small></div><strong>'+selected.length+' 篇</strong></div><div class="paper-builder-actions"><button data-random-paper>随机完整套题</button><button data-start-paper '+(selected.length?'':'disabled')+'>开始套题</button><button data-clear-paper '+(selected.length?'':'disabled')+'>清空</button></div><div class="paper-selected-strip">'+(selected.length?selected.map((x,i)=>'<span><i>'+x.part+'</i>'+(i+1)+'. '+esc(x.title)+'<button data-remove-paper="'+esc(x.id)+'" aria-label="移除">×</button></span>').join(''):'<p>还没有选题。你可以在题目下方点击“加入组卷”。</p>')+'</div>';
     document.querySelector('[data-random-paper]').onclick=()=>{
       const chosen=[];
       for(const part of ['P1','P2','P3','P4']){
-        const pool=records.filter(x=>x.part===part&&(!privateVipOnly||isVipTest(x))&&!doneTitles.has(x.title));
+        const pool=records.filter(x=>x.part===part&&(!privateVipOnly||isVipTest(x))&&!doneTitles.has(titleKey(x.title)));
         if(!pool.length)return alert(part+' 没有可用题目，请先导入该部分或关闭“仅看 VIP”。');
         chosen.push(pool[Math.floor(Math.random()*pool.length)]);
       }
@@ -380,7 +384,8 @@
     try {
       const doc=frame?.contentDocument, win=frame?.contentWindow;
       if(!doc||!win)return false;
-      const candidates=[...doc.querySelectorAll('input:not([type="hidden"]):not([type="range"]):not([type="button"]):not([type="submit"]), textarea, select, [contenteditable="true"]')];
+      const preferred=[...doc.querySelectorAll('.question input,.question textarea,.question select,[class*="question"] input,[class*="question"] textarea,[class*="question"] select,[data-question] input,[data-question] textarea,[data-question] select,#questions input,#questions textarea,#questions select,main input,main textarea,main select')];
+      const candidates=[...preferred,...doc.querySelectorAll('input:not([type="hidden"]):not([type="range"]):not([type="button"]):not([type="submit"]):not([type="search"]), textarea, select, [contenteditable="true"]')];
       const target=candidates.find(node=>{
         const r=node.getBoundingClientRect();
         return node.offsetParent!==null&&r.width>2&&r.height>2;
@@ -434,14 +439,14 @@
     cleanupPaperWorkspace();paperResults=new Map();paperReviewQueue=[];paperIndex=0;
     $('#practiceFrame').hidden=true;$('#practiceFrame').src='about:blank';
     $('#paperPartNav').hidden=false;$('#paperFrames').hidden=false;
-    $('#paperPartNav').innerHTML=paperQueue.map((x,i)=>'<button data-paper-switch="'+i+'"><b>'+esc(x.part)+'</b><small>'+(i+1)+'</small></button>').join('');
+    $('#paperPartNav').innerHTML=paperQueue.map((x,i)=>'<button data-paper-switch="'+i+'" title="打开 '+esc(x.title)+'"><b>'+esc(x.part)+'</b><span>SET '+(i+1)+'</span><small>'+esc(x.title)+'</small></button>').join('');
     $('#paperFrames').innerHTML=paperQueue.map((record,i)=>{
       const audioUrl=URL.createObjectURL(record.audio);paperObjectUrls.push(audioUrl);
       const source=injectBridge(record.html,audioUrl,record.title,record.part,record.assets||[]);
       const pageUrl=URL.createObjectURL(new Blob([source],{type:'text/html'}));paperObjectUrls.push(pageUrl);
       return '<iframe data-paper-frame="'+i+'" src="'+esc(pageUrl)+'" title="'+esc(record.part+' '+record.title)+'" loading="eager" '+(i?'hidden':'')+'></iframe>';
     }).join('');
-    document.querySelectorAll('[data-paper-frame]').forEach(frame=>frame.addEventListener('load',()=>scheduleFrameJump(frame)));
+    document.querySelectorAll('[data-paper-frame]').forEach((frame,index)=>frame.addEventListener('load',()=>{scheduleFrameJump(frame);attachParentResultCapture(frame,paperQueue[index])}));
     document.querySelectorAll('[data-paper-switch]').forEach(btn=>btn.onclick=()=>showPaperPart(Number(btn.dataset.paperSwitch)));
     $('#practiceFrameWrap').classList.remove('hidden');$('#causePanel').classList.add('hidden');
     showPaperPart(0);$('#practiceFrameWrap').scrollIntoView({behavior:'smooth',block:'start'});
@@ -455,7 +460,7 @@
     const source = injectBridge(htmlText, activeAudioUrl, title, part, assets);
     activeUrl = URL.createObjectURL(new Blob([source], {type:'text/html'}));
     $('#practiceFrame').src = activeUrl;
-    $('#practiceFrame').onload=()=>scheduleFrameJump($('#practiceFrame'));
+    $('#practiceFrame').onload=()=>{scheduleFrameJump($('#practiceFrame'));attachParentResultCapture($('#practiceFrame'),{title,part})};
     $('#practiceTitle').textContent = part + ' · ' + title;
     $('#practiceFrameWrap').classList.remove('hidden');
     $('#causePanel').classList.add('hidden');
@@ -464,8 +469,8 @@
   async function renderPrivateBank() {
     const records = await dbAll();
     const history = loadHistory();
-    const doneTitles=new Set(history.map(x=>x.title));
-    for(const id of [...paperSelection]){const record=records.find(x=>x.id===id);if(record&&doneTitles.has(record.title))paperSelection.delete(id)}
+    const doneTitles=new Set(history.map(x=>titleKey(x.title)));
+    for(const id of [...paperSelection]){const record=records.find(x=>x.id===id);if(record&&doneTitles.has(titleKey(record.title)))paperSelection.delete(id)}
     $('#privateBankCount').textContent = records.length ? records.length + ' 篇已保存在本机' : '尚未导入 · 可从云端恢复或重新选择原题包文件夹';
     if ($('#restorePrivateBank')) $('#restorePrivateBank').hidden = records.length > 0;
     $('#privatePartTabs').innerHTML = ['P1','P2','P3','P4'].map(part => {
@@ -474,20 +479,22 @@
     }).join('');
     document.querySelectorAll('[data-private-part]').forEach(btn => btn.onclick = () => { privatePart = btn.dataset.privatePart; renderPrivateBank(); });
     const vipCount=records.filter(x=>x.part===privatePart&&isVipTest(x)).length;
-    const doneCount=records.filter(x=>x.part===privatePart&&doneTitles.has(x.title)).length;
+    const doneCount=records.filter(x=>x.part===privatePart&&doneTitles.has(titleKey(x.title))).length;
     $('#privateBankFilters').innerHTML='<button class="'+(!privateVipOnly?'active':'')+'" data-private-vip="all">全部题目</button><button class="'+(privateVipOnly?'active':'')+'" data-private-vip="vip">仅看 VIP（'+vipCount+'）</button><button class="'+(privateDoneView==='todo'?'active':'')+'" data-private-done="todo">未做（'+(records.filter(x=>x.part===privatePart).length-doneCount)+'）</button><button class="'+(privateDoneView==='done'?'active':'')+'" data-private-done="done">已做（'+doneCount+'）</button><span>已按题号从小到大排列</span>';
     document.querySelectorAll('[data-private-vip]').forEach(btn=>btn.onclick=()=>{privateVipOnly=btn.dataset.privateVip==='vip';renderPrivateBank()});
     document.querySelectorAll('[data-private-done]').forEach(btn=>btn.onclick=()=>{privateDoneView=privateDoneView===btn.dataset.privateDone?'all':btn.dataset.privateDone;renderPrivateBank()});
     renderPaperBuilder(records);
-    const filtered = records.filter(x => x.part === privatePart && (!privateVipOnly || isVipTest(x)) && (privateDoneView==='all'||(privateDoneView==='done')===doneTitles.has(x.title))).sort((a,b) => testOrder(a)-testOrder(b) || a.title.localeCompare(b.title,undefined,{numeric:true,sensitivity:'base'}));
+    const filtered = records.filter(x => x.part === privatePart && (!privateVipOnly || isVipTest(x)) && (privateDoneView==='all'||(privateDoneView==='done')===doneTitles.has(titleKey(x.title)))).sort((a,b) => testOrder(a)-testOrder(b) || a.title.localeCompare(b.title,undefined,{numeric:true,sensitivity:'base'}));
     $('#privateTestList').innerHTML = filtered.length ? filtered.map(x => {
       const attempts=history.filter(a=>a.title===x.title);
       const attemptHtml=attempts.length?attempts.map(a=>{
         const wrong=Object.entries(a.reviews||{}).map(([q,r])=>esc('Q'+q+' '+(r.primary||'未标记')+(r.synonym?' · '+r.synonym:''))).join('<br>');
         return '<div class="private-attempt"><div class="private-attempt-head"><span>'+esc(new Date(a.date).toLocaleDateString())+' · '+a.correct+'/'+a.total+'</span><button class="edit-attempt" data-edit-attempt="'+esc(a.id||'')+'">重新编辑</button></div><div class="private-attempt-errors">'+(wrong||'本次没有逐题复盘记录')+'</div></div>';
       }).join(''):'<p class="no-private-errors">完成这篇并保存复盘后，错题会显示在这里。</p>';
-      return '<details class="private-test-entry"><summary><span><b>'+esc(x.title)+(isVipTest(x)?' <i class="vip-test-badge">VIP</i>':'')+(doneTitles.has(x.title)?' <i class="done-test-badge">已做</i>':'')+'</b><small>'+esc(x.frequency)+' · '+attempts.length+' 次练习</small></span><em>展开 ↓</em></summary><div class="private-test-body"><div class="private-test-actions"><button data-private-test="'+esc(x.id)+'">'+(doneTitles.has(x.title)?'重新做题':'开始做题')+'</button><button class="'+(paperSelection.has(x.id)?'paper-added':'')+'" data-add-paper="'+esc(x.id)+'" '+(doneTitles.has(x.title)?'disabled title="已做题目不会加入新套题"':'')+'>'+(doneTitles.has(x.title)?'已做 · 不参与组卷':paperSelection.has(x.id)?'✓ 已加入组卷':'＋ 加入组卷')+'</button><button class="chatgpt-review" data-chatgpt-title="'+esc(x.title)+'">复制复盘并打开 ChatGPT</button></div>'+attemptHtml+'</div></details>';
+      const isDone=doneTitles.has(titleKey(x.title));
+      return '<details class="private-test-entry '+(isDone?'is-completed':'')+'"><summary><span><b>'+esc(x.title)+(isVipTest(x)?' <i class="vip-test-badge">VIP</i>':'')+(isDone?' <i class="done-test-badge">✓ 已完成</i>':'')+'</b><small>'+esc(x.frequency)+' · '+attempts.length+' 次练习</small></span><em>'+(isDone?'查看记录与复盘 ↓':'展开 ↓')+'</em></summary><div class="private-test-body"><div class="private-test-actions"><button data-private-test="'+esc(x.id)+'">'+(isDone?'重新做题':'开始做题')+'</button><button class="'+(paperSelection.has(x.id)?'paper-added':'')+'" data-add-paper="'+esc(x.id)+'" '+(isDone?'disabled title="已做题目不会加入新套题"':'')+'>'+(isDone?'已做 · 不参与组卷':paperSelection.has(x.id)?'✓ 已加入组卷':'＋ 加入组卷')+'</button><button class="chatgpt-review" data-chatgpt-title="'+esc(x.title)+'">复制复盘并打开 ChatGPT</button></div>'+attemptHtml+'</div></details>';
     }).join('') : '<p>'+(privateVipOnly?'这个部分暂时没有标记为 VIP 的题目。':'这个部分还没有导入篇目。')+'</p>';
+    renderRecentListeningReview(history);
     document.querySelectorAll('[data-private-test]').forEach(btn => btn.onclick = async () => {
       const record = (await dbAll()).find(x => x.id === btn.dataset.privateTest);
       if (record) { paperQueue=[];paperReviewQueue=[];paperIndex=-1;launchTest(record.html, record.audio, record.title, record.part, record.assets||[]); }
@@ -495,6 +502,17 @@
     document.querySelectorAll('[data-add-paper]').forEach(btn=>btn.onclick=()=>{paperSelection.has(btn.dataset.addPaper)?paperSelection.delete(btn.dataset.addPaper):paperSelection.add(btn.dataset.addPaper);renderPrivateBank()});
     document.querySelectorAll('[data-edit-attempt]').forEach(btn=>btn.onclick=()=>openAttemptEditor(btn.dataset.editAttempt));
     document.querySelectorAll('[data-chatgpt-title]').forEach(btn=>btn.onclick=()=>openChatGPTReview(btn.dataset.chatgptTitle));
+  }
+  function renderRecentListeningReview(history) {
+    const host=$('#recentListeningReview');if(!host)return;
+    const items=[...(history||[])].sort((a,b)=>new Date(b.date||0)-new Date(a.date||0)).slice(0,12);
+    host.innerHTML='<header><div><small>SUBMISSION HISTORY</small><h3>最近提交与错题复盘</h3></div><b>'+items.length+' 条</b></header>'+(items.length?items.map(item=>{
+      const wrong=item.wrongQuestions||[];
+      const rows=wrong.map(q=>{const detail=item.questionDetails?.[q]||{},review=item.reviews?.[q]||{};return '<div class="recent-review-row"><b>Q'+esc(q)+' · '+esc(review.primary||'待填写错因')+'</b><span>你的答案：'+esc(detail.userAnswer||'—')+'　正确答案：'+esc(detail.correctAnswer||'—')+'</span><small>'+esc(review.synonym||review.evidence||detail.analysis||'展开后可继续补充复盘')+'</small></div>'}).join('');
+      return '<details class="recent-review-entry"><summary><span><b>'+esc(item.part)+' · '+esc(item.title)+'</b><small>'+esc(new Date(item.date||Date.now()).toLocaleString())+' · '+(item.reviewStatus==='completed'?'已复盘':'待复盘')+'</small></span><strong>'+esc(item.correct)+'/'+esc(item.total)+' · '+(item.total?Math.round(item.correct/item.total*100):0)+'%</strong></summary><div class="recent-review-body"><div class="recent-review-actions"><button data-recent-review="'+esc(item.id||'')+'">'+(item.reviewStatus==='completed'?'查看 / 修改复盘':'继续完成复盘')+'</button><button data-recent-original="'+esc(item.title)+'">打开原题</button></div>'+(rows||'<p>本篇全部正确，没有错题。</p>')+'</div></details>';
+    }).join(''):'<p class="empty-analysis">交卷后会自动保存在这里，刷新页面也不会消失。</p>');
+    host.querySelectorAll('[data-recent-review]').forEach(btn=>btn.onclick=()=>{activate('practice');setTimeout(()=>openAttemptEditor(btn.dataset.recentReview),60)});
+    host.querySelectorAll('[data-recent-original]').forEach(btn=>btn.onclick=async()=>{const record=(await dbAll()).find(x=>titleKey(x.title)===titleKey(btn.dataset.recentOriginal));if(!record)return alert('原题当前不在本机题库，请先恢复或重新导入题库。');activate('practice');await launchTest(record.html,record.audio,record.title,record.part,record.assets||[])});
   }
   function openAttemptEditor(id) {
     const attempt=loadHistory().find(x=>x.id===id);if(!attempt)return;
@@ -602,6 +620,35 @@
     }
   });
   document.addEventListener('fullscreenchange',()=>{ if(!document.fullscreenElement){$('#practiceFrameWrap')?.classList.remove('fullscreen-test');if($('#fullscreenListeningTest'))$('#fullscreenListeningTest').textContent='⛶ 全屏做题'} });
+  function frameResultData(frame,record) {
+    try{
+      const doc=frame.contentDocument;if(!doc)return null;
+      const correctNodes=[...doc.querySelectorAll('#nav .correct,.question-nav .correct,[data-state="correct"],[data-result="correct"],.correct-answer')];
+      const wrongNodes=[...doc.querySelectorAll('#nav .incorrect,#nav .wrong,.question-nav .incorrect,.question-nav .wrong,[data-state="incorrect"],[data-state="wrong"],[data-result="incorrect"],[data-result="wrong"],.incorrect-answer,.wrong-answer')];
+      const rows=[...doc.querySelectorAll('.review-table tbody tr,[class*="review"] tbody tr,[class*="result"] tbody tr')];
+      const marked=correctNodes.length+wrongNodes.length+rows.filter(row=>/correct|incorrect|wrong|正确|错误/i.test(row.className+' '+row.textContent)).length;
+      if(!marked)return null;
+      const numberOf=(node,index)=>{const raw=node?.dataset?.q||node?.dataset?.question||node?.dataset?.number||node?.cells?.[0]?.textContent||node?.textContent||'';return String(raw).match(/\d+/)?.[0]||String(index+1)};
+      const wrong=[];wrongNodes.forEach((node,i)=>{const q=numberOf(node,i);if(!wrong.includes(q))wrong.push(q)});rows.forEach((row,i)=>{if(/incorrect|wrong|错误|错题/i.test(row.className+' '+row.textContent)){const q=numberOf(row,i);if(!wrong.includes(q))wrong.push(q)}});
+      const controls=[...doc.querySelectorAll('input:not([type="hidden"]):not([type="button"]):not([type="submit"]):not([type="range"]):not([type="search"]),textarea,select,[contenteditable="true"]')].filter(node=>node.offsetParent!==null);
+      const navCount=doc.querySelectorAll('#nav [data-q],#nav li,#nav button,.question-nav [data-q],.question-nav li,.question-nav button').length;
+      const total=Math.max(correctNodes.length+wrong.length,rows.length,navCount,controls.length);
+      if(!total)return null;
+      const details={};wrong.forEach(q=>{const row=rows.find((r,i)=>numberOf(r,i)===String(q));const answer=row?.querySelector?.('.answer-value,[data-answer],.correct-answer');details[q]={userAnswer:row?.cells?.[1]?.textContent?.trim()||'',correctAnswer:answer?.dataset?.answer||answer?.textContent?.trim()||'',transcript:'',analysis:''}});
+      return {type:'ielts-test-result',title:record.title,part:record.part,correct:correctNodes.length||Math.max(0,total-wrong.length),wrongQuestions:wrong,total,questionDetails:details,capturedAt:new Date().toISOString()};
+    }catch(_){return null}
+  }
+  function attachParentResultCapture(frame,record) {
+    try{
+      const doc=frame.contentDocument;if(!doc||doc.__ieltsParentCapture)return;doc.__ieltsParentCapture=true;
+      let captureTimer=0;
+      const capture=()=>{const data=frameResultData(frame,record);if(!data)return;const signature=[data.correct,data.total,data.wrongQuestions.join(',')].join('|');if(frameCaptureSignatures.get(frame)===signature)return;frameCaptureSignatures.set(frame,signature);handleTestResult(data)};
+      const attempt=()=>{clearTimeout(captureTimer);captureTimer=setTimeout(capture,260);[900,1800,3200].forEach(delay=>setTimeout(capture,delay))};
+      doc.addEventListener('click',event=>{const node=event.target?.closest?.('button,input[type="button"],input[type="submit"],a,[role="button"]');const raw=[node?.id,node?.name,node?.className,node?.value,node?.textContent].join(' ');if(/finish|submit|check\s*answers?|complete|save|交卷|提交|完成|保存|查看答案/i.test(raw))attempt()},true);
+      doc.addEventListener('submit',attempt,true);
+      new MutationObserver(()=>{if(frameResultData(frame,record))attempt()}).observe(doc.body,{subtree:true,childList:true,attributes:true,attributeFilter:['class','data-state','data-result']});
+    }catch(_){}
+  }
   function showResultReview(data,label='') {
     editingAttemptId=null;
     pendingResult=makeAttempt(data);
@@ -612,12 +659,12 @@
     $('#saveTestAnalysis').textContent=paperReviewQueue.length&&paperIndex<paperReviewQueue.length-1?'保存并复盘下一篇':'保存本次复盘';
     $('#causePanel').classList.remove('hidden');$('#causePanel').scrollIntoView({behavior:'smooth',block:'start'});
   }
-  window.addEventListener('message', event => {
-    if (event.data?.type !== 'ielts-test-result') return;
-    const savedAttempt = storeAttemptImmediately(event.data);
+  function handleTestResult(data) {
+    if (data?.type !== 'ielts-test-result') return;
+    const savedAttempt = storeAttemptImmediately(data);
     renderPrivateBank();
     if(paperQueue.length){
-      const index=paperQueue.findIndex(x=>x.title===event.data.title&&x.part===event.data.part);
+      const index=paperQueue.findIndex(x=>titleKey(x.title)===titleKey(data.title)&&x.part===data.part);
       if(index<0)return;
       paperResults.set(index,savedAttempt);
       const tab=document.querySelector('[data-paper-switch="'+index+'"]');if(tab)tab.classList.add('completed');
@@ -629,7 +676,8 @@
       showResultReview(paperReviewQueue[0],'套题复盘 1/'+paperReviewQueue.length);return;
     }
     showResultReview(savedAttempt);
-  });
+  }
+  window.addEventListener('message', event => handleTestResult(event.data));
   $('#saveTestAnalysis')?.addEventListener('click', async () => {
     if (!pendingResult) return;
     let wordsAdded=0,phrasesAdded=0;
@@ -680,7 +728,7 @@
     try { analysisFilter = localStorage.getItem(analysisFilterKey) || analysisFilter; } catch (_) {}
     const grandTotal=items.reduce((n,x)=>n+(x.total||0),0);
     const grandCorrect=items.reduce((n,x)=>n+(Number.isFinite(Number(x.correct))?Number(x.correct):Math.max(0,(x.total||0)-(x.wrongQuestions?.length||0))),0);
-    $('#analysisPartGrid').innerHTML = '<article class="part-stat overall" data-analysis-part="ALL"><span>全部 · '+items.length+' 篇</span><strong>'+(grandTotal?Math.round(grandCorrect/grandTotal*100):0)+'%</strong><small>总正确率 · '+grandCorrect+'/'+grandTotal+' 题正确</small></article>'+['P1','P2','P3','P4'].map(part => {
+    $('#analysisPartGrid').innerHTML = '<article class="part-stat overall" data-analysis-part="ALL"><span>OVERALL ACCURACY · '+items.length+' 篇</span><strong>'+(grandTotal?Math.round(grandCorrect/grandTotal*100):0)+'%</strong><small>总正确率 · '+grandCorrect+'/'+grandTotal+' 题正确</small></article>'+['P1','P2','P3','P4'].map(part => {
       const rows = items.filter(x => x.part === part);
       const total = rows.reduce((n,x) => n + (x.total || 0), 0);
       const wrong = rows.reduce((n,x) => n + (x.wrongQuestions?.length || 0), 0);
@@ -765,12 +813,12 @@
     document.querySelectorAll('[data-sync-line]').forEach(btn=>btn.onclick=()=>{const row=intensiveLines[Number(btn.dataset.syncLine)];$('#intensiveAudio').currentTime=row.time;$('#intensiveAudio').play().catch(()=>{})});
   }
   async function renderIntensive(){
-    const records=await dbAll(),history=loadHistory(),doneTitles=new Set(history.map(x=>x.title));
-    const done=records.filter(x=>doneTitles.has(x.title)).sort((a,b)=>testOrder(a)-testOrder(b));
-    $('#intensiveDoneList').innerHTML=done.length?done.map(x=>{const attempts=history.filter(a=>a.title===x.title),last=attempts[0],rate=last?.total?Math.round(last.correct/last.total*100):0;return '<button class="intensive-entry" data-intensive-open="'+esc(x.title)+'"><span><b>'+esc(x.part)+' · '+esc(x.title)+'</b><small>'+attempts.length+' 次练习</small></span><strong>'+rate+'%</strong></button>'}).join(''):'<p>完成真题后，这里会自动出现。</p>';
+    const records=await dbAll(),history=loadHistory(),doneTitles=new Set(history.map(x=>titleKey(x.title)));
+    const done=records.filter(x=>doneTitles.has(titleKey(x.title))).sort((a,b)=>testOrder(a)-testOrder(b));
+    $('#intensiveDoneList').innerHTML=done.length?done.map(x=>{const attempts=history.filter(a=>titleKey(a.title)===titleKey(x.title)),last=attempts[0],rate=last?.total?Math.round(last.correct/last.total*100):0;return '<button class="intensive-entry" data-intensive-open="'+esc(x.title)+'"><span><b>'+esc(x.part)+' · '+esc(x.title)+'</b><small>'+attempts.length+' 次练习</small></span><strong>'+rate+'%</strong></button>'}).join(''):'<p>完成真题后，这里会自动出现。</p>';
     document.querySelectorAll('[data-intensive-open]').forEach(btn=>btn.onclick=async()=>{
       intensiveRecord=records.find(x=>x.title===btn.dataset.intensiveOpen);if(!intensiveRecord)return;
-      const attempts=history.filter(x=>x.title===intensiveRecord.title),last=attempts[0],saved=loadIntensiveNotes()[intensiveRecord.id]||{};
+      const attempts=history.filter(x=>titleKey(x.title)===titleKey(intensiveRecord.title)),last=attempts[0],saved=loadIntensiveNotes()[intensiveRecord.id]||{};
       if(intensiveUrl)URL.revokeObjectURL(intensiveUrl);intensiveUrl=URL.createObjectURL(intensiveRecord.audio);
       $('#intensiveAudio').src=intensiveUrl;$('#intensiveTitle').textContent=intensiveRecord.part+' · '+intensiveRecord.title;$('#intensiveAccuracy').textContent=last?.total?last.correct+'/'+last.total+' · '+Math.round(last.correct/last.total*100)+'%':'暂无成绩';
       $('#intensiveTranscript').value=saved.transcript||'';$('#intensiveNotes').value=saved.notes||'';$('#intensiveWorkspace').hidden=false;drawSyncTranscript();$('#intensiveWorkspace').scrollIntoView({behavior:'smooth',block:'start'});
