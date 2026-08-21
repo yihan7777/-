@@ -146,7 +146,12 @@
   }
   function activate(name) {
     if (!tabs.some(x => x.dataset.listeningPage === name)) name = 'reaction';
-    tabs.forEach(x => x.classList.toggle('active', x.dataset.listeningPage === name));
+    tabs.forEach(x => {
+      const selected = x.dataset.listeningPage === name;
+      x.classList.toggle('active', selected);
+      x.setAttribute('aria-selected', selected ? 'true' : 'false');
+      x.setAttribute('aria-current', selected ? 'page' : 'false');
+    });
     views.forEach(view => { if (view.dataset.listeningView !== 'all') view.hidden = view.dataset.listeningView !== name; });
     try { localStorage.setItem(pageKey, name); } catch (_) {}
     if (name === 'analysis') renderAnalysis();
