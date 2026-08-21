@@ -20,6 +20,14 @@
     for(const [i,x] of entries.entries()){if(x.name.endsWith('/')||x.name.includes('__MACOSX')||x.name.endsWith('.DS_Store'))continue;const ln=v.getUint16(x.local+26,true),le=v.getUint16(x.local+28,true),start=x.local+30+ln+le,raw=new Uint8Array(buf,start,x.size);let blob;if(x.method===0)blob=new Blob([raw]);else if(x.method===8)blob=await inflate(raw);else continue;const path=x.name.slice(root.length).replace(/^\/+/, '');if(!path)continue;blob=new Blob([blob],{type:mime(path)});await tx(STORE,'readwrite',s=>s.put({path,blob}));saved++;bar.value=Math.round((i+1)/entries.length*100);status.innerHTML='<b>正在安装 '+saved+' 个文件</b><small>'+bar.value+'% · '+path+'</small>'}
     await tx(META,'readwrite',s=>s.put({key:'package',name:file.name,count:saved,installedAt:new Date().toISOString()}));await register();await render();
   }
+  async function installBuiltIn(){
+    const status=$('#readingPackageStatus');
+    status.innerHTML='<b>正在启用网站内置阅读题库…</b><small>首次约需下载 9 MB，完成后可直接进入</small>';
+    const responses=await Promise.all(Array.from({length:68},(_,i)=>fetch('./reading-core/part-'+String(i).padStart(3,'0')+'.bin?v=1',{cache:'no-store'})));
+    if(responses.some(response=>!response.ok))throw new Error('内置阅读题库尚未部署完成，请稍后刷新再试。');
+    const blob=new Blob(await Promise.all(responses.map(response=>response.blob())),{type:'application/zip'});
+    await install(new File([blob],'内置阅读真题题库.zip',{type:'application/zip'}));
+  }
   async function connectFolder(){
     const status=$('#readingPackageStatus');
     status.innerHTML='<b>正在打开文件夹选择器…</b><small>请选择解压后、里面直接包含 index.html 的文件夹</small>';
@@ -37,12 +45,12 @@
     await tx(META,'readwrite',s=>s.put({key:'package',mode:'directory',name:handle.name,handle,count:'直接读取，不占网站空间',installedAt:new Date().toISOString()}));await register();await render();
   }
   async function ensureFolderPermission(meta){if(meta?.mode!=='directory'||!meta.handle)return true;let state='granted';if(meta.handle.queryPermission)state=await meta.handle.queryPermission({mode:'read'});if(state!=='granted'&&meta.handle.requestPermission)state=await meta.handle.requestPermission({mode:'read'});return state==='granted'}
-  async function render(){const m=await getMeta(),open=$('#openReadingPackage'),status=$('#readingPackageStatus');if(!status)return;if(m){status.innerHTML='<b>'+(m.mode==='directory'?'已连接本地题库文件夹':'已安装 · '+m.count+' 个文件')+'</b><small>'+m.name+' · '+new Date(m.installedAt).toLocaleString()+(m.mode==='directory'?' · 题库不复制进浏览器':'')+'</small>';open.disabled=false}else{status.innerHTML='<b>尚未安装</b><small>推荐解压 ZIP 后连接文件夹，不占浏览器题库空间</small>';open.disabled=true}}
+  async function render(){const m=await getMeta(),open=$('#openReadingPackage'),status=$('#readingPackageStatus');if(!status)return;if(m){status.innerHTML='<b>'+(m.mode==='directory'?'已连接本地题库文件夹':'已安装 · '+m.count+' 个文件')+'</b><small>'+m.name+' · '+new Date(m.installedAt).toLocaleString()+(m.mode==='directory'?' · 题库不复制进浏览器':'')+'</small>';open.disabled=false}else{status.innerHTML='<b>网站内置阅读题库已准备</b><small>首次点击“直接进入阅读真题”会自动启用，无需选择文件夹</small>';open.disabled=false}}
   document.addEventListener('DOMContentLoaded',async()=>{
     if(!$('#readingPackageZip'))return;
     $('#readingPackageZip').onchange=async e=>{const f=e.target.files?.[0];if(!f)return;try{await install(f)}catch(err){$('#readingPackageStatus').innerHTML='<b>导入失败</b><small>'+err.message+'</small>';$('#readingPackageProgress').hidden=true}finally{e.target.value=''}};
     $('#connectReadingFolder').onclick=async()=>{try{await connectFolder()}catch(err){if(err.name!=='AbortError')$('#readingPackageStatus').innerHTML='<b>连接失败</b><small>'+err.message+'</small>'}};
-    $('#openReadingPackage').onclick=async()=>{try{const m=await getMeta();if(!(await ensureFolderPermission(m)))return $('#readingPackageStatus').innerHTML='<b>需要重新授权</b><small>请再次点击“连接解压后的文件夹”并选择原文件夹。</small>';window.open('./reading-local/index.html?view=overview','_blank')}catch(err){$('#readingPackageStatus').innerHTML='<b>打开失败</b><small>'+err.message+'</small>'}};
+    $('#openReadingPackage').onclick=async()=>{try{let m=await getMeta();if(!m){await installBuiltIn();m=await getMeta()}if(!(await ensureFolderPermission(m)))return $('#readingPackageStatus').innerHTML='<b>需要重新授权</b><small>请再次点击“连接解压后的文件夹”并选择原文件夹。</small>';window.open('./reading-local/index.html?view=overview','_blank')}catch(err){$('#readingPackageStatus').innerHTML='<b>打开失败</b><small>'+err.message+'</small>'}};
     $('#removeReadingPackage').onclick=async()=>{if(!confirm('只移除当前设备保存的阅读题库，练习记录不会删除。继续吗？'))return;await tx(STORE,'readwrite',s=>s.clear());await tx(META,'readwrite',s=>s.delete('package'));await render()};
     try{await register();await render()}catch(err){$('#readingPackageStatus').innerHTML='<b>题库存储初始化失败</b><small>'+err.message+'。按钮仍可点击重试。</small>'}
   });
