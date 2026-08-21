@@ -1,13 +1,13 @@
 (() => {
   'use strict';
   const pages=[
-    ['home','⌂','今日','学习总览'],
-    ['speaking','◉','口语','题库、练习与记忆'],
-    ['vocabulary','Aa','词汇','记忆卡片'],
-    ['writing','✎','作文','模考、批改与复盘'],
-    ['listening-hub','♫','听力','真题、精听与分析'],
-    ['reading','▤','阅读','真题与背题'],
-    ['plan','✓','计划','冲刺安排']
+    ['home','🏠','今日','学习总览'],
+    ['speaking','🎙️','口语','题库、练习与记忆'],
+    ['vocabulary','🧠','词汇','记忆卡片'],
+    ['writing','✍️','作文','模考、批改与复盘'],
+    ['listening-hub','🎧','听力','真题、精听与分析'],
+    ['reading','📖','阅读','真题与背题'],
+    ['plan','🗓️','计划','冲刺安排']
   ];
   const titles=Object.fromEntries(pages.map(x=>[x[0],x]));
   function session(){try{return JSON.parse(localStorage.getItem('ielts-cloud-session-v1')||'null')}catch(_){return null}}
@@ -25,9 +25,18 @@
         <nav class="app-drawer-nav">${pages.map(x=>`<button data-app-jump="${x[0]}"><i>${x[1]}</i><span>${x[2]}<small>${x[3]}</small></span><b>›</b></button>`).join('')}</nav>
       </aside>`);
     const menu=document.getElementById('appMenuToggle');
+    const desktop=()=>window.matchMedia('(min-width:1100px)').matches;
     const close=()=>{document.body.classList.remove('app-drawer-open');menu?.setAttribute('aria-expanded','false')};
-    menu?.setAttribute('aria-expanded','false');
+    if(localStorage.getItem('ielts-sidebar-collapsed-v1')==='1')document.body.classList.add('app-sidebar-collapsed');
+    menu?.setAttribute('aria-expanded',desktop()&&!document.body.classList.contains('app-sidebar-collapsed')?'true':'false');
     menu.onclick=()=>{
+      if(desktop()){
+        const collapsed=document.body.classList.toggle('app-sidebar-collapsed');
+        localStorage.setItem('ielts-sidebar-collapsed-v1',collapsed?'1':'0');
+        menu.setAttribute('aria-expanded',collapsed?'false':'true');
+        menu.setAttribute('aria-label',collapsed?'展开学习板块':'收起学习板块');
+        return;
+      }
       const open=document.body.classList.toggle('app-drawer-open');
       menu.setAttribute('aria-expanded',open?'true':'false');
     };
@@ -53,7 +62,11 @@
     const info=titles[page]||titles.home;
     document.body.dataset.appPage=page;
     const title=document.getElementById('appPageTitle');if(title)title.textContent=info[2];
-    document.querySelectorAll('[data-app-jump]').forEach(b=>b.classList.toggle('active',b.dataset.appJump===page));
+    document.querySelectorAll('[data-app-jump]').forEach(b=>{
+      const selected=b.dataset.appJump===page;
+      b.classList.toggle('active',selected);
+      b.setAttribute('aria-current',selected?'page':'false');
+    });
   }
   function updateAccount(){
     const s=session(),logged=!!s?.access_token,email=s?.user?.email||'';
