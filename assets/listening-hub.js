@@ -466,7 +466,8 @@
     const history = loadHistory();
     const doneTitles=new Set(history.map(x=>x.title));
     for(const id of [...paperSelection]){const record=records.find(x=>x.id===id);if(record&&doneTitles.has(record.title))paperSelection.delete(id)}
-    $('#privateBankCount').textContent = records.length ? records.length + ' 篇已保存在本机' : '尚未导入';
+    $('#privateBankCount').textContent = records.length ? records.length + ' 篇已保存在本机' : '尚未导入 · 可从云端恢复或重新选择原题包文件夹';
+    if ($('#restorePrivateBank')) $('#restorePrivateBank').hidden = records.length > 0;
     $('#privatePartTabs').innerHTML = ['P1','P2','P3','P4'].map(part => {
       const count=records.filter(x=>x.part===part&&(!privateVipOnly||isVipTest(x))).length;
       return '<button class="' + (part === privatePart ? 'active' : '') + '" data-private-part="' + part + '">' + part + '（' + count + '）</button>';
@@ -793,6 +794,19 @@
     if (!confirm('确认清空全部听力真题统计吗？')) return;
     saveHistory([]);
     renderAnalysis();
+  });
+  $('#restorePrivateBank')?.addEventListener('click', async () => {
+    const button = $('#restorePrivateBank');
+    button.disabled = true;
+    button.textContent = '正在连接云端…';
+    try {
+      if (window.IELTSCloudSync?.recoverListening) await window.IELTSCloudSync.recoverListening();
+      else document.getElementById('cloudSyncTrigger')?.click();
+    } catch (error) {
+      alert('云端恢复没有完成：' + (error?.message || error));
+      button.disabled = false;
+      button.textContent = '☁ 从云端恢复听力';
+    }
   });
   window.openIELTSListeningTestByTitle = async title => {
     const record=(await dbAll()).find(x=>x.title===title);

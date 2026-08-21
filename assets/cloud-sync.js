@@ -560,6 +560,23 @@
     document.getElementById('cloudDownload').onclick = downloadAll;
     document.getElementById('cloudLogout').onclick = () => { saveSession(null); setStatus('已退出账号。'); };
     renderAccount();
+    window.IELTSCloudSync = {
+      recoverListening: async () => {
+        if (!state.session?.access_token) {
+          modal.hidden = false;
+          renderAccount();
+          setStatus('请先登录原来备份听力所用的账号，再点“↓ 仅下载”。');
+          return false;
+        }
+        await downloadAll();
+        return true;
+      },
+      open: () => {
+        modal.hidden = false;
+        renderAccount();
+        refreshCountDisplay().catch(() => {});
+      }
+    };
   }
   function renderAccount() {
     const account = document.getElementById('cloudAccount');
