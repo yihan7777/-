@@ -1,57 +1,49 @@
-(()=>{
+(() => {
   'use strict';
-  const DB='ielts-reading-package-v1',STORE='files',META='meta';
-  const $=s=>document.querySelector(s);
-  const mime=p=>({html:'text/html; charset=utf-8',htm:'text/html; charset=utf-8',js:'text/javascript; charset=utf-8',css:'text/css; charset=utf-8',json:'application/json; charset=utf-8',pdf:'application/pdf',png:'image/png',jpg:'image/jpeg',jpeg:'image/jpeg',gif:'image/gif',svg:'image/svg+xml',webp:'image/webp',mp3:'audio/mpeg',wav:'audio/wav',woff:'font/woff',woff2:'font/woff2'}[p.split('.').pop().toLowerCase()]||'application/octet-stream');
-  function db(){return new Promise((ok,no)=>{const r=indexedDB.open(DB,2);r.onupgradeneeded=()=>{const d=r.result;if(!d.objectStoreNames.contains(STORE))d.createObjectStore(STORE,{keyPath:'path'});if(!d.objectStoreNames.contains(META))d.createObjectStore(META,{keyPath:'key'})};r.onsuccess=()=>ok(r.result);r.onerror=()=>no(r.error)})}
-  async function tx(store,mode,fn){const d=await db();return new Promise((ok,no)=>{const t=d.transaction(store,mode),s=t.objectStore(store);fn(s);t.oncomplete=()=>{d.close();ok()};t.onerror=()=>{d.close();no(t.error)}})}
-  async function getMeta(){const d=await db();return new Promise(ok=>{const r=d.transaction(META).objectStore(META).get('package');r.onsuccess=()=>{d.close();ok(r.result)};r.onerror=()=>{d.close();ok(null)}})}
-  async function register(){if(!('serviceWorker'in navigator))throw new Error('当前浏览器不支持离线题库，请使用最新版 Chrome、Edge 或 Safari。');await navigator.serviceWorker.register('./reading-vfs-sw.js?v=3',{scope:'./'});await navigator.serviceWorker.ready}
-  function findEOCD(v){for(let i=v.byteLength-22;i>=Math.max(0,v.byteLength-65557);i--)if(v.getUint32(i,true)===0x06054b50)return i;return-1}
-  async function inflate(bytes){if(!('DecompressionStream'in window))throw new Error('当前浏览器不支持 ZIP 解压，请在最新版 Chrome 或 Edge 中导入。');const stream=new Blob([bytes]).stream().pipeThrough(new DecompressionStream('deflate-raw'));return await new Response(stream).blob()}
-  function stripRoot(names){const useful=names.filter(n=>n&&!n.endsWith('/')&&!n.includes('__MACOSX')&&!n.endsWith('.DS_Store'));const first=useful[0]?.split('/')[0];return first&&useful.every(n=>n.startsWith(first+'/'))?first+'/':''}
-  async function install(file){
-    const status=$('#readingPackageStatus'),bar=$('#readingPackageProgress');status.innerHTML='<b>正在读取安装包…</b><small>请不要关闭页面</small>';bar.hidden=false;bar.value=1;
-    if(navigator.storage?.estimate){const estimate=await navigator.storage.estimate(),free=Math.max(0,(estimate.quota||0)-(estimate.usage||0));if(free&&free<file.size*2.2)throw new Error('浏览器本地空间不足。这个 ZIP 解压后需要更多空间，请改用“连接解压后的文件夹（省空间）”。')}
-    const buf=await file.arrayBuffer(),v=new DataView(buf),e=findEOCD(v);if(e<0)throw new Error('ZIP 文件不完整或已损坏。');
-    const count=v.getUint16(e+10,true),central=v.getUint32(e+16,true),decoder=new TextDecoder('utf-8'),entries=[];let p=central;
-    for(let i=0;i<count;i++){if(v.getUint32(p,true)!==0x02014b50)throw new Error('ZIP 目录读取失败。');const method=v.getUint16(p+10,true),size=v.getUint32(p+20,true),nameLen=v.getUint16(p+28,true),extra=v.getUint16(p+30,true),comment=v.getUint16(p+32,true),local=v.getUint32(p+42,true),name=decoder.decode(new Uint8Array(buf,p+46,nameLen));entries.push({name,method,size,local});p+=46+nameLen+extra+comment}
-    const root=stripRoot(entries.map(x=>x.name));await tx(STORE,'readwrite',s=>s.clear());let saved=0;
-    for(const [i,x] of entries.entries()){if(x.name.endsWith('/')||x.name.includes('__MACOSX')||x.name.endsWith('.DS_Store'))continue;const ln=v.getUint16(x.local+26,true),le=v.getUint16(x.local+28,true),start=x.local+30+ln+le,raw=new Uint8Array(buf,start,x.size);let blob;if(x.method===0)blob=new Blob([raw]);else if(x.method===8)blob=await inflate(raw);else continue;const path=x.name.slice(root.length).replace(/^\/+/, '');if(!path)continue;blob=new Blob([blob],{type:mime(path)});await tx(STORE,'readwrite',s=>s.put({path,blob}));saved++;bar.value=Math.round((i+1)/entries.length*100);status.innerHTML='<b>正在安装 '+saved+' 个文件</b><small>'+bar.value+'% · '+path+'</small>'}
-    await tx(META,'readwrite',s=>s.put({key:'package',name:file.name,count:saved,installedAt:new Date().toISOString()}));await register();await render();
+  const $ = selector => document.querySelector(selector);
+  const DEFAULT_URL = './reading-web/index.html?view=overview';
+  const LINK_KEY = 'ielts-reading-bank-link-v2';
+
+  function setStatus(title, detail) {
+    const status = $('#readingPackageStatus');
+    if (status) status.innerHTML = '<b>' + title + '</b><small>' + detail + '</small>';
   }
-  async function installBuiltIn(){
-    const status=$('#readingPackageStatus');
-    status.innerHTML='<b>正在启用网站内置阅读题库…</b><small>首次约需下载 9 MB，完成后可直接进入</small>';
-    const responses=await Promise.all(Array.from({length:68},(_,i)=>fetch('./reading-core/part-'+String(i).padStart(3,'0')+'.bin?v=1',{cache:'no-store'})));
-    if(responses.some(response=>!response.ok))throw new Error('内置阅读题库尚未部署完成，请稍后刷新再试。');
-    const blob=new Blob(await Promise.all(responses.map(response=>response.blob())),{type:'application/zip'});
-    await install(new File([blob],'内置阅读真题题库.zip',{type:'application/zip'}));
+
+  function openUrl(url) {
+    const win = window.open(url, '_blank', 'noopener');
+    if (!win) window.location.href = url;
   }
-  async function connectFolder(){
-    const status=$('#readingPackageStatus');
-    status.innerHTML='<b>正在打开文件夹选择器…</b><small>请选择解压后、里面直接包含 index.html 的文件夹</small>';
-    let embedded=false;try{embedded=window.top!==window.self}catch(_){embedded=true}
-    if(!window.isSecureContext)throw new Error('当前页面不是安全网页，浏览器禁止读取文件夹。请直接打开本站 HTTPS 地址。');
-    if(embedded)throw new Error('当前页面在内嵌窗口中，浏览器禁止读取文件夹。请用电脑 Chrome 或 Edge 直接打开本站。');
-    if(!window.showDirectoryPicker)throw new Error('这个浏览器不支持文件夹直读。请用电脑最新版 Chrome 或 Edge 直接打开本站，不要在微信、QQ等内置浏览器中打开。');
-    const handle=await window.showDirectoryPicker({id:'ielts-reading-bank',mode:'read'});
-    let permission='granted';
-    if(handle.queryPermission)permission=await handle.queryPermission({mode:'read'});
-    if(permission!=='granted'&&handle.requestPermission)permission=await handle.requestPermission({mode:'read'});
-    if(permission!=='granted')throw new Error('没有获得文件夹读取权限。');
-    try{await handle.getFileHandle('index.html')}catch(_){throw new Error('所选文件夹内没有 index.html。请先解压 ZIP，再选择包含 index.html 的“网页版260810”文件夹。')}
-    await tx(STORE,'readwrite',s=>s.clear());
-    await tx(META,'readwrite',s=>s.put({key:'package',mode:'directory',name:handle.name,handle,count:'直接读取，不占网站空间',installedAt:new Date().toISOString()}));await register();await render();
+
+  function init() {
+    const openButton = $('#openReadingPackage');
+    if (!openButton) return;
+
+    setStatus('在线阅读题库已就绪', '电脑和手机都可直接进入，不需要上传或连接文件夹');
+    openButton.disabled = false;
+    openButton.onclick = () => openUrl(DEFAULT_URL);
+
+    const input = $('#readingBankLink');
+    const saved = localStorage.getItem(LINK_KEY) || '';
+    if (input) input.value = saved;
+
+    const save = $('#saveReadingLink');
+    if (save) save.onclick = () => {
+      const value = (input?.value || '').trim();
+      if (value) localStorage.setItem(LINK_KEY, value);
+      else localStorage.removeItem(LINK_KEY);
+      setStatus('题库地址已保存', value || '已恢复为网站内置阅读题库');
+    };
+
+    const open = $('#openReadingLink');
+    if (open) open.onclick = () => {
+      const value = (input?.value || '').trim();
+      openUrl(value || DEFAULT_URL);
+    };
   }
-  async function ensureFolderPermission(meta){if(meta?.mode!=='directory'||!meta.handle)return true;let state='granted';if(meta.handle.queryPermission)state=await meta.handle.queryPermission({mode:'read'});if(state!=='granted'&&meta.handle.requestPermission)state=await meta.handle.requestPermission({mode:'read'});return state==='granted'}
-  async function render(){const m=await getMeta(),open=$('#openReadingPackage'),status=$('#readingPackageStatus');if(!status)return;if(m){status.innerHTML='<b>'+(m.mode==='directory'?'已连接本地题库文件夹':'已安装 · '+m.count+' 个文件')+'</b><small>'+m.name+' · '+new Date(m.installedAt).toLocaleString()+(m.mode==='directory'?' · 题库不复制进浏览器':'')+'</small>';open.disabled=false}else{status.innerHTML='<b>网站内置阅读题库已准备</b><small>首次点击“直接进入阅读真题”会自动启用，无需选择文件夹</small>';open.disabled=false}}
-  document.addEventListener('DOMContentLoaded',async()=>{
-    if(!$('#readingPackageZip'))return;
-    $('#readingPackageZip').onchange=async e=>{const f=e.target.files?.[0];if(!f)return;try{await install(f)}catch(err){$('#readingPackageStatus').innerHTML='<b>导入失败</b><small>'+err.message+'</small>';$('#readingPackageProgress').hidden=true}finally{e.target.value=''}};
-    $('#connectReadingFolder').onclick=async()=>{try{await connectFolder()}catch(err){if(err.name!=='AbortError')$('#readingPackageStatus').innerHTML='<b>连接失败</b><small>'+err.message+'</small>'}};
-    $('#openReadingPackage').onclick=async()=>{try{let m=await getMeta();if(!m){await installBuiltIn();m=await getMeta()}if(!(await ensureFolderPermission(m)))return $('#readingPackageStatus').innerHTML='<b>需要重新授权</b><small>请再次点击“连接解压后的文件夹”并选择原文件夹。</small>';window.open('./reading-local/index.html?view=overview','_blank')}catch(err){$('#readingPackageStatus').innerHTML='<b>打开失败</b><small>'+err.message+'</small>'}};
-    $('#removeReadingPackage').onclick=async()=>{if(!confirm('只移除当前设备保存的阅读题库，练习记录不会删除。继续吗？'))return;await tx(STORE,'readwrite',s=>s.clear());await tx(META,'readwrite',s=>s.delete('package'));await render()};
-    try{await register();await render()}catch(err){$('#readingPackageStatus').innerHTML='<b>题库存储初始化失败</b><small>'+err.message+'。按钮仍可点击重试。</small>'}
-  });
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init, { once: true });
+  } else {
+    init();
+  }
 })();
