@@ -289,8 +289,9 @@
       }
       function send(){var data=collect();if(!data.total)return;var signature=[data.correct,data.total,data.wrongQuestions.join(',')].join('|');if(signature===lastSent)return;lastSent=signature;parent.postMessage(data,'*')}
       function schedule(){[120,450,900,1800,3200].forEach(function(t){setTimeout(send,t)})}
-      function finishNode(node){if(!node)return false;var raw=[node.id,node.name,node.className,node.getAttribute&&node.getAttribute('aria-label'),node.value,node.textContent].join(' ');return /finish|submit|check\\s*answers?|complete|交卷|提交|完成|查看答案/i.test(raw)}
-      document.addEventListener('DOMContentLoaded',function(){initialTotal=controls().length});
+      function hasMarkedResults(){return document.querySelectorAll('#nav .correct,#nav .incorrect,#nav .wrong,.question-nav .correct,.question-nav .incorrect,.question-nav .wrong,[data-state="correct"],[data-state="incorrect"],[data-state="wrong"],[data-result="correct"],[data-result="incorrect"],[data-result="wrong"]').length>0}
+      function finishNode(node){if(!node)return false;var raw=[node.id,node.name,node.className,node.getAttribute&&node.getAttribute('aria-label'),node.value,node.textContent].join(' ');return /finish|submit|check\\s*answers?|complete|save|交卷|提交|完成|保存|查看答案/i.test(raw)}
+      document.addEventListener('DOMContentLoaded',function(){initialTotal=controls().length;[500,1200,2500].forEach(function(t){setTimeout(function(){if(hasMarkedResults())schedule()},t)});new MutationObserver(function(){if(hasMarkedResults())schedule()}).observe(document.body,{childList:true,subtree:true,attributes:true,attributeFilter:['class','data-state','data-result']})});
       document.addEventListener('click',function(e){var node=e.target&&e.target.closest&&e.target.closest('button,input[type=button],input[type=submit],a,[role=button]');if(finishNode(node))schedule()},true);
       document.addEventListener('submit',schedule,true);
     })();<\/script>`;
