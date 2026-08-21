@@ -1,0 +1,1120 @@
+[
+  {
+    "id": "P2-01",
+    "title_zh": "特别节日的食物",
+    "cue": "Describe a kind offood that you like to eat on special occasions.",
+    "bullets": [
+      "What it is",
+      "What occasion it was",
+      "How this food is prepared",
+      "And explain why you like to eat this food on special occasions."
+    ],
+    "part3": [
+      "What kinds of food are popular in your country?",
+      "What are the differences between what people eat now and in the past?",
+      "Why do people eat special foods on certain festivals or special occasions?",
+      "What is the difference between the food people eat on special festivals and the food they eat every day?",
+      "Do people prefer to eat out or eat at home?",
+      "On what occasions do people eat special food in your country?",
+      "Why do people usually celebrate important occasions with food?",
+      "Do people in your country grow plants at home?"
+    ],
+    "cluster": "M4",
+    "cluster_name": "物品/法律/食物/规则类",
+    "anchor": "烟花禁令、CCD相机、生日蛋糕、科技产品、动物故事、广告、电影与节目"
+  },
+  {
+    "id": "P2-02",
+    "title_zh": "明智的重要决定",
+    "cue": "Describe a time you made an important decision and were happy with the result.",
+    "bullets": [
+      "What the decision was",
+      "Why you chose to make this decision",
+      "Is it easy or difficult to make this decision",
+      "And explain why you were happy with the result."
+    ],
+    "part3": [
+      "What small choices do people have to make in their daily lives?",
+      "What important decisions do people need to make slowly?",
+      "Why do some people make decisions very quickly while others take a long time?",
+      "Do you think people should make decisions quickly or carefully?",
+      "What important choices do people face in their whole lives?",
+      "Why do people often seek advice before making important decisions?"
+    ],
+    "cluster": "M3",
+    "cluster_name": "事件/经历/计划类",
+    "anchor": "学业压力与心理治愈、长期志向、计划改变、运动休闲、家庭节日与成长"
+  },
+  {
+    "id": "P2-03",
+    "title_zh": "想从事医疗行业的人",
+    "cue": "Describe someone you know who has always wanted to work in medicine.",
+    "bullets": [
+      "How you know him/her",
+      "When he/she first had this idea",
+      "What this person is doing now",
+      "And explain why this person has always wanted to work in medicine."
+    ],
+    "part3": [
+      "Do you think studying biology at school can make students healthier?",
+      "Do children find learning biology interesting?",
+      "Why do some children want to be doctors?",
+      "Is it difficult to become a doctor?",
+      "Why do some people want to become doctors?"
+    ],
+    "cluster": "M1",
+    "cluster_name": "人物类",
+    "anchor": "闺蜜 Lily、爷爷、妹妹、爸爸、暗恋学长、宠物博主、兽医学姐"
+  },
+  {
+    "id": "P2-04",
+    "title_zh": "高楼",
+    "cue": "Describe a tall building you like or dislike",
+    "bullets": [
+      "Where it is",
+      "What you know about it",
+      "What it looks like",
+      "And explain why you like or dislike it"
+    ],
+    "part3": [
+      "Is it common for people to live in tall buildings in your country?",
+      "What are the advantages ofliving in a tall building?",
+      "What are the disadvantages of living in tall buildings?",
+      "Do you think there will be more tall buildings in the future?",
+      "Will more people live in high-rise buildings in the future?",
+      "Why do some people choose to design their own homes?",
+      "How does climate affect building design?"
+    ],
+    "cluster": "M2",
+    "cluster_name": "地点类",
+    "anchor": "三亚、广州猫主题建筑/店铺、老家偏远乡村、市中心商场"
+  },
+  {
+    "id": "P2-05",
+    "title_zh": "事业成功的人",
+    "cue": "Describe a person you know who runs a successful business.",
+    "bullets": [
+      "How you knew him/her",
+      "What business does he/she do",
+      "Whether you have used his/her business",
+      "And explain why you think his/her business is successful."
+    ],
+    "part3": [
+      "What are the key factors for achieving success in business?",
+      "Why do some people fail to start their own business?",
+      "In your country,is it easy or difficult to achieve success in business?",
+      "Is the quality of products in small shops the same as that in large supermarkets?",
+      "Why do some people prefer to shop at small supermarkets rather than large ones?",
+      "What kinds of businesses have recently emerged in your city?"
+    ],
+    "cluster": "M1",
+    "cluster_name": "人物类",
+    "anchor": "闺蜜 Lily、爷爷、妹妹、爸爸、暗恋学长、宠物博主、兽医学姐"
+  },
+  {
+    "id": "P2-06",
+    "title_zh": "喜欢种植物的人",
+    "cue": "Describe a person you know who enjoys growing plants in his/her home or garden.",
+    "bullets": [
+      "How you know this person",
+      "What plants this person enjoys growing",
+      "Where this person grows plants",
+      "And explain why you think this person enjoys growing these plants."
+    ],
+    "part3": [
+      "Do people in your country like growing plants?",
+      "Why do people grow fruits and vegetables by themselves?",
+      "Will people grow more food by themselves in the future?",
+      "Why do some people like to keep plants at home?",
+      "Should schools teach children how to grow plants?"
+    ],
+    "cluster": "M1",
+    "cluster_name": "人物类",
+    "anchor": "闺蜜 Lily、爷爷、妹妹、爸爸、暗恋学长、宠物博主、兽医学姐"
+  },
+  {
+    "id": "P2-07",
+    "title_zh": "现场体育比赛",
+    "cue": "Describe a live sports match you have ever watched",
+    "bullets": [
+      "What it was",
+      "When and where you watched it",
+      "Why you watched it live",
+      "And explain how you felt about watching it live."
+    ],
+    "part3": [
+      "What kinds of sports events do people in your country enjoy watching?",
+      "Is being at a sports match always better than watching it on TV or online?",
+      "What kinds of sports are popular in your country?",
+      "In your country,what kinds of sports competitions do children usually take part in?",
+      "Do you think people prefer to watch live sports or watch them on TV?",
+      "What are the differences between watching live sports and watching them on TV?",
+      "Can watching sports events on TV or online inspire people to do more sports?"
+    ],
+    "cluster": "M3",
+    "cluster_name": "事件/经历/计划类",
+    "anchor": "学业压力与心理治愈、长期志向、计划改变、运动休闲、家庭节日与成长"
+  },
+  {
+    "id": "P2-08",
+    "title_zh": "当地新闻",
+    "cue": "Describe a piece oflocal news in your area that people are interested in",
+    "bullets": [
+      "What it was about",
+      "Where you saw/heard it",
+      "Who was involved",
+      "And explain why people were interested in it"
+    ],
+    "part3": [
+      "How can people develop their national identity?",
+      "Do you think it is important to have a national identity?",
+      "Do you think local communities were stronger in the past than they are today?",
+      "Why do some people want to be very involved in their community?",
+      "Are people more interested in local news than national news?",
+      "Do people read the newspaper where you live?"
+    ],
+    "cluster": "M3",
+    "cluster_name": "事件/经历/计划类",
+    "anchor": "学业压力与心理治愈、长期志向、计划改变、运动休闲、家庭节日与成长"
+  },
+  {
+    "id": "P2-09",
+    "title_zh": "电子产品故障",
+    "cue": "Describe a problem you had with a technology product,like a computer or a phone.",
+    "bullets": [
+      "What the technology product was",
+      "What was the problem",
+      "Whether you fixed the problem in the end",
+      "And explain how you felt about this experience."
+    ],
+    "part3": [
+      "What kinds of modern technology do people use at home?",
+      "Why do people often want to buy the latest technology for their homes?",
+      "What are the advantages and disadvantages of using technology in education?",
+      "Do you think young children today are over-reliant on technology products?",
+      "Is it possible to live without a computer at home?",
+      "Can technology have a bad influence on communication between students?",
+      "Will online learning replace face-to-face classroom teaching?"
+    ],
+    "cluster": "M4",
+    "cluster_name": "物品/法律/食物/规则类",
+    "anchor": "烟花禁令、CCD相机、生日蛋糕、科技产品、动物故事、广告、电影与节目"
+  },
+  {
+    "id": "P2-10",
+    "title_zh": "早起的经历",
+    "cue": "Describe a time when you had to get up very early.",
+    "bullets": [
+      "What time you had to get up",
+      "Where you were",
+      "Why you had to get up so early",
+      "And explain how you felt about getting up very early."
+    ],
+    "part3": [
+      "What are the advantages of arriving early for an appointment?",
+      "Is the early morning the best part of the day?",
+      "Why do many people dislike getting up early?",
+      "Why do people get up early?"
+    ],
+    "cluster": "M3",
+    "cluster_name": "事件/经历/计划类",
+    "anchor": "学业压力与心理治愈、长期志向、计划改变、运动休闲、家庭节日与成长"
+  },
+  {
+    "id": "P2-11",
+    "title_zh": "喜欢但不想住的房子",
+    "cue": "Describe a home you visited that you liked,but don't want to live in.",
+    "bullets": [
+      "When you visited this home",
+      "Who lives in it",
+      "Why you liked it",
+      "And explain why you would not want to live in his/her home."
+    ],
+    "part3": [
+      "In your country,do people often visit each other's homes,and how frequently?",
+      "What kinds of presents or gifts might visitors take when going to someone's home?",
+      "What differences do you think there are between houses in the countryside and those in the city?",
+      "Should a friend be welcomed into a person's home at any time?",
+      "How difficult is it to find a good home in your country nowadays?",
+      "What do people usually consider most when choosing a place to live?",
+      "Is it the government's responsibility to ensure that everyone has somewhere to live?"
+    ],
+    "cluster": "M2",
+    "cluster_name": "地点类",
+    "anchor": "三亚、广州猫主题建筑/店铺、老家偏远乡村、市中心商场"
+  },
+  {
+    "id": "P2-12",
+    "title_zh": "一直以来的追求",
+    "cue": "Describe an ambition you have had for a long time",
+    "bullets": [
+      "What it was",
+      "Why you want to achieve it",
+      "When you think you will achieve it",
+      "And explain why you have had this ambition for such a long time."
+    ],
+    "part3": [
+      "What kinds of ambitions do young people have?Why?",
+      "What kinds of ambitions do children have?",
+      "Should parents help their children decide what ambitions to follow?",
+      "Do you think ambition is necessary within a company team?",
+      "Why are some people ambitious to take on higher positions at work?",
+      "Are ambitious people always successful at work?",
+      "Is it a bad thing if someone isn't ambitious?",
+      "Does society value ambition more than other personality traits?"
+    ],
+    "cluster": "M3",
+    "cluster_name": "事件/经历/计划类",
+    "anchor": "学业压力与心理治愈、长期志向、计划改变、运动休闲、家庭节日与成长"
+  },
+  {
+    "id": "P2-13",
+    "title_zh": "童年好友",
+    "cue": "Describe a friend from childhood who you remember very well.",
+    "bullets": [
+      "Who the friend is",
+      "How you met him/her",
+      "What you used to do together",
+      "And explain why you remember this childhood friend so well."
+    ],
+    "part3": [
+      "Where can young children make new friends?",
+      "Is it easy for children to make friends?",
+      "Is it important for children to have a best friend?",
+      "Do adults need older friends?",
+      "What are the benefits ofhaving an older friend?",
+      "As people get older,do they argue less with their friends?",
+      "Should people value friendship above other types ofrelationships?",
+      "How might society change in the future if friendship and other social bonds were stronger?",
+      "Can friendships last a lifetime?"
+    ],
+    "cluster": "M1",
+    "cluster_name": "人物类",
+    "anchor": "闺蜜 Lily、爷爷、妹妹、爸爸、暗恋学长、宠物博主、兽医学姐"
+  },
+  {
+    "id": "P2-14",
+    "title_zh": "不得不改变计划的经历",
+    "cue": "Describe a time you had to change a plan you had made.",
+    "bullets": [
+      "What your plan was",
+      "Why you had to change it",
+      "Is it difficult to change",
+      "And explain how you felt about it."
+    ],
+    "part3": [
+      "Do employees find it easy when things change at work?",
+      "Is it important for everyone to plan their everyday lives?",
+      "Why do some people enjoy making plans?",
+      "What kinds of plans do people make regularly?"
+    ],
+    "cluster": "M3",
+    "cluster_name": "事件/经历/计划类",
+    "anchor": "学业压力与心理治愈、长期志向、计划改变、运动休闲、家庭节日与成长"
+  },
+  {
+    "id": "P2-15",
+    "title_zh": "社媒有趣视频",
+    "cue": "Describe an interesting video that you watched on the internet.",
+    "bullets": [
+      "What it was about",
+      "When and where you watched it",
+      "How you found out about this it",
+      "And explain why you thought this video was interesting."
+    ],
+    "part3": [
+      "What kinds of videos are popular in your country?",
+      "What types of videos do young people and elderly people prefer?",
+      "Why do some videos become very popular around the world?",
+      "What are the differences between learning through videos and learning through books?",
+      "What skills or things can people learn from videos?",
+      "What are the advantages of online learning?",
+      "Is watching a video a more effective way to learn than reading instructions?",
+      "How do videos recorded by ordinary people affect the news?"
+    ],
+    "cluster": "M3",
+    "cluster_name": "事件/经历/计划类",
+    "anchor": "学业压力与心理治愈、长期志向、计划改变、运动休闲、家庭节日与成长"
+  },
+  {
+    "id": "P2-16",
+    "title_zh": "改变重要观点的时刻",
+    "cue": "Describe a time when you changed your opinion about something important.",
+    "bullets": [
+      "When it was",
+      "What your original opinion was",
+      "Why you changed this opinion",
+      "And explain what the result was."
+    ],
+    "part3": [
+      "Do children like to change opinions?",
+      "At what age do children start to have their own opinions?",
+      "Who has a greater influence on children's opinions,parents or teachers?",
+      "Should teachers ask children's opinions in lessons or classes?",
+      "When do people change opinions?",
+      "Who do most young people discuss their opinions with?",
+      "Do people like giving opinions about politics?"
+    ],
+    "cluster": "M3",
+    "cluster_name": "事件/经历/计划类",
+    "anchor": "学业压力与心理治愈、长期志向、计划改变、运动休闲、家庭节日与成长"
+  },
+  {
+    "id": "P2-17",
+    "title_zh": "推荐的度假胜地",
+    "cue": "Describe a place you went to on holiday that you would recommend.",
+    "bullets": [
+      "Where you went",
+      "Why you went to this place",
+      "What you did",
+      "And explain why you would recommend this place for a holiday"
+    ],
+    "part3": [
+      "What are the advantages and disadvantages of planning every detail of a holiday/vacation in advance?",
+      "How do people make decisions about when to take their holidays?",
+      "How do people get to know a new place?",
+      "What do young people and old people think about when making travel plans?",
+      "Do old people and young people choose different places to go on vacation?Why?",
+      "What are some popular attractions that people like to visit in your country?"
+    ],
+    "cluster": "M2",
+    "cluster_name": "地点类",
+    "anchor": "三亚、广州猫主题建筑/店铺、老家偏远乡村、市中心商场"
+  },
+  {
+    "id": "P2-18",
+    "title_zh": "无聊的地方",
+    "cue": "Describe a place you went to where you think is boring.",
+    "bullets": [
+      "Where and where you went",
+      "Who you were with",
+      "What you remember about this place",
+      "And explain why you felt bored in this place."
+    ],
+    "part3": [
+      "When do people feel bored?",
+      "What are some ways that people can avoid feeling bored?",
+      "Why do young people find chatting with elderly people boring?",
+      "Why do students find their teachers'lessons boring?",
+      "What should teachers do to make lessons less boring for students?",
+      "Why do most children find education boring?",
+      "Do most people use their phones too much when they are bored?",
+      "Do most people think that news about famous people is boring?",
+      "What types of businesses are successful in your country?",
+      "Who are some successful people in your country?",
+      "How easy is it to start a successful business?",
+      "Is making money the most important thing for a business?",
+      "Does earning a lot ofmoney mean someone is successful?",
+      "Why are some people more successful than others?",
+      "Is being successful at work necessary for a successful life?",
+      "How do you define success?",
+      "Are successful people lonely?"
+    ],
+    "cluster": "M2",
+    "cluster_name": "地点类",
+    "anchor": "三亚、广州猫主题建筑/店铺、老家偏远乡村、市中心商场"
+  },
+  {
+    "id": "P2-19",
+    "title_zh": "想实施的环保法律",
+    "cue": "Describe a law to help the environment which you think your country should have.",
+    "bullets": [
+      "What it is",
+      "Why your country needs this law",
+      "Whether this law would be popular",
+      "And explain why this law would help the environment."
+    ],
+    "part3": [
+      "What kinds ofrules do most schools have?",
+      "Should schools increase or reduce rules?",
+      "Why are rules important for schoolchildren?",
+      "How can teachers and parents help their children follow rules?",
+      "What kinds ofjobs require people to follow strict rules?",
+      "Should there be rules about what people can wear at work?",
+      "Should employees be involved in making company rules?",
+      "Do you think it is necessary to create laws for society?",
+      "Do you agree that people who break the law must be punished?"
+    ],
+    "cluster": "M4",
+    "cluster_name": "物品/法律/食物/规则类",
+    "anchor": "烟花禁令、CCD相机、生日蛋糕、科技产品、动物故事、广告、电影与节目"
+  },
+  {
+    "id": "P2-20",
+    "title_zh": "团队合作",
+    "cue": "Describe a time when you worked with other people in a group.",
+    "bullets": [
+      "When and where you did it",
+      "What you were doing",
+      "How successful the group work was",
+      "And explain how you felt about working with the group."
+    ],
+    "part3": [
+      "Will translators and interpreters continue to be needed for international projects?",
+      "What are the advantages of countries working together onjoint projects?",
+      "Does the success of a group depend entirely on the ability of its leader?",
+      "What are some personal qualities of a good group leader?",
+      "What can be difficult about leading a group?",
+      "Why do many people prefer to solve problems on their own rather than work in a team?",
+      "What kind of group activities do children do at school?",
+      "Is it important for children to learn to work in teams?"
+    ],
+    "cluster": "M3",
+    "cluster_name": "事件/经历/计划类",
+    "anchor": "学业压力与心理治愈、长期志向、计划改变、运动休闲、家庭节日与成长"
+  },
+  {
+    "id": "P2-21",
+    "title_zh": "动物故事",
+    "cue": "Describe a story you like that involves animals,like a book or a movie.",
+    "bullets": [
+      "How you know about this story",
+      "What the story is about",
+      "What animals are in it",
+      "And explain why you like this story."
+    ],
+    "part3": [
+      "What kinds of animals are often in children's stories?",
+      "Do many people in your country keep pets?",
+      "What kinds of animals do people in your country like to keep as pets?",
+      "Some people think that keeping pets should be banned in cities.What is your opinion?",
+      "Should children learn about animals at school?",
+      "Is it a good idea to take children to see animals in zoos?"
+    ],
+    "cluster": "M4",
+    "cluster_name": "物品/法律/食物/规则类",
+    "anchor": "烟花禁令、CCD相机、生日蛋糕、科技产品、动物故事、广告、电影与节目"
+  },
+  {
+    "id": "P2-22",
+    "title_zh": "久等回复的时刻",
+    "cue": "Describe a time when you wrote a message or email to someone,but you waited a long time for the person to reply.",
+    "bullets": [
+      "When this happened",
+      "Who you sent the message to",
+      "Why you wrote to this person",
+      "And explain how you felt about waiting a long time for this person to reply."
+    ],
+    "part3": [
+      "Why do people sometimes not reply to messages?",
+      "Why do people sometimes take a long time to reply to messages?",
+      "What can people do when they don't receive a response to a message?",
+      "How can people show respect when communicating online?",
+      "Do you think eye contact and body language are more important than words?",
+      "Should people expect others to reply to messages immediately?",
+      "Do people show more respect when communicating with strangers than with their friends?"
+    ],
+    "cluster": "M3",
+    "cluster_name": "事件/经历/计划类",
+    "anchor": "学业压力与心理治愈、长期志向、计划改变、运动休闲、家庭节日与成长"
+  },
+  {
+    "id": "P2-23",
+    "title_zh": "名人广告",
+    "cue": "Describe a piece ofadvertisement you saw with a famous person in it",
+    "bullets": [
+      "What the advertisement is about",
+      "When and where you saw it",
+      "What the famous person does in the advertisement",
+      "And explain how you felt about it"
+    ],
+    "part3": [
+      "Where do people often see advertisements?",
+      "Why do companies sometimes use famous people to advertise things?",
+      "Which is better for companies to spend money on,advertising online or advertising in public places?",
+      "What are the advantages and disadvantages of advertisements?",
+      "Is it effective to use celebrities in advertisements?Why or why not?",
+      "How important is advertising for increasing sales?",
+      "What qualities might an effective advertisement have?",
+      "How truthful are advertisements about the things they advertise?"
+    ],
+    "cluster": "M4",
+    "cluster_name": "物品/法律/食物/规则类",
+    "anchor": "烟花禁令、CCD相机、生日蛋糕、科技产品、动物故事、广告、电影与节目"
+  },
+  {
+    "id": "P2-24",
+    "title_zh": "擅长学习语言的人",
+    "cue": "Describe a person who is good at learning languages",
+    "bullets": [
+      "Who it is",
+      "How you knew him/her",
+      "What languages he/she has learnt",
+      "How this person learned to speak these languages",
+      "And explain why you think he/she is good at learning languages"
+    ],
+    "part3": [
+      "Do people in your country learn other languages?",
+      "What are the best ways for adults to learn a new language?",
+      "Do you think it is necessary for study or work to learn new languages?",
+      "What are the differences between how adults and children learn languages?",
+      "How important is it for people to know other languages when they travel?",
+      "Is knowing the vocabulary of another language more useful than knowing the grammar?",
+      "Do people need to understand a language in order to understand its culture?",
+      "How might the number oflanguages a person speaks affect their sense ofidentity?"
+    ],
+    "cluster": "M1",
+    "cluster_name": "人物类",
+    "anchor": "闺蜜 Lily、爷爷、妹妹、爸爸、暗恋学长、宠物博主、兽医学姐"
+  },
+  {
+    "id": "P2-25",
+    "title_zh": "为家人骄傲",
+    "cue": "Describe a time when you felt very proud of something a family member did.",
+    "bullets": [
+      "Who the family member was",
+      "What he/she did",
+      "Where and when this happened",
+      "And explain why you felt so proud of what your family member did"
+    ],
+    "part3": [
+      "What kinds ofbehaviors ofyoung children can make their parents feel proud?",
+      "Why do giving academic prizes or rewards help promote children's progress?",
+      "Do you think it is good for parents to give children too many prizes or rewards?",
+      "Does any job bring people a sense ofpride?",
+      "Have the things that people are proud of changed compared to the past?",
+      "When do adults feel proud of themselves?"
+    ],
+    "cluster": "M1",
+    "cluster_name": "人物类",
+    "anchor": "闺蜜 Lily、爷爷、妹妹、爸爸、暗恋学长、宠物博主、兽医学姐"
+  },
+  {
+    "id": "P2-26",
+    "title_zh": "禁用手机的场合",
+    "cue": "Describe a time when you were not allowed to use your phone.",
+    "bullets": [
+      "When it was",
+      "Where you were",
+      "Why you couldn't use it",
+      "And explain how you felt about it"
+    ],
+    "part3": [
+      "In your country,in which places are people not allowed to use phones?",
+      "Do you think it is important to introduce new rules for using mobile phones?",
+      "Why do young and old people use mobile phones differently?",
+      "When should parents allow their children to have mobile phones?",
+      "Do you agree that the social rules in the past were stricter than those oftoday?",
+      "Is it quite prevalent that people are addicted to mobile phones?"
+    ],
+    "cluster": "M3",
+    "cluster_name": "事件/经历/计划类",
+    "anchor": "学业压力与心理治愈、长期志向、计划改变、运动休闲、家庭节日与成长"
+  },
+  {
+    "id": "P2-27",
+    "title_zh": "完美的工作",
+    "cue": "Describe a perfect job you would like to have in the future",
+    "bullets": [
+      "What thejob is",
+      "How you knew it",
+      "What skills you need for this job",
+      "And explain why it would be the perfect job for you."
+    ],
+    "part3": [
+      "What types ofjobs do children usually want to do?",
+      "What are the dream jobs of people in your country?",
+      "Why do somejobs attract more people than others?",
+      "Why do people choose thejob they mentioned as their dream job?",
+      "Why do people change their dream jobs as they grow older?",
+      "Do you think that money is the only factor for people to choose theirjobs?",
+      "Why some people don't want to work hard?",
+      "In what ways do coworkers influence people's work habits and performance?"
+    ],
+    "cluster": "M3",
+    "cluster_name": "事件/经历/计划类",
+    "anchor": "学业压力与心理治愈、长期志向、计划改变、运动休闲、家庭节日与成长"
+  },
+  {
+    "id": "P2-28",
+    "title_zh": "微笑的场合",
+    "cue": "Describe an occasion you remember when you saw a lot ofpeople smiling.",
+    "bullets": [
+      "Where you were and when it happened",
+      "Who you were with",
+      "What happened",
+      "And explain why you remember this occasion when people smiled."
+    ],
+    "part3": [
+      "Why do people smile?",
+      "Do children tend to smile more frequently than adults?",
+      "Why do people usually smile when taking photos?",
+      "Do elderly people have better control over their feelings compared to young people?",
+      "When is it important for people not to show their emotions?",
+      "Do you agree or disagree that people might be motivated more by their emotions than by logical thinking?",
+      "Is it a good thing for people to be driven by emotions?"
+    ],
+    "cluster": "M3",
+    "cluster_name": "事件/经历/计划类",
+    "anchor": "学业压力与心理治愈、长期志向、计划改变、运动休闲、家庭节日与成长"
+  },
+  {
+    "id": "P2-29",
+    "title_zh": "想见的名人",
+    "cue": "Describe a famous person who you would like to meet.",
+    "bullets": [
+      "Who he/she is and what he/she does",
+      "What this person is famous for",
+      "How long this person has been famous",
+      "And explain why you would like to meet this famous person."
+    ],
+    "part3": [
+      "What kinds of famous people are often in the news in your country?",
+      "Why do children want to become famous?",
+      "Are there more celebrities in the news now?",
+      "Do you agree that everyone enjoys reading news about celebrities?",
+      "Do people like these packaged celebrities or those with genuine talent?",
+      "Is it possible for people to become famous without talent?",
+      "Would people still want to become famous if they knew what they were going to face?"
+    ],
+    "cluster": "M1",
+    "cluster_name": "人物类",
+    "anchor": "闺蜜 Lily、爷爷、妹妹、爸爸、暗恋学长、宠物博主、兽医学姐"
+  },
+  {
+    "id": "P2-30",
+    "title_zh": "乐于助人的人",
+    "cue": "Describe a person you know who enjoys helping other people.",
+    "bullets": [
+      "Who this person is",
+      "What this person does to help others",
+      "How often this person helps others",
+      "and explain why you think this person likes to help other people."
+    ],
+    "part3": [
+      "What kinds of machines do people usually use at home to help them?",
+      "What is your opinion on the question of whether parents should teach their children to do housework?",
+      "How can children help their parents at home?",
+      "Do you agree that it's important for everyone in a family to help at home?",
+      "Should students do community service?Why?",
+      "What kinds ofhelp do people need when they start a newjob?",
+      "Is it necessary for employees to ask their manager for help?",
+      "Do you agree or disagree that many people will lose their jobs because ofAI?"
+    ],
+    "cluster": "M1",
+    "cluster_name": "人物类",
+    "anchor": "闺蜜 Lily、爷爷、妹妹、爸爸、暗恋学长、宠物博主、兽医学姐"
+  },
+  {
+    "id": "P2-31",
+    "title_zh": "常用的软件",
+    "cue": "Describe a program or app that you like using on your computer or phone.",
+    "bullets": [
+      "What it is and what it is used for",
+      "How you knew it",
+      "When you use it",
+      "And explain why you like using this program or app."
+    ],
+    "part3": [
+      "What kinds ofprograms or apps are popular in your country?",
+      "Why some people don't like to use programs or apps?",
+      "What are the differences between the kinds of apps and programs young people and old people use?",
+      "Is it necessary for parents to limit the time their children spend on apps or computer programs?",
+      "What are the benefits of using apps as a tool for education?"
+    ],
+    "cluster": "M4",
+    "cluster_name": "物品/法律/食物/规则类",
+    "anchor": "烟花禁令、CCD相机、生日蛋糕、科技产品、动物故事、广告、电影与节目"
+  },
+  {
+    "id": "P2-32",
+    "title_zh": "喜欢的电影",
+    "cue": "Describe a movie you enjoyed watching.",
+    "bullets": [
+      "Where and when you saw it",
+      "Who you saw the movie with",
+      "What the movie was about",
+      "and explain why you enjoyed watching thismovie."
+    ],
+    "part3": [
+      "In your country,what kinds ofmovies do people like to watch?",
+      "Do people like to watch movies at home or in the cinema?",
+      "Why don't some people enjoy watching movies?",
+      "What qualities do people need to be good actors?",
+      "Which is more important for an actor,acting skills or appearance?",
+      "Do you agree or disagree that being an actor is a difficultjob?",
+      "How important are famous actors to the success ofa movie?"
+    ],
+    "cluster": "M4",
+    "cluster_name": "物品/法律/食物/规则类",
+    "anchor": "烟花禁令、CCD相机、生日蛋糕、科技产品、动物故事、广告、电影与节目"
+  },
+  {
+    "id": "P2-33",
+    "title_zh": "发挥想象力的时刻",
+    "cue": "Describe a time you needed to use your imagination.",
+    "bullets": [
+      "What you needed to do",
+      "Why you had to use your imagination",
+      "Is it easy or difficult to do this",
+      "And explain how you felt about it"
+    ],
+    "part3": [
+      "What kinds of games do children need to use their imagination to play?",
+      "Is it very important for teachers to encourage children to use their imagination?",
+      "Do you think reading stories needs more imagination or watching cartoons?",
+      "What are some jobs that require a good imagination?",
+      "Do scientists need to use their imagination?"
+    ],
+    "cluster": "M3",
+    "cluster_name": "事件/经历/计划类",
+    "anchor": "学业压力与心理治愈、长期志向、计划改变、运动休闲、家庭节日与成长"
+  },
+  {
+    "id": "P2-34",
+    "title_zh": "感兴趣的单车/摩托/汽车旅行",
+    "cue": "Describe a car,motorbike or bicycle trip that you think would be interesting.",
+    "bullets": [
+      "Where you want to go",
+      "Who you want to go with",
+      "How easy or difficult the trip would be",
+      "and explain why you think using a car,motorbike or bicycle for this trip would be interesting."
+    ],
+    "part3": [
+      "Are bicycles and motorbikes popular in your country?",
+      "Which form of vehicle is more popular in your country,bikes,cars or motorcycles?",
+      "What is the best thing about public transportation in the area where you live?",
+      "Do you agree that more and more people want to buy cars these days?",
+      "How do people travel today in cities and in the countryside?",
+      "Do city planners consider the needs ofpedestrians enough?",
+      "What impact can an inadequate transport system have on a country?",
+      "What do you think?"
+    ],
+    "cluster": "M3",
+    "cluster_name": "事件/经历/计划类",
+    "anchor": "学业压力与心理治愈、长期志向、计划改变、运动休闲、家庭节日与成长"
+  },
+  {
+    "id": "P2-35",
+    "title_zh": "安静的地方",
+    "cue": "Describe a place you enjoyed visiting that was very quiet",
+    "bullets": [
+      "When you went there",
+      "Where this place is and why you wanted to visit it",
+      "What you will do when you go there",
+      "And explain why you enjoyed visiting this place"
+    ],
+    "part3": [
+      "In your country,what quiet places do people like to go to?",
+      "Why do some people not like quiet places?",
+      "Are there more or fewer quiet places now than in the past?",
+      "Can a place ever be completely quiet?",
+      "Can people listen to music while doing something else?",
+      "What are the benefits of quietness for people of all ages?",
+      "Do you agree or disagree that people today feel uncomfortable if there is no noise?"
+    ],
+    "cluster": "M2",
+    "cluster_name": "地点类",
+    "anchor": "三亚、广州猫主题建筑/店铺、老家偏远乡村、市中心商场"
+  },
+  {
+    "id": "P2-36",
+    "title_zh": "校外学到技能的人",
+    "cue": "Describe a person who learned something new without a teacher.",
+    "bullets": [
+      "Who he/she is and how you know him/her",
+      "What he/she learned",
+      "Is it easy to learn this skill",
+      "And explain why you feel about him/her"
+    ],
+    "part3": [
+      "What can children learn from parents?",
+      "What subjects do children often enjoy studying at school?",
+      "Do you agree or disagree that children have to study too many subjects at school?",
+      "Do you think some children are well-behaved because they are influenced by their parents?",
+      "Does a good teacher make learning more interesting?",
+      "What are the benefits for adults ofreturning to studying after leaving full-time education?",
+      "Might it ever be a good idea for retired people to go back to full-time education?",
+      "Do you agree that companies should provide regular training courses for their employees?"
+    ],
+    "cluster": "M1",
+    "cluster_name": "人物类",
+    "anchor": "闺蜜 Lily、爷爷、妹妹、爸爸、暗恋学长、宠物博主、兽医学姐"
+  },
+  {
+    "id": "P2-37",
+    "title_zh": "擅长做计划的人",
+    "cue": "Describe a person who you think is good at planning things.",
+    "bullets": [
+      "Who he/she is and how you know him/her",
+      "What this person usually plans",
+      "What this person does to plan things",
+      "And explain why you think this person is good at planning things."
+    ],
+    "part3": [
+      "Do you agree or disagree that it is only possible to have a successful career ifit has been carefully planned?",
+      "Should young people ask for advice about career planning,for example from teachers or family?",
+      "What are the advantages for young people of planning their future careers?",
+      "Why don't some people like to plan their social life in advance?",
+      "Is it important for people to plan special events,such as weddings?",
+      "What types ofplans do people often make with friends and family?"
+    ],
+    "cluster": "M1",
+    "cluster_name": "人物类",
+    "anchor": "闺蜜 Lily、爷爷、妹妹、爸爸、暗恋学长、宠物博主、兽医学姐"
+  },
+  {
+    "id": "P2-38",
+    "title_zh": "喜欢画画的小孩",
+    "cue": "Describe a child you know who enjoys painting or drawing.",
+    "bullets": [
+      "Who he/she is and how you know him/her",
+      "What kinds ofthings this child paints or draws",
+      "How often does this child paint or draw?",
+      "And explain why you think this child likes painting or drawing."
+    ],
+    "part3": [
+      "At what age do you think children can start drawing?",
+      "Should children have art lessons or classes at school?",
+      "Why do children often paint and draw more than adults do?",
+      "Why do many people enjoy going to galleries and museums to see art?",
+      "Should entry to galleries and museums be free for everyone?",
+      "Do you agree or disagree that when people look at art in galleries or museums,they can learn a lot about life in general?"
+    ],
+    "cluster": "M1",
+    "cluster_name": "人物类",
+    "anchor": "闺蜜 Lily、爷爷、妹妹、爸爸、暗恋学长、宠物博主、兽医学姐"
+  },
+  {
+    "id": "P2-39",
+    "title_zh": "喜欢购物的地方",
+    "cue": "Describe a place you go to that you enjoy shopping at.",
+    "bullets": [
+      "Where it is",
+      "How often do you go there",
+      "What do you usually buy there",
+      "And explain why you think this place you go to is so good for shopping."
+    ],
+    "part3": [
+      "What places do people like to go shopping in your country?",
+      "Has shopping become a hobby for many people?",
+      "Do you agree or disagree that most people waste too much time shopping?",
+      "Do you agree or disagree that people often buy things that they don't really need?",
+      "Does buying things really make people happy?",
+      "How much influence does advertising have when people are buying things?"
+    ],
+    "cluster": "M2",
+    "cluster_name": "地点类",
+    "anchor": "三亚、广州猫主题建筑/店铺、老家偏远乡村、市中心商场"
+  },
+  {
+    "id": "P2-40",
+    "title_zh": "外国短期工作",
+    "cue": "Describe a place in another country where you would like to work for a short time.",
+    "bullets": [
+      "Where it is",
+      "How you know about it",
+      "What would you like to do there",
+      "And explain why you want to work there for a short period oftime."
+    ],
+    "part3": [
+      "Whatjobs can people do in another country for a short time?",
+      "What are the benefits for young people of working in another country for a short time?",
+      "Why might some people not want to work in another country?",
+      "Do you agree or disagree that practical experience is more useful than qualifications when working for an international company?",
+      "What personal skills do people need in order to work for an international company?",
+      "What are the advantages of working for an international company?"
+    ],
+    "cluster": "M2",
+    "cluster_name": "地点类",
+    "anchor": "三亚、广州猫主题建筑/店铺、老家偏远乡村、市中心商场"
+  },
+  {
+    "id": "P2-41",
+    "title_zh": "给别人建议",
+    "cue": "Describe a time you gave advice to someone.",
+    "bullets": [
+      "When and who you gave the advice to",
+      "What the advice was",
+      "Why you gave it",
+      "and explain how this person felt about the advice you gave."
+    ],
+    "part3": [
+      "When is it better to ask friends for advice rather than family?",
+      "Why do older people sometimes ask younger people for advice?",
+      "What problems can someone have when they ask lots of different people for advice?",
+      "In what situations is it important to think carefully before giving advice to someone?",
+      "Do you agree or disagree that anyone can learn how to give advice effectively?",
+      "What kinds of personal qualities do people need to give good advice?"
+    ],
+    "cluster": "M1",
+    "cluster_name": "人物类",
+    "anchor": "闺蜜 Lily、爷爷、妹妹、爸爸、暗恋学长、宠物博主、兽医学姐"
+  },
+  {
+    "id": "P2-42",
+    "title_zh": "想拥有的科技产品",
+    "cue": "Describe a piece oftechnology (not a phone)that you would like to buy.",
+    "bullets": [
+      "What it is",
+      "How much it is",
+      "What you will use it for",
+      "And explain why you would like to buy this piece of technology."
+    ],
+    "part3": [
+      "What are the different types of technology that young people often use?",
+      "Do you agree or disagree that technology has a positive effect on young people's lives?",
+      "How healthy is it for young people to spend a lot oftime online?",
+      "What are the differences between talking to people online and talking to them face to face?",
+      "What do you think of the view that it is possible for people to make good friends online?",
+      "What types of impacts can technology have on family relationships?"
+    ],
+    "cluster": "M4",
+    "cluster_name": "物品/法律/食物/规则类",
+    "anchor": "烟花禁令、CCD相机、生日蛋糕、科技产品、动物故事、广告、电影与节目"
+  },
+  {
+    "id": "P2-43",
+    "title_zh": "不喜欢的音乐场合",
+    "cue": "Describe an event you took part in but it had some music that you didn't like.",
+    "bullets": [
+      "What it was",
+      "Who you went with",
+      "Why you wanted to go",
+      "And explain why you didn't like its music"
+    ],
+    "part3": [
+      "Do you agree or disagree that playing music in shops or stores is an effective way of selling more products?",
+      "Why is music often played when people are doing physical exercise?",
+      "Should children have music lessons or classes at school?",
+      "Why might younger and older people not enjoy the same music events?",
+      "What do people enjoy about going to large music events?",
+      "What kinds of music events are popular in your country?"
+    ],
+    "cluster": "M3",
+    "cluster_name": "事件/经历/计划类",
+    "anchor": "学业压力与心理治愈、长期志向、计划改变、运动休闲、家庭节日与成长"
+  },
+  {
+    "id": "P2-44",
+    "title_zh": "喜欢看的网络节目",
+    "cue": "Describe a TV or online programme that you enjoy watching.",
+    "bullets": [
+      "What it is about",
+      "How often you watch it",
+      "Which country the programme comes from",
+      "And explain why you enjoy watching this TV or online programme."
+    ],
+    "part3": [
+      "What types ofTV or online programmes or shows are popular in your country?",
+      "Do younger and older people enjoy watching similar programmes or shows?",
+      "Why do some people spend so much time watching TV and online programmes or shows?",
+      "What makes some TV or online programmes or shows popular?",
+      "What do you think ofthe view that parents should choose what programmes or shows their children watch?",
+      "Do you agree or disagree that there are too many programmes/shows for people to choose from these days?"
+    ],
+    "cluster": "M4",
+    "cluster_name": "物品/法律/食物/规则类",
+    "anchor": "烟花禁令、CCD相机、生日蛋糕、科技产品、动物故事、广告、电影与节目"
+  },
+  {
+    "id": "P2-45",
+    "title_zh": "超预算的购买经历",
+    "cue": "Describe a time when you had to pay more than you expected for something.",
+    "bullets": [
+      "What you bought",
+      "How you felt when you saw the price",
+      "What you did about it",
+      "And explain why you think you paid more than you expected"
+    ],
+    "part3": [
+      "What kinds of things do young people like to spend money on?",
+      "Why do some people spend money on things they don't really need?",
+      "How important is saving money for the future?",
+      "How important is it to teach children about giving money to support people in need?",
+      "Do you agree or disagree that rich people should give some oftheir money to help other people?",
+      "What other ways are there to support people in need,apart from giving money to them?"
+    ],
+    "cluster": "M3",
+    "cluster_name": "事件/经历/计划类",
+    "anchor": "学业压力与心理治愈、长期志向、计划改变、运动休闲、家庭节日与成长"
+  },
+  {
+    "id": "P2-46",
+    "title_zh": "喜欢去的城市",
+    "cue": "Describe a city that you have been to and enjoy visiting.",
+    "bullets": [
+      "Where the city is",
+      "What you did there",
+      "How many times you have been there",
+      "And explain why you really enjoyed visiting this city."
+    ],
+    "part3": [
+      "Do you agree or disagree that cities lose their individual character as they grow in size?",
+      "Does living in cities have more advantages for younger or older people?",
+      "Why do many people choose to live in cities?",
+      "Are cities that tourists like to visit also good places to live?",
+      "Are modern cities more interesting for tourists than historical ones?",
+      "Why do tourists choose to visit certain cities?"
+    ],
+    "cluster": "M2",
+    "cluster_name": "地点类",
+    "anchor": "三亚、广州猫主题建筑/店铺、老家偏远乡村、市中心商场"
+  },
+  {
+    "id": "P2-47",
+    "title_zh": "机智解决问题的人",
+    "cue": "Describe a time when someone you know found a clever solution to a problem.",
+    "bullets": [
+      "Who the person is",
+      "What the problem was",
+      "How he/she solved it",
+      "And explain why you think this was a clever solution to the problem."
+    ],
+    "part3": [
+      "Do you think people can become very good at anything ifthey try hard enough?",
+      "Why does society need people with different types of intelligence?",
+      "Why may a person be very good at one thing,but not another?",
+      "Do you agree or disagree that very clever children are usually happy?",
+      "How important are schools in helping children become more clever?",
+      "Do you think children are born clever,or do they learn to be clever?"
+    ],
+    "cluster": "M1",
+    "cluster_name": "人物类",
+    "anchor": "闺蜜 Lily、爷爷、妹妹、爸爸、暗恋学长、宠物博主、兽医学姐"
+  },
+  {
+    "id": "P2-48",
+    "title_zh": "鼓励环保的人",
+    "cue": "Describe a person you know who encourages people to protect the environment or nature.",
+    "bullets": [
+      "Who the person is",
+      "How this person encourages people to protect the environment or nature.",
+      "How long has this person been doing this",
+      "And explain how you feel about this person who encourages people to protect the environment or nature."
+    ],
+    "part3": [
+      "How can parents help children to learn about nature?",
+      "Do you agree or disagree that children should spend more time learning about nature at school?",
+      "Is it easy for children living in cities to enjoy the natural world?",
+      "What things can people do to help protect nature?",
+      "Do you think there is a need for new laws to protect nature?",
+      "Are punishments or rewards more effective in encouraging people to protect nature?"
+    ],
+    "cluster": "M1",
+    "cluster_name": "人物类",
+    "anchor": "闺蜜 Lily、爷爷、妹妹、爸爸、暗恋学长、宠物博主、兽医学姐"
+  },
+  {
+    "id": "P2-49",
+    "title_zh": "鼓励别人做不愿意做的事",
+    "cue": "Describe a time when you encouraged somebody to do something that he/she didn't want to do.",
+    "bullets": [
+      "Who this person is",
+      "What you encouraged him/her to do",
+      "How he/she reacted",
+      "And explain when you encouraged him/her to do this."
+    ],
+    "part3": [
+      "In what situations do parents need to encourage their children to do something?",
+      "What ways can parents use to encourage children to do things they don't want to do?",
+      "Why do children often not want to do what their parents ask?",
+      "How can employees be encouraged to work hard?",
+      "Do you agree or disagree that the most important role of a boss is to encourage employees?",
+      "Are people at work more motivated by praise or money?"
+    ],
+    "cluster": "M1",
+    "cluster_name": "人物类",
+    "anchor": "闺蜜 Lily、爷爷、妹妹、爸爸、暗恋学长、宠物博主、兽医学姐"
+  }
+]
