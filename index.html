@@ -393,7 +393,7 @@
 
     <section class="section tool-section review-suite" id="readingReviewSuite" data-page-section="reading" hidden>
       <div class="section-head"><div><p class="kicker">READING REVIEW</p><h2>阅读真题入口、正确率与背题库</h2></div><p class="aside">练习记录、正确率和背题卡会保存并同步；本机 C 盘题库只能在原电脑打开。</p></div>
-      <div class="suite-panel soft reading-package-panel"><div><p class="kicker">PRIVATE READING BANK</p><h3>阅读真题题库</h3><p>题库网页核心已内置到本站。首次进入会自动启用约 9 MB 的核心文件，不再要求选择文件夹，也不会复制几百 MB 的 PDF。</p></div><div class="reading-package-status" id="readingPackageStatus"><b>网站内置题库已准备</b><small>点击下方按钮即可自动启用</small></div><div class="reading-link-actions"><button class="primary" id="openReadingPackage">直接进入阅读真题</button><button id="connectReadingFolder" type="button">连接完整文件夹（含 PDF）</button><label class="button reading-import-button">导入完整 ZIP<input id="readingPackageZip" type="file" accept=".zip,application/zip" hidden></label><button id="removeReadingPackage" type="button">移除本机题库</button></div><progress id="readingPackageProgress" max="100" value="0" hidden></progress><p class="local-link-warning">内置版包含题库网页、题目数据、脚本和图片；若需要打开原包里的全部 PDF，可再连接解压后的完整文件夹。</p><details><summary>使用其他线上题库地址</summary><label>题库地址<input id="readingBankLink" type="text"></label><div class="reading-link-actions"><button id="openReadingLink">打开地址</button><button id="saveReadingLink">保存地址</button><label class="button">仅打开单个 HTML<input id="readingLocalFile" type="file" accept=".html,text/html" hidden></label></div></details></div>
+      <div class="suite-panel soft reading-package-panel"><div><p class="kicker">PRIVATE READING BANK</p><h3>阅读真题题库</h3><p>整套阅读做题网页已直接部署到本站，不需要上传 ZIP、连接文件夹或在浏览器里安装。</p></div><div class="reading-package-status" id="readingPackageStatus"><b>在线阅读题库已就绪</b><small>电脑和手机都可直接进入</small></div><div class="reading-link-actions"><button class="primary" id="openReadingPackage">直接进入阅读真题</button></div><p class="local-link-warning">题目、解析和配图均在线加载；原包中的大型 PDF 资料不影响网页做题。</p><details><summary>使用其他线上题库地址</summary><label>题库地址<input id="readingBankLink" type="text"></label><div class="reading-link-actions"><button id="openReadingLink">打开地址</button><button id="saveReadingLink">保存地址</button></div></details></div>
       <div class="suite-grid">
         <aside class="suite-panel"><h3>记录一次阅读练习</h3><label>题目 / 文章标题<input id="readingAttemptTitle" placeholder="例如：Cambridge 18 Test 1 Passage 2"></label><label>题型或主题<select id="readingAttemptType"><option>判断题</option><option>填空题</option><option>匹配题</option><option>选择题</option><option>标题匹配</option><option>混合题</option></select></label><div class="form-row"><label>正确题数<input id="readingCorrect" type="number" min="0"></label><label>总题数<input id="readingTotal" type="number" min="1"></label></div><label>生词、同义替换与错因<textarea id="readingAttemptNotes" placeholder="原文定位、同义替换、为什么错"></textarea></label><button class="primary" id="saveReadingAttempt">保存练习记录</button></aside>
         <section class="suite-panel"><div class="summary-cards" id="readingSummary"></div><h3>做过的题目</h3><div class="card-list" id="readingHistory"></div></section>
@@ -447,7 +447,7 @@
   <script src="assets/speaking-center.js?v=2" defer></script>
   <script src="assets/cloud-sync.js?v=7.2" defer></script>
   <script src="assets/review-memory.js?v=10" defer></script>
-  <script src="assets/reading-bank.js?v=4" defer></script>
+  <script src="assets/reading-bank.js?v=5" defer></script>
   <script src="assets/app-shell.js?v=5" defer></script>
 </body>
 </html>
