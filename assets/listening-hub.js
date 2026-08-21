@@ -63,7 +63,31 @@
   }
   function esc(value) { return String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
   function loadHistory() { try { return JSON.parse(localStorage.getItem(historyKey) || '[]'); } catch (_) { return []; } }
-  function saveHistory(items) { try { localStorage.setItem(historyKey, JSON.stringify(items)); } catch (_) {} }
+  function saveHistory(items) {
+    try {
+      localStorage.setItem(historyKey, JSON.stringify(items));
+      window.dispatchEvent(new CustomEvent('ielts-review-data-changed',{detail:{key:historyKey}}));
+    } catch (_) {}
+  }
+  function makeAttempt(data) {
+    return {
+      ...data,
+      id: data?.id || 'attempt-' + Date.now() + '-' + Math.random().toString(36).slice(2,7),
+      date: data?.date || new Date().toISOString(),
+      reviews: data?.reviews || {},
+      reviewStatus: data?.reviewStatus || 'pending',
+      reviewPlan: data?.reviewPlan || [{label:'D+1',due:dayStamp(1),done:false},{label:'D+3',due:dayStamp(3),done:false},{label:'D+7',due:dayStamp(7),done:false}]
+    };
+  }
+  function storeAttemptImmediately(data) {
+    const attempt = makeAttempt(data);
+    const items = loadHistory();
+    const index = items.findIndex(x => x.id === attempt.id);
+    if (index >= 0) items[index] = {...items[index], ...attempt};
+    else items.unshift(attempt);
+    saveHistory(items.slice(0,2000));
+    return attempt;
+  }
   function addReactionWords(raw, title, q) {
     const words=String(raw||'').split(/[\n,，、;；]+/).map(x=>x.trim()).filter(Boolean);
     if(!words.length)return 0;
@@ -145,26 +169,83 @@
       '</div></details>';
   }
   function activate(name) {
-    if (!tabs.some(x => x.dataset.listeningPage === name)) name = 'reaction';
-    tabs.forEach(x => {
+    const liveTabs = [...document.querySelectorAll('[data-listening-page]')];
+    const liveViews = [...document.querySelectorAll('[data-listening-view]')];
+    if (!liveTabs.some(x => x.dataset.listeningPage === name)) name = 'reaction';
+    liveTabs.forEach(x => {
       const selected = x.dataset.listeningPage === name;
       x.classList.toggle('active', selected);
       x.setAttribute('aria-selected', selected ? 'true' : 'false');
       x.setAttribute('aria-current', selected ? 'page' : 'false');
+      x.dataset.selected = selected ? 'true' : 'false';
     });
-    views.forEach(view => { if (view.dataset.listeningView !== 'all') view.hidden = view.dataset.listeningView !== name; });
+    liveViews.forEach(view => { if (view.dataset.listeningView !== 'all') view.hidden = view.dataset.listeningView !== name; });
+    document.body.dataset.listeningSubpage = name;
     try { localStorage.setItem(pageKey, name); } catch (_) {}
     if (name === 'analysis') renderAnalysis();
     requestAnimationFrame(() => window.dispatchEvent(new Event('resize')));
   }
-  tabs.forEach(tab => tab.addEventListener('click', () => activate(tab.dataset.listeningPage)));
+  document.addEventListener('click', event => {
+    const tab = event.target.closest?.('[data-listening-page]');
+    if (tab) activate(tab.dataset.listeningPage);
+  }, true);
   document.querySelector('[data-page="listening-hub"]')?.addEventListener('click', () => setTimeout(() => activate(localStorage.getItem(pageKey) || 'reaction')));
   function inferPart(name) {
     const match = String(name).match(/\bP([1-4])\b/i);
     return match ? 'P' + match[1] : $('#practicePart').value;
   }
-  function injectBridge(html, audioUrl, title, part) {
-    const replaced = html.replace(/"audio"\s*:\s*"[^"]*"/, '"audio":' + JSON.stringify(audioUrl));
+  function replaceAssetReferences(html, assets) {
+    const source = String(html || '');
+    const rows = [];
+    (Array.isArray(assets) ? assets : []).forEach((item, index) => {
+      const blob = item?.blob instanceof Blob ? item.blob : (item instanceof Blob ? item : null);
+      if (!blob) return;
+      const name = String(item?.name || blob.name || ('asset-' + index)).replace(/\\/g,'/').replace(/^\.\//,'');
+      const url = URL.createObjectURL(blob);
+      paperObjectUrls.push(url);
+      rows.push({name,base:name.split('/').pop().toLowerCase(),url});
+    });
+    if (!rows.length) return source;
+    try {
+      const doc = new DOMParser().parseFromString(source, 'text/html');
+      const resolve = value => {
+        let clean = String(value || '').replace(/\\/g,'/');
+        try { clean = decodeURI(clean); } catch (_) {}
+        clean = clean.split(/[?#]/)[0].replace(/^\.\//,'');
+        const base = clean.split('/').pop().toLowerCase();
+        return rows.find(row => clean.endsWith(row.name) || base === row.base)?.url || '';
+      };
+      doc.querySelectorAll('[src],[href],[poster]').forEach(node => {
+        ['src','href','poster'].forEach(attr => {
+          if (!node.hasAttribute(attr)) return;
+          const url = resolve(node.getAttribute(attr));
+          if (url) node.setAttribute(attr, url);
+        });
+      });
+      doc.querySelectorAll('[style]').forEach(node => {
+        let value = node.getAttribute('style') || '';
+        value = value.replace(/url\((['"]?)([^)'"]+)\1\)/gi, (all,q,path) => {
+          const url = resolve(path); return url ? 'url("' + url + '")' : all;
+        });
+        node.setAttribute('style', value);
+      });
+      doc.querySelectorAll('style').forEach(node => {
+        node.textContent = (node.textContent || '').replace(/url\((['"]?)([^)'"]+)\1\)/gi, (all,q,path) => {
+          const url = resolve(path); return url ? 'url("' + url + '")' : all;
+        });
+      });
+      return '<!doctype html>\n' + doc.documentElement.outerHTML;
+    } catch (_) {
+      let output = source;
+      rows.forEach(row => {
+        [row.name, './'+row.name, encodeURI(row.name)].forEach(name => { output = output.split(name).join(row.url); });
+      });
+      return output;
+    }
+  }
+  function injectBridge(html, audioUrl, title, part, assets = []) {
+    let replaced = String(html || '').replace(/"audio"\s*:\s*"[^"]*"/, '"audio":' + JSON.stringify(audioUrl));
+    replaced = replaceAssetReferences(replaced, assets);
     const layoutFix = '<style id="ielts-embedded-layout-fix">html,body{margin:0!important;padding:0!important;min-height:0!important;height:auto!important;scroll-behavior:auto!important;overflow:auto!important}body{display:block!important;box-sizing:border-box!important;background:#fff!important;padding:12px 16px 80px!important}body>*,main,#app,.app,.container,.wrapper,.page,.content,.exam,.test,.question-container{min-height:0!important;max-height:none!important;margin-top:0!important;padding-top:0!important;transform:none!important;top:auto!important}header:empty,.spacer:empty,[class*="spacer"]:empty,[class*="hero"]:empty{display:none!important}audio{max-width:100%!important}input,textarea,select,[contenteditable="true"]{scroll-margin-top:96px!important}@media(max-width:760px){body{padding:8px 8px 72px!important;width:100%!important;max-width:100%!important}table{max-width:100%!important;font-size:14px!important}}</style>';
     const bridge = '<script>(function(){function plain(v){var d=document.createElement("div");d.innerHTML=String(v||"");return d.textContent.trim()}function visible(n){if(!n)return false;var r=n.getBoundingClientRect(),s=getComputedStyle(n);return s.display!=="none"&&s.visibility!=="hidden"&&r.width>2&&r.height>2}function firstQuestion(){var list=[].slice.call(document.querySelectorAll("input:not([type=hidden]):not([type=range]):not([type=button]):not([type=submit]),textarea,select,[contenteditable=true]"));return list.find(visible)||[].slice.call(document.querySelectorAll("h1,h2,h3,h4,b,strong,p")).find(function(n){return /questions?\\s*\\d|complete the|choose the|write no more|notes below|form below/i.test(n.textContent||"")})}function compact(){var target=firstQuestion();if(!target)return;var node=target;while(node&&node!==document.body){node.style.setProperty("min-height","0","important");node.style.setProperty("height","auto","important");node.style.setProperty("max-height","none","important");node.style.setProperty("margin-top","0","important");node.style.setProperty("padding-top","0","important");node.style.setProperty("top","auto","important");node.style.setProperty("transform","none","important");if(node.parentElement){var sib=node.parentElement.firstElementChild;while(sib&&sib!==node){var r=sib.getBoundingClientRect(),txt=(sib.textContent||"").replace(/\\s+/g," ").trim(),interactive=sib.querySelector&&sib.querySelector("audio,input,textarea,select,button,[contenteditable=true]");if(!interactive&&r.height>140&&txt.length<90)sib.style.setProperty("display","none","important");sib=sib.nextElementSibling}}node=node.parentElement}var tr=target.getBoundingClientRect();if(tr.top>220){[].slice.call(document.querySelectorAll("body *")).forEach(function(el){if(el===target||el.contains(target)||target.contains(el))return;var r=el.getBoundingClientRect(),txt=(el.textContent||"").replace(/\\s+/g," ").trim();if(r.bottom<=tr.top&&r.height>180&&txt.length<60&&!el.querySelector("audio,input,textarea,select,button"))el.style.setProperty("display","none","important")})}requestAnimationFrame(function(){target.scrollIntoView({block:"start",inline:"nearest"});var root=document.scrollingElement||document.documentElement;root.scrollTop=Math.max(0,root.scrollTop-92)})}document.addEventListener("DOMContentLoaded",function(){[0,120,420,900,1800].forEach(function(t){setTimeout(compact,t)});new MutationObserver(function(){clearTimeout(window.__ieltsCompactTimer);window.__ieltsCompactTimer=setTimeout(compact,80)}).observe(document.body,{childList:true,subtree:true})});document.addEventListener("click",function(e){if(e.target&&e.target.id==="finish"){setTimeout(function(){var wrong=[].slice.call(document.querySelectorAll("#nav .incorrect")).map(function(x){return x.dataset.q});var correct=document.querySelectorAll("#nav .correct").length;var rows=[].slice.call(document.querySelectorAll(".review-table tbody tr"));var details={};wrong.forEach(function(q){var row=rows.find(function(r){return r.cells&&r.cells[0]&&r.cells[0].textContent.trim()===String(q)});var cues=(typeof DATA!=="undefined"&&DATA.transcriptLines||[]).filter(function(x){var h=String(x&&x.html||"");return h.indexOf("q"+q)>=0||h.indexOf("Q"+q)>=0});details[q]={userAnswer:row&&row.cells[1]?row.cells[1].textContent.trim():"",correctAnswer:row&&row.querySelector(".answer-value")?row.querySelector(".answer-value").dataset.answer:"",transcript:cues.map(function(x){return plain(x.html)}).join(" "),analysis:cues.map(function(x){return plain(x.analysis)}).filter(Boolean).join(" ")}});parent.postMessage({type:"ielts-test-result",title:' + JSON.stringify(title) + ',part:' + JSON.stringify(part) + ',correct:correct,wrongQuestions:wrong,total:correct+wrong.length,questionDetails:details},"*")},800)}})})();<\\/script>';
     const withStyle=/<\/head>/i.test(replaced)?replaced.replace(/<\/head>/i,layoutFix+'</head>'):layoutFix+replaced;
@@ -309,7 +390,7 @@
     $('#paperPartNav').innerHTML=paperQueue.map((x,i)=>'<button data-paper-switch="'+i+'"><b>'+esc(x.part)+'</b><small>'+(i+1)+'</small></button>').join('');
     $('#paperFrames').innerHTML=paperQueue.map((record,i)=>{
       const audioUrl=URL.createObjectURL(record.audio);paperObjectUrls.push(audioUrl);
-      const source=injectBridge(record.html,audioUrl,record.title,record.part);
+      const source=injectBridge(record.html,audioUrl,record.title,record.part,record.assets||[]);
       const pageUrl=URL.createObjectURL(new Blob([source],{type:'text/html'}));paperObjectUrls.push(pageUrl);
       return '<iframe data-paper-frame="'+i+'" src="'+esc(pageUrl)+'" title="'+esc(record.part+' '+record.title)+'" loading="eager" '+(i?'hidden':'')+'></iframe>';
     }).join('');
@@ -318,13 +399,13 @@
     $('#practiceFrameWrap').classList.remove('hidden');$('#causePanel').classList.add('hidden');
     showPaperPart(0);$('#practiceFrameWrap').scrollIntoView({behavior:'smooth',block:'start'});
   }
-  async function launchTest(htmlText, audioBlob, title, part) {
+  async function launchTest(htmlText, audioBlob, title, part, assets = []) {
     cleanupPaperWorkspace();$('#practiceFrame').hidden=false;
     if (activeUrl) URL.revokeObjectURL(activeUrl);
     if (activeAudioUrl) URL.revokeObjectURL(activeAudioUrl);
     activeAudioUrl = URL.createObjectURL(audioBlob);
     $('#practicePart').value = part;
-    const source = injectBridge(htmlText, activeAudioUrl, title, part);
+    const source = injectBridge(htmlText, activeAudioUrl, title, part, assets);
     activeUrl = URL.createObjectURL(new Blob([source], {type:'text/html'}));
     $('#practiceFrame').src = activeUrl;
     $('#practiceFrame').onload=()=>scheduleFrameJump($('#practiceFrame'));
@@ -361,7 +442,7 @@
     }).join('') : '<p>'+(privateVipOnly?'这个部分暂时没有标记为 VIP 的题目。':'这个部分还没有导入篇目。')+'</p>';
     document.querySelectorAll('[data-private-test]').forEach(btn => btn.onclick = async () => {
       const record = (await dbAll()).find(x => x.id === btn.dataset.privateTest);
-      if (record) { paperQueue=[];paperReviewQueue=[];paperIndex=-1;launchTest(record.html, record.audio, record.title, record.part); }
+      if (record) { paperQueue=[];paperReviewQueue=[];paperIndex=-1;launchTest(record.html, record.audio, record.title, record.part, record.assets||[]); }
     });
     document.querySelectorAll('[data-add-paper]').forEach(btn=>btn.onclick=()=>{paperSelection.has(btn.dataset.addPaper)?paperSelection.delete(btn.dataset.addPaper):paperSelection.add(btn.dataset.addPaper);renderPrivateBank()});
     document.querySelectorAll('[data-edit-attempt]').forEach(btn=>btn.onclick=()=>openAttemptEditor(btn.dataset.editAttempt));
@@ -422,8 +503,12 @@
       if (!audioFile) { skipped++; continue; }
       const part = inferPart(path);
       const title = htmlFile.name.replace(/\.html$/i,'');
-      status('正在导入 ' + (imported + 1) + '/' + htmlFiles.length + '：' + title);
-      await dbPut({id:path,part,title,frequency:frequencyFromPath(path),html:await htmlFile.text(),audio:audioFile,updatedAt:Date.now()});
+      const assets = files.filter(file => {
+        const assetPath = file.webkitRelativePath || file.name;
+        return assetPath.startsWith(dir) && file !== htmlFile && file !== audioFile && /\.(?:png|jpe?g|gif|webp|svg|css|woff2?|ttf|otf)$/i.test(file.name);
+      }).map(file => ({name:(file.webkitRelativePath || file.name).slice(dir.length),type:file.type||'application/octet-stream',blob:file}));
+      status('正在导入 ' + (imported + 1) + '/' + htmlFiles.length + '：' + title + (assets.length ? '（含 '+assets.length+' 个图片/样式资源）' : ''));
+      await dbPut({id:path,part,title,frequency:frequencyFromPath(path),html:await htmlFile.text(),audio:audioFile,assets,updatedAt:Date.now()});
       imported++;
     }
     status('✓ 已导入 ' + imported + ' 篇私人真题' + (skipped ? '，另有 ' + skipped + ' 篇缺少 audio.mp3' : '') + '。');
@@ -471,20 +556,22 @@
   document.addEventListener('fullscreenchange',()=>{ if(!document.fullscreenElement){$('#practiceFrameWrap')?.classList.remove('fullscreen-test');if($('#fullscreenListeningTest'))$('#fullscreenListeningTest').textContent='⛶ 全屏做题'} });
   function showResultReview(data,label='') {
     editingAttemptId=null;
-    pendingResult={...data,id:'attempt-'+Date.now()+'-'+Math.random().toString(36).slice(2,7),date:new Date().toISOString(),reviews:{},reviewPlan:[{label:'D+1',due:dayStamp(1),done:false},{label:'D+3',due:dayStamp(3),done:false},{label:'D+7',due:dayStamp(7),done:false}]};
+    pendingResult=makeAttempt(data);
     const wrong=pendingResult.wrongQuestions||[];
     const rate=pendingResult.total?Math.round(pendingResult.correct/pendingResult.total*100):0;
-    $('#practiceScore').textContent=(label?label+' · ':'')+pendingResult.correct+'/'+pendingResult.total+' · 正确率 '+rate+'%';
+    $('#practiceScore').textContent=(label?label+' · ':'')+pendingResult.correct+'/'+pendingResult.total+' · 正确率 '+rate+'% · '+(pendingResult.reviewStatus==='completed'?'已复盘':'待复盘');
     $('#causeQuestions').innerHTML=wrong.length?wrong.map(q=>reviewCard(q,pendingResult.questionDetails?.[q]||{})).join(''):'<p>本篇全部正确，无需标记错因。</p>';
     $('#saveTestAnalysis').textContent=paperReviewQueue.length&&paperIndex<paperReviewQueue.length-1?'保存并复盘下一篇':'保存本次复盘';
     $('#causePanel').classList.remove('hidden');$('#causePanel').scrollIntoView({behavior:'smooth',block:'start'});
   }
   window.addEventListener('message', event => {
     if (event.data?.type !== 'ielts-test-result') return;
+    const savedAttempt = storeAttemptImmediately(event.data);
+    renderPrivateBank();
     if(paperQueue.length){
       const index=paperQueue.findIndex(x=>x.title===event.data.title&&x.part===event.data.part);
       if(index<0)return;
-      paperResults.set(index,event.data);
+      paperResults.set(index,savedAttempt);
       const tab=document.querySelector('[data-paper-switch="'+index+'"]');if(tab)tab.classList.add('completed');
       if(paperResults.size<paperQueue.length){
         const next=paperQueue.findIndex((_,i)=>!paperResults.has(i));showPaperPart(next);return;
@@ -493,7 +580,7 @@
       paperQueue=[];paperIndex=0;cleanupPaperWorkspace();$('#practiceFrameWrap').classList.add('hidden');
       showResultReview(paperReviewQueue[0],'套题复盘 1/'+paperReviewQueue.length);return;
     }
-    showResultReview(event.data);
+    showResultReview(savedAttempt);
   });
   $('#saveTestAnalysis')?.addEventListener('click', async () => {
     if (!pendingResult) return;
@@ -515,12 +602,17 @@
       if(card.querySelector('[data-add-phrase]').checked)phrasesAdded+=addPhraseCard(review.synonym,review.evidence,pendingResult.title,q);
     });
     pendingResult.cardsAdded={words:wordsAdded,phrases:phrasesAdded};
+    pendingResult.reviewStatus='completed';
+    pendingResult.reviewedAt=new Date().toISOString();
     const items = loadHistory();
     if(editingAttemptId){
       const index=items.findIndex(x=>x.id===editingAttemptId);
       if(index>=0)items[index]=pendingResult;else items.unshift(pendingResult);
-    }else items.unshift(pendingResult);
-    saveHistory(items.slice(0,200));
+    }else {
+      const existingIndex=items.findIndex(x=>x.id===pendingResult.id);
+      if(existingIndex>=0)items[existingIndex]=pendingResult;else items.unshift(pendingResult);
+    }
+    saveHistory(items.slice(0,2000));
     $('#causePanel').classList.add('hidden');
     const wasEditing=Boolean(editingAttemptId);editingAttemptId=null;pendingResult = null;
     renderPrivateBank();
