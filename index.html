@@ -393,7 +393,7 @@
 
     <section class="section tool-section review-suite" id="readingReviewSuite" data-page-section="reading" hidden>
       <div class="section-head"><div><p class="kicker">READING REVIEW</p><h2>阅读真题入口、正确率与背题库</h2></div><p class="aside">练习记录、正确率和背题卡会保存并同步；本机 C 盘题库只能在原电脑打开。</p></div>
-      <div class="suite-panel soft"><h3>阅读真题题库入口</h3><label>题库地址<input id="readingBankLink" type="text"></label><div class="reading-link-actions"><button class="primary" id="openReadingLink">打开题库</button><button id="saveReadingLink">保存入口</button><label class="button">选择本机 index.html<input id="readingLocalFile" type="file" accept=".html,text/html" hidden></label></div><p class="local-link-warning">如果题库不是“单个自包含 HTML”，就必须保留并上传整个大文件夹（index.html、脚本、图片、音频的相对位置不能改变）。file:///C:/… 只能在原电脑打开；手机要访问，需要把整个文件夹部署成线上网站。</p></div>
+      <div class="suite-panel soft reading-package-panel"><div><p class="kicker">PRIVATE READING BANK</p><h3>阅读真题题库</h3><p>首次选择完整 ZIP 安装包，题目、图片、脚本和 PDF 会保存在这台设备；以后刷新后仍可直接进入。</p></div><div class="reading-package-status" id="readingPackageStatus"><b>尚未安装</b><small>请选择“网页版260810.zip”</small></div><div class="reading-link-actions"><button class="primary" id="openReadingPackage" disabled>进入阅读真题</button><label class="button reading-import-button">导入 / 更新完整 ZIP<input id="readingPackageZip" type="file" accept=".zip,application/zip" hidden></label><button id="removeReadingPackage" type="button">移除本机题库</button></div><progress id="readingPackageProgress" max="100" value="0" hidden></progress><p class="local-link-warning">题库只保存在当前设备，不会公开上传。电脑和手机需要分别导入一次；练习成绩仍由本站的云端同步功能同步。</p><details><summary>使用其他线上题库地址</summary><label>题库地址<input id="readingBankLink" type="text"></label><div class="reading-link-actions"><button id="openReadingLink">打开地址</button><button id="saveReadingLink">保存地址</button><label class="button">仅打开单个 HTML<input id="readingLocalFile" type="file" accept=".html,text/html" hidden></label></div></details></div>
       <div class="suite-grid">
         <aside class="suite-panel"><h3>记录一次阅读练习</h3><label>题目 / 文章标题<input id="readingAttemptTitle" placeholder="例如：Cambridge 18 Test 1 Passage 2"></label><label>题型或主题<select id="readingAttemptType"><option>判断题</option><option>填空题</option><option>匹配题</option><option>选择题</option><option>标题匹配</option><option>混合题</option></select></label><div class="form-row"><label>正确题数<input id="readingCorrect" type="number" min="0"></label><label>总题数<input id="readingTotal" type="number" min="1"></label></div><label>生词、同义替换与错因<textarea id="readingAttemptNotes" placeholder="原文定位、同义替换、为什么错"></textarea></label><button class="primary" id="saveReadingAttempt">保存练习记录</button></aside>
         <section class="suite-panel"><div class="summary-cards" id="readingSummary"></div><h3>做过的题目</h3><div class="card-list" id="readingHistory"></div></section>
@@ -447,6 +447,7 @@
   <script src="assets/speaking-center.js?v=2" defer></script>
   <script src="assets/cloud-sync.js?v=7.1" defer></script>
   <script src="assets/review-memory.js?v=10" defer></script>
+  <script src="assets/reading-bank.js?v=1" defer></script>
   <script src="assets/app-shell.js?v=5" defer></script>
 </body>
 </html>
