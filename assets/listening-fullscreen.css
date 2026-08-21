@@ -9,3 +9,13 @@
 /* v5: question-first workspace */
 .practice-frame-wrap:not(.hidden){scroll-margin-top:12px}.practice-frame-wrap iframe{background:#fff;scrollbar-gutter:stable}
 .practice-frame-wrap.fullscreen-test .practice-frame-head{background:#142f3f}.practice-frame-wrap.fullscreen-test .paper-part-nav{background:#f3f6f7}
+
+/* v6: readable P1-P4 set navigation and a stable, non-collapsing question canvas */
+.paper-part-nav{display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:10px!important;padding:12px 16px!important;background:#f5f8fb!important}
+.paper-part-nav button{position:relative!important;display:grid!important;grid-template-columns:auto auto!important;grid-template-rows:auto auto!important;align-items:center!important;justify-content:start!important;column-gap:8px!important;min-width:0!important;min-height:70px!important;padding:10px 12px!important;border:1px solid #cfdbe8!important;border-radius:16px!important;background:#fff!important;color:#334b62!important;text-align:left!important}
+.paper-part-nav button b{font-size:18px!important}.paper-part-nav button span{font-size:10px!important;font-weight:900!important;letter-spacing:.08em!important}.paper-part-nav button small{grid-column:1/-1!important;display:block!important;width:100%!important;overflow:hidden!important;text-overflow:ellipsis!important;white-space:nowrap!important;font-size:10px!important;color:inherit!important}
+.paper-part-nav button.active{background:linear-gradient(135deg,#4f83b7,#315f91)!important;color:#fff!important;border-color:#315f91!important;box-shadow:0 10px 22px rgba(49,95,145,.24)!important}
+.paper-part-nav button.completed:after{width:19px!important;height:19px!important;right:7px!important;top:7px!important;line-height:19px!important;text-align:center!important}
+.paper-frames{position:relative!important;display:block!important;width:100%!important;height:clamp(680px,78vh,920px)!important;min-height:680px!important;overflow:hidden!important;background:#fff!important}
+.paper-frames iframe{position:absolute!important;inset:0!important;display:block!important;width:100%!important;height:100%!important;min-height:100%!important;border:0!important;background:#fff!important}.paper-frames iframe[hidden]{display:none!important}
+@media(max-width:760px){.paper-part-nav{display:flex!important;overflow-x:auto!important}.paper-part-nav button{flex:0 0 178px!important}.paper-frames{height:76dvh!important;min-height:560px!important}}
