@@ -11,7 +11,7 @@
   const packCache={};
   const config=()=>task==='task1'?{minutes:20,seconds:1200,minWords:150,label:'TASK 1',criterion:'Task Achievement'}:{minutes:40,seconds:2400,minWords:250,label:'TASK 2',criterion:'Task Response'};
   function activateMode(mode){
-    $$('[data-writing-mode]').forEach(b=>b.classList.toggle('active',b.dataset.writingMode===mode));
+    $('[data-writing-mode]').forEach(b=>{const selected=b.dataset.writingMode===mode;b.classList.toggle('active',selected);b.setAttribute('aria-selected',selected?'true':'false')});
     $$('[data-writing-view]').forEach(v=>v.hidden=v.dataset.writingView!==mode);
     localStorage.setItem(modeKey,mode);
   }
@@ -22,18 +22,18 @@
   function filtered(){const q=$('#writingQuestionSearch').value.trim().toLowerCase();return questions.filter(x=>(category==='全部'||(task==='task1'?x.type:x.category)===category)&&(theme==='全部主题'||(task==='task1'?x.topic===theme:(x.themes||[x.theme]).includes(theme)))&&(!q||(`${x.prompt} ${x.topic} ${x.theme||''}`).toLowerCase().includes(q)))}
   function renderCategories(){
     const categories=task==='task1'?task1Categories:task2Categories;
-    $('#writingCategoryTabs').innerHTML=categories.map(c=>`<button class="${c===category?'active':''}" data-writing-category="${c}">${c}（${c==='全部'?questions.length:questions.filter(x=>(task==='task1'?x.type:x.category)===c).length}）</button>`).join('');
+    $('#writingCategoryTabs').innerHTML=categories.map(c=>`<button class="${c===category?'active':''}" aria-selected="${c===category?'true':'false'}" data-writing-category="${c}">${c}（${c==='全部'?questions.length:questions.filter(x=>(task==='task1'?x.type:x.category)===c).length}）</button>`).join('');
     $$('[data-writing-category]').forEach(b=>b.onclick=()=>{category=b.dataset.writingCategory;renderCategories();renderQuestions()});
   }
   function renderThemes(){
     const all=[...new Set(questions.flatMap(x=>task==='task1'?[x.topic]:(x.themes||[x.theme])).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'zh-CN'));
     const themes=['全部主题',...all];
-    $('#writingThemeTabs').innerHTML='<span>主题：</span>'+themes.map(c=>`<button class="${c===theme?'active':''}" data-writing-theme="${esc(c)}">${esc(c)}</button>`).join('');
+    $('#writingThemeTabs').innerHTML='<span>主题：</span>'+themes.map(c=>`<button class="${c===theme?'active':''}" aria-selected="${c===theme?'true':'false'}" data-writing-theme="${esc(c)}">${esc(c)}</button>`).join('');
     $$('[data-writing-theme]').forEach(b=>b.onclick=()=>{theme=b.dataset.writingTheme;renderThemes();renderQuestions()});
   }
   function switchTask(next){
     task=next;questions=banks[task]||[];category='全部';theme='全部主题';
-    $$('[data-writing-task]').forEach(b=>b.classList.toggle('active',b.dataset.writingTask===task));
+    $('[data-writing-task]').forEach(b=>{const selected=b.dataset.writingTask===task;b.classList.toggle('active',selected);b.setAttribute('aria-selected',selected?'true':'false')});
     $('#writingBankTitle').textContent=task==='task1'?'小作文真题模拟':'大作文真题模拟';
     $('#writingBankKicker').textContent=task==='task1'?'171 REAL TASK 1 QUESTIONS':'252 REAL TASK 2 QUESTIONS';
     $('#writingBankAside').textContent=task==='task1'?'查看原题图表，进入20分钟全真计时；交卷后按Task Achievement等四项标准复盘。':'按题型和媒体、教育、科技等主题筛选，进入40分钟全真计时。';

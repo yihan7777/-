@@ -627,3 +627,35 @@ input:focus,textarea:focus,select:focus{outline:3px solid rgba(243,183,68,.22)!i
 [data-page-section="listening-hub"] :is(.actions,.card-tools,.dictation-actions,.sound-actions,.study-tools,.paper-builder-actions,.private-test-actions,.attempt-actions,.recent-review-actions,.segment-tools,.sync-transcript-tools)>button{margin-left:0!important;margin-right:0!important}
 #saveTestAnalysis{display:block!important;width:100%!important;margin:18px 0 0!important;min-height:52px!important}
 @media(max-width:700px){.practice-frame-head{padding:12px!important}.practice-frame-head>div{display:grid!important;grid-template-columns:1fr 1fr!important;gap:8px!important}.practice-frame-head>div button{width:100%!important;margin:0!important}.practice-frame-head>div button:first-child{grid-column:1/-1!important}}
+
+/* v12: safe page gutters and permanent, unmistakable selected controls */
+.app-menu-button span{white-space:nowrap!important;word-break:keep-all!important}
+main,[data-page-section],.section,.tool-section{min-width:0!important}
+[data-page-section="writing"]{overflow:visible!important}
+[data-page-section="writing"] :is(.writing-mode-tabs,.writing-task-tabs,.writing-category-tabs,.writing-theme-tabs){width:100%!important;max-width:100%!important;box-sizing:border-box!important;scroll-padding-inline:8px!important}
+[data-page-section="writing"] :is(.writing-category-tabs,.writing-theme-tabs){padding:6px 8px 10px!important;margin-inline:0!important;overflow-x:auto!important;overflow-y:visible!important}
+[data-page-section="writing"] :is(.writing-category-tabs,.writing-theme-tabs) button{margin:2px 0!important;flex:0 0 auto!important}
+[data-page-section="writing"] .writing-question-list{padding:4px 8px 12px 2px!important}
+body[data-app-page="writing"] :is(.writing-mode-tabs,.writing-task-tabs,.writing-category-tabs,.writing-theme-tabs) button.active,
+body[data-app-page="writing"] :is(.writing-mode-tabs,.writing-task-tabs,.writing-category-tabs,.writing-theme-tabs) button[aria-selected="true"]{
+  position:relative!important;color:#fff!important;background:linear-gradient(135deg,#4f72c9,#3155ad)!important;
+  border-color:#3155ad!important;box-shadow:0 0 0 3px #e7edff,0 9px 20px rgba(49,85,173,.25)!important;
+  transform:none!important;padding-left:30px!important;
+}
+body[data-app-page="writing"] :is(.writing-mode-tabs,.writing-task-tabs,.writing-category-tabs,.writing-theme-tabs) button.active::before,
+body[data-app-page="writing"] :is(.writing-mode-tabs,.writing-task-tabs,.writing-category-tabs,.writing-theme-tabs) button[aria-selected="true"]::before{
+  content:""!important;display:block!important;position:absolute!important;left:14px!important;top:50%!important;
+  width:8px!important;height:8px!important;border-radius:50%!important;background:#fff!important;transform:translateY(-50%)!important;
+  box-shadow:0 0 0 3px rgba(255,255,255,.22)!important;
+}
+button:focus-visible,.button:focus-visible{outline:3px solid #6d8fe3!important;outline-offset:3px!important}
+@media(min-width:1100px){
+  body:not(.app-sidebar-collapsed) main{width:min(1480px,calc(100vw - 186px))!important;max-width:calc(100vw - 186px)!important;margin-inline:auto!important}
+  body.app-sidebar-collapsed main{width:min(1480px,calc(100vw - 32px))!important;max-width:calc(100vw - 32px)!important;margin-inline:auto!important}
+}
+@media(max-width:1099px){main{width:calc(100% - 24px)!important;max-width:calc(100% - 24px)!important;margin-inline:auto!important;padding-inline:0!important}}
+@media(max-width:700px){
+  main{width:calc(100% - 20px)!important;max-width:calc(100% - 20px)!important}
+  [data-page-section="writing"]{padding-inline:14px!important}
+  [data-page-section="writing"] :is(.writing-mode-tabs,.writing-task-tabs){padding:7px!important;gap:9px!important;overflow-x:auto!important}
+}
