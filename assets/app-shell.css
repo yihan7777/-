@@ -619,6 +619,25 @@ input:focus,textarea:focus,select:focus{outline:3px solid rgba(243,183,68,.22)!i
   .task-card,.private-test-entry,.wrong-review-card,.memory-row,.report-grid article{border-radius:21px!important}
 }
 
+/* v13: warm selected-state system matching the cream interface */
+body :is(.app-tabs,.speaking-page-tabs,.writing-mode-tabs,.writing-task-tabs,.writing-category-tabs,.writing-theme-tabs,.listening-page-tabs,.speaking-part-switch,.speaking-filter-scroll,.overview-tabs,.private-part-tabs,.private-bank-filters,.suite-tabs,.writing-review-tabs,.paper-part-nav) button.active,
+body :is(.app-tabs,.speaking-page-tabs,.writing-mode-tabs,.writing-task-tabs,.writing-category-tabs,.writing-theme-tabs,.listening-page-tabs,.speaking-part-switch,.speaking-filter-scroll,.overview-tabs,.private-part-tabs,.private-bank-filters,.suite-tabs,.writing-review-tabs,.paper-part-nav) button[aria-selected="true"]{
+  position:relative!important;color:#fff!important;background:linear-gradient(135deg,#91bd78,#6f9f59)!important;
+  border-color:#6f9f59!important;box-shadow:0 0 0 3px #edf5e7,0 9px 20px rgba(91,139,72,.24)!important;
+  transform:none!important;padding-left:30px!important;
+}
+body :is(.app-tabs,.speaking-page-tabs,.writing-mode-tabs,.writing-task-tabs,.writing-category-tabs,.writing-theme-tabs,.listening-page-tabs,.speaking-part-switch,.speaking-filter-scroll,.overview-tabs,.private-part-tabs,.private-bank-filters,.suite-tabs,.writing-review-tabs,.paper-part-nav) button.active::before,
+body :is(.app-tabs,.speaking-page-tabs,.writing-mode-tabs,.writing-task-tabs,.writing-category-tabs,.writing-theme-tabs,.listening-page-tabs,.speaking-part-switch,.speaking-filter-scroll,.overview-tabs,.private-part-tabs,.private-bank-filters,.suite-tabs,.writing-review-tabs,.paper-part-nav) button[aria-selected="true"]::before{
+  content:""!important;display:block!important;position:absolute!important;left:14px!important;top:50%!important;
+  width:8px!important;height:8px!important;border-radius:50%!important;background:#ffe08a!important;
+  transform:translateY(-50%)!important;box-shadow:0 0 0 3px rgba(255,224,138,.24)!important;
+}
+body[data-app-page="writing"] :is(.writing-mode-tabs,.writing-task-tabs,.writing-category-tabs,.writing-theme-tabs) button.active,
+body[data-app-page="writing"] :is(.writing-mode-tabs,.writing-task-tabs,.writing-category-tabs,.writing-theme-tabs) button[aria-selected="true"]{
+  background:linear-gradient(135deg,#91bd78,#6f9f59)!important;border-color:#6f9f59!important;
+  box-shadow:0 0 0 3px #edf5e7,0 9px 20px rgba(91,139,72,.24)!important;
+}
+
 /* v11: consistent insets for action buttons; no controls glued to card edges */
 .section-head,.practice-frame-head,.private-bank-head,.paper-builder-head,.recent-listening-review>header{column-gap:16px!important}
 .practice-frame-head{padding:14px 18px!important}.paper-builder,.private-test-bank,.cause-panel,.due-review-panel{overflow:hidden!important}
