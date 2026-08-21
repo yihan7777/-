@@ -638,6 +638,19 @@ body[data-app-page="writing"] :is(.writing-mode-tabs,.writing-task-tabs,.writing
   box-shadow:0 0 0 3px #edf5e7,0 9px 20px rgba(91,139,72,.24)!important;
 }
 
+/* v14: selected controls use the interface's warm yellow palette */
+body :is(.app-tabs,.speaking-page-tabs,.writing-mode-tabs,.writing-task-tabs,.writing-category-tabs,.writing-theme-tabs,.listening-page-tabs,.speaking-part-switch,.speaking-filter-scroll,.overview-tabs,.private-part-tabs,.private-bank-filters,.suite-tabs,.writing-review-tabs,.paper-part-nav) button.active,
+body :is(.app-tabs,.speaking-page-tabs,.writing-mode-tabs,.writing-task-tabs,.writing-category-tabs,.writing-theme-tabs,.listening-page-tabs,.speaking-part-switch,.speaking-filter-scroll,.overview-tabs,.private-part-tabs,.private-bank-filters,.suite-tabs,.writing-review-tabs,.paper-part-nav) button[aria-selected="true"],
+body[data-app-page="writing"] :is(.writing-mode-tabs,.writing-task-tabs,.writing-category-tabs,.writing-theme-tabs) button.active,
+body[data-app-page="writing"] :is(.writing-mode-tabs,.writing-task-tabs,.writing-category-tabs,.writing-theme-tabs) button[aria-selected="true"]{
+  color:#5b431c!important;background:linear-gradient(135deg,#ffdc78,#efbd4c)!important;
+  border-color:#dfa938!important;box-shadow:0 0 0 3px #fff3cf,0 9px 20px rgba(202,143,35,.25)!important;
+}
+body :is(.app-tabs,.speaking-page-tabs,.writing-mode-tabs,.writing-task-tabs,.writing-category-tabs,.writing-theme-tabs,.listening-page-tabs,.speaking-part-switch,.speaking-filter-scroll,.overview-tabs,.private-part-tabs,.private-bank-filters,.suite-tabs,.writing-review-tabs,.paper-part-nav) button.active::before,
+body :is(.app-tabs,.speaking-page-tabs,.writing-mode-tabs,.writing-task-tabs,.writing-category-tabs,.writing-theme-tabs,.listening-page-tabs,.speaking-part-switch,.speaking-filter-scroll,.overview-tabs,.private-part-tabs,.private-bank-filters,.suite-tabs,.writing-review-tabs,.paper-part-nav) button[aria-selected="true"]::before{
+  background:#fffdf7!important;box-shadow:0 0 0 3px rgba(111,76,19,.15)!important;
+}
+
 /* v11: consistent insets for action buttons; no controls glued to card edges */
 .section-head,.practice-frame-head,.private-bank-head,.paper-builder-head,.recent-listening-review>header{column-gap:16px!important}
 .practice-frame-head{padding:14px 18px!important}.paper-builder,.private-test-bank,.cause-panel,.due-review-panel{overflow:hidden!important}
