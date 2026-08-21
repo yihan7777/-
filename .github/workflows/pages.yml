@@ -27,7 +27,7 @@ jobs:
           work_dir="$(mktemp -d)"
           cat reading-core/part-*.bin > "$work_dir/reading-core.zip"
           unzip -q "$work_dir/reading-core.zip" -d "$work_dir/unpacked"
-          reading_entry="$(find "$work_dir/unpacked" -maxdepth 2 -type f -name index.html | head -n 1)"
+          reading_entry="$(find "$work_dir/unpacked" -maxdepth 2 -type f -name index.html -print -quit)"
           test -n "$reading_entry"
           mkdir -p _site/reading-web
           cp -a "$(dirname "$reading_entry")/." _site/reading-web/
