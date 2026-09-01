@@ -78,28 +78,37 @@
     return new Promise((resolve,reject)=>{const req=db.transaction('meta').objectStore('meta').get(key);req.onsuccess=()=>resolve(req.result?.value);req.onerror=()=>reject(req.error)});
   }
   function esc(value) { return String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+  function normalizeAttemptScore(item) {
+    if(!item||!/^P[1-4]$/i.test(String(item.part||'')))return item;
+    const wrong=[...new Set((item.wrongQuestions||[]).map(String))].slice(0,10);
+    return {...item,wrongQuestions:wrong,total:10,correct:Math.max(0,10-wrong.length)};
+  }
   function loadHistory() {
     if (Array.isArray(historyCache)) return historyCache;
-    try { historyCache = JSON.parse(localStorage.getItem(historyKey) || '[]'); }
+    try {
+      const stored=JSON.parse(localStorage.getItem(historyKey) || '[]');
+      historyCache=(Array.isArray(stored)?stored:[]).map(normalizeAttemptScore);
+      localStorage.setItem(historyKey,JSON.stringify(historyCache));
+    }
     catch (_) { historyCache = []; }
     return historyCache;
   }
   function saveHistory(items) {
-    historyCache = Array.isArray(items) ? items : [];
+    historyCache = (Array.isArray(items) ? items : []).map(normalizeAttemptScore);
     try { localStorage.setItem(historyKey, JSON.stringify(historyCache)); }
     catch (error) { console.warn('Listening history localStorage save failed', error); }
     dbPutMeta(historyKey,historyCache).catch(error=>console.warn('Listening history IndexedDB backup failed',error));
     window.dispatchEvent(new CustomEvent('ielts-review-data-changed',{detail:{key:historyKey}}));
   }
   function makeAttempt(data) {
-    return {
+    return normalizeAttemptScore({
       ...data,
       id: data?.id || 'attempt-' + Date.now() + '-' + Math.random().toString(36).slice(2,7),
       date: data?.date || new Date().toISOString(),
       reviews: data?.reviews || {},
       reviewStatus: data?.reviewStatus || 'pending',
       reviewPlan: data?.reviewPlan || [{label:'D+1',due:dayStamp(1),done:false},{label:'D+3',due:dayStamp(3),done:false},{label:'D+7',due:dayStamp(7),done:false}]
-    };
+    });
   }
   function storeAttemptImmediately(data) {
     const items = loadHistory();
