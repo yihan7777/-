@@ -708,3 +708,74 @@ button:focus-visible,.button:focus-visible{outline:3px solid #6d8fe3!important;o
   [data-page-section="writing"]{padding-inline:14px!important}
   [data-page-section="writing"] :is(.writing-mode-tabs,.writing-task-tabs){padding:7px!important;gap:9px!important;overflow-x:auto!important}
 }
+
+/* v16: one warm, compact visual system for every vocabulary and audio card */
+.memory-layout,.listening-layout,.dictation-layout,.reading-layout{
+  align-items:start!important;gap:16px!important;padding:0!important;border:0!important;border-radius:0!important;
+  background:transparent!important;box-shadow:none!important;overflow:visible!important;
+}
+.deck-panel,.listening-library,.dictation-library,.reading-import{
+  align-self:start!important;padding:22px!important;border:1px solid #ead7ad!important;border-radius:24px!important;
+  background:linear-gradient(160deg,#fffaf0,#fff3cd)!important;color:var(--cream-ink)!important;
+  box-shadow:0 12px 28px rgba(116,88,40,.08)!important;overflow:hidden!important;
+}
+.deck-panel .deck-label,.listening-library .deck-label,.dictation-library .deck-label,.reading-import .deck-label{color:#9b6d1d!important}
+.deck-panel>strong,.listening-count strong,.dictation-bank-stats b,.reading-count strong{color:#6a4b18!important}
+.memory-progress,.listening-count,.reading-count,.dictation-bank-stats{
+  border-color:#e5ca89!important;background:rgba(255,255,255,.58)!important;border-radius:18px!important;padding:15px!important;
+}
+.listening-count,.reading-count{margin-top:8px!important;border:1px solid #e5ca89!important;text-align:center!important}
+.listening-count strong,.reading-count strong{font-size:44px!important;line-height:1!important}.listening-count span,.reading-count span{margin-top:6px!important;color:#8b734c!important}
+.card-stage,.audio-stage,.dictation-stage,.reading-stage{align-self:start!important;min-width:0!important;padding:0!important;background:transparent!important;border-radius:0!important}
+.flashcard,.audio-card,.dictation-card,.reading-card{
+  width:100%!important;min-height:clamp(320px,36vw,430px)!important;height:auto!important;padding:clamp(24px,3vw,40px)!important;
+  border:1px solid #e6c46f!important;border-radius:26px!important;color:#5c4316!important;
+  background:radial-gradient(circle at 86% 12%,rgba(255,255,255,.76),transparent 24%),linear-gradient(145deg,#fff8df,#ffe49a)!important;
+  box-shadow:0 17px 36px rgba(167,116,26,.16)!important;overflow:hidden!important;
+}
+.flashcard strong,.flashcard b,.flashcard p,.audio-card strong,.audio-card b,.audio-card p,.dictation-card strong,.dictation-card b,.dictation-card p,.reading-card strong,.reading-card b,.reading-card p{color:#5c4316!important}
+.flashcard .card-tag,.audio-card .card-tag,.reading-card .card-tag{
+  background:rgba(255,253,247,.78)!important;color:#71501b!important;border:1px solid #e6ce91!important;border-radius:999px!important;
+}
+.flashcard .card-hint,.reading-card .card-hint,.flashcard small,.reading-card small,.audio-card small,.dictation-card small{color:#8c7651!important}
+.sound-actions{gap:12px!important;width:min(620px,100%)!important}.sound-actions button,.dictation-play{
+  min-height:112px!important;border:1px solid #e1bd63!important;border-radius:21px!important;
+  background:linear-gradient(145deg,#fffdf5,#ffe7a1)!important;color:#5a4215!important;box-shadow:0 8px 18px rgba(158,109,23,.10)!important;
+}
+.sound-actions button+button{background:linear-gradient(145deg,#fffaf0,#f4e4b9)!important}.sound-actions span,.dictation-play span{background:#6d5020!important;color:#fff!important}
+.heard-answer,.dictation-answer{margin-top:20px!important}.heard-answer input,.dictation-answer input{border-color:#c89b3e!important;color:#5c4316!important}
+.reveal-audio,#checkDictation{min-width:180px!important;margin-top:18px!important;background:linear-gradient(135deg,#ffd66d,#f5b83d)!important;color:#5a4215!important;border:1px solid #efb437!important}
+.card-tools,.reading-card-tools,.dictation-actions{
+  display:flex!important;align-items:center!important;justify-content:space-between!important;flex-wrap:wrap!important;gap:10px!important;
+  margin-top:10px!important;padding:10px!important;border:1px solid #ead7ad!important;border-radius:19px!important;background:#fffaf0!important;color:#6e5834!important;
+}
+.card-tools button,.reading-card-tools button,.dictation-actions button,.archive-card.standalone{
+  min-height:44px!important;margin:0!important;border:1px solid #e8cc83!important;border-radius:15px!important;
+  background:linear-gradient(145deg,#fff9e7,#ffedb4)!important;color:#62491f!important;
+}
+.archive-card.standalone{width:100%!important;margin-top:10px!important}.card-tools span,.reading-card-tools span{margin-left:auto!important;padding:6px 10px!important;border-radius:999px!important;background:#fff!important;color:#806b49!important;white-space:nowrap!important}
+.rating,.audio-rating,.reading-rating{
+  grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:10px!important;margin-top:10px!important;padding:10px!important;
+  border:1px solid #ead7ad!important;border-radius:20px!important;background:#fffaf0!important;
+}
+.rating button,.audio-rating button,.reading-rating button{
+  min-width:0!important;min-height:76px!important;padding:12px 8px!important;border:1px solid #e8cc83!important;border-radius:16px!important;
+  background:#fff8df!important;color:#695127!important;box-shadow:none!important;opacity:.55!important;text-align:center!important;
+}
+.rating.ready button,.audio-rating.ready button,.reading-rating.ready button{opacity:1!important}.rating button b,.rating button small{display:block!important;color:inherit!important}.rating button small{margin-top:5px!important;opacity:.72!important}
+.module-activity{margin-top:16px!important;border:1px solid #ead7ad!important;background:#fffdf8!important;box-shadow:0 9px 22px rgba(116,88,40,.06)!important}
+@media(min-width:901px){.card-stage,.audio-stage,.dictation-stage,.reading-stage{position:sticky!important;top:92px!important}}
+@media(max-width:900px){
+  .memory-layout,.listening-layout,.dictation-layout,.reading-layout{grid-template-columns:1fr!important}
+  .deck-panel,.listening-library,.dictation-library,.reading-import{width:100%!important;min-height:0!important}
+  .card-stage,.audio-stage,.dictation-stage,.reading-stage{position:static!important;width:100%!important}
+}
+@media(max-width:600px){
+  .deck-panel,.listening-library,.dictation-library,.reading-import{padding:16px!important;border-radius:20px!important}
+  .flashcard,.audio-card,.dictation-card,.reading-card{min-height:290px!important;padding:24px 16px!important;border-radius:22px!important}
+  .sound-actions{grid-template-columns:1fr!important}.sound-actions button,.dictation-play{min-height:86px!important}
+  .rating,.audio-rating,.reading-rating{grid-template-columns:repeat(2,minmax(0,1fr))!important;padding:8px!important;gap:8px!important}
+  .rating button,.audio-rating button,.reading-rating button{min-height:66px!important}
+  .card-tools,.reading-card-tools,.dictation-actions{align-items:stretch!important}.card-tools button,.reading-card-tools button,.dictation-actions button{flex:1 1 140px!important}
+  .card-tools span,.reading-card-tools span{flex:1 0 100%!important;margin-left:0!important;text-align:center!important}
+}
