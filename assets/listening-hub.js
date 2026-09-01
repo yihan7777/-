@@ -128,7 +128,7 @@
     if(!words.length)return 0;
     let custom=[];try{custom=JSON.parse(localStorage.getItem('ielts-listening-custom-v1')||'[]')}catch(_){}
     const known=new Set(custom.map(x=>String(x.word).toLowerCase().replace(/[^a-z]/g,'')));let added=0;
-    words.forEach(word=>{const key=word.toLowerCase().replace(/[^a-z]/g,'');if(!key||known.has(key))return;custom.push({id:'LC-'+Date.now()+'-'+added,word,meaning:'来自真题复盘，中文待补充',example:'Listen for “'+word+'” in '+title+' (Q'+q+').'});known.add(key);added++});
+    words.forEach(word=>{const key=word.toLowerCase().replace(/[^a-z]/g,'');if(!key||known.has(key))return;custom.push({id:'LC-'+Date.now()+'-'+added,addedAt:Date.now(),word,meaning:'来自真题复盘，中文待补充',example:'Listen for “'+word+'” in '+title+' (Q'+q+').'});known.add(key);added++});
     localStorage.setItem('ielts-listening-custom-v1',JSON.stringify(custom));
     if(added)window.dispatchEvent(new CustomEvent('ielts-listening-cards-added',{detail:{cards:custom.slice(-added)}}));
     return added;

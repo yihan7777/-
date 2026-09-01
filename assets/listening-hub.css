@@ -9,3 +9,6 @@
 .listening-import-panel>summary small{margin-left:auto;color:#73808a;font-weight:500}.listening-import-panel .practice-import{border:0;border-top:1px solid #dce4e8;border-radius:0;background:#f5f8fa}
 .practice-frame-head #jumpListeningQuestion{background:#d9f0ea;color:#163f35;border-color:#8cbcaf;font-weight:800}
 .attempt-details summary span small{display:block;margin-top:4px;color:#78858d;font-size:11px;font-weight:500}
+
+/* v3: reaction cards grouped by the date they were added */
+.listening-date-library{margin:13px 0;padding:12px;border:1px solid #ead7a9;border-radius:15px;background:#fffaf0}.listening-date-library>b{display:block;margin-bottom:9px;color:#5f4a28;font-size:12px}.listening-date-filters{display:flex;gap:7px;overflow-x:auto;padding:2px;scrollbar-width:none}.listening-date-filters::-webkit-scrollbar{display:none}.listening-date-filters button{display:inline-flex;align-items:center;gap:7px;flex:0 0 auto;border:1px solid #ead19a;border-radius:999px;background:#fff7dc;color:#624a20;padding:8px 11px;font-weight:800;cursor:pointer}.listening-date-filters button small{display:inline-grid;place-items:center;min-width:22px;height:22px;border-radius:999px;background:rgba(255,255,255,.72);color:#71501b;font-size:10px}.listening-date-filters button.active{background:#f4bd48;border-color:#d99b1e;color:#3f2d0d;box-shadow:0 5px 12px rgba(174,116,15,.2)}
