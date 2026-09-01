@@ -498,7 +498,7 @@
       const attempts=history.filter(a=>a.title===x.title);
       const attemptHtml=attempts.length?attempts.map(a=>{
         const wrong=Object.entries(a.reviews||{}).map(([q,r])=>esc('Q'+q+' '+(r.primary||'未标记')+(r.synonym?' · '+r.synonym:''))).join('<br>');
-        return '<div class="private-attempt"><div class="private-attempt-head"><span>'+esc(new Date(a.date).toLocaleDateString())+' · '+a.correct+'/'+a.total+'</span><button class="edit-attempt" data-edit-attempt="'+esc(a.id||'')+'">重新编辑</button></div><div class="private-attempt-errors">'+(wrong||'本次没有逐题复盘记录')+'</div></div>';
+        return '<div class="private-attempt"><div class="private-attempt-head"><span>'+esc(new Date(a.date).toLocaleDateString())+' · '+a.correct+'/'+a.total+'</span><div><button class="edit-attempt" data-edit-attempt="'+esc(a.id||'')+'">重新编辑</button><button data-saved-result="'+esc(a.id||'')+'">查看原做题结果</button><button class="danger" data-delete-attempt="'+esc(a.id||'')+'">删除记录</button></div></div><div class="private-attempt-errors">'+(wrong||'本次没有逐题复盘记录')+'</div><div class="saved-result-host" hidden></div></div>';
       }).join(''):'<p class="no-private-errors">完成这篇并保存复盘后，错题会显示在这里。</p>';
       const isDone=doneTitles.has(titleKey(x.title));
       return '<details class="private-test-entry '+(isDone?'is-completed':'')+'"><summary><span><b>'+esc(x.title)+(isVipTest(x)?' <i class="vip-test-badge">VIP</i>':'')+(isDone?' <i class="done-test-badge">✓ 已完成</i>':'')+'</b><small>'+esc(x.frequency)+' · '+attempts.length+' 次练习</small></span><em>'+(isDone?'查看记录与复盘 ↓':'展开 ↓')+'</em></summary><div class="private-test-body"><div class="private-test-actions"><button data-private-test="'+esc(x.id)+'">'+(isDone?'重新做题':'开始做题')+'</button><button class="'+(paperSelection.has(x.id)?'paper-added':'')+'" data-add-paper="'+esc(x.id)+'" '+(isDone?'disabled title="已做题目不会加入新套题"':'')+'>'+(isDone?'已做 · 不参与组卷':paperSelection.has(x.id)?'✓ 已加入组卷':'＋ 加入组卷')+'</button><button class="chatgpt-review" data-chatgpt-title="'+esc(x.title)+'">复制复盘并打开 ChatGPT</button></div>'+attemptHtml+'</div></details>';
@@ -510,6 +510,8 @@
     });
     document.querySelectorAll('[data-add-paper]').forEach(btn=>btn.onclick=()=>{paperSelection.has(btn.dataset.addPaper)?paperSelection.delete(btn.dataset.addPaper):paperSelection.add(btn.dataset.addPaper);renderPrivateBank()});
     document.querySelectorAll('[data-edit-attempt]').forEach(btn=>btn.onclick=()=>openAttemptEditor(btn.dataset.editAttempt));
+    document.querySelectorAll('[data-saved-result]').forEach(btn=>btn.onclick=e=>{e.stopPropagation();toggleSavedResult(btn,btn.dataset.savedResult)});
+    document.querySelectorAll('[data-delete-attempt]').forEach(btn=>btn.onclick=e=>{e.stopPropagation();deleteAttempt(btn.dataset.deleteAttempt)});
     document.querySelectorAll('[data-chatgpt-title]').forEach(btn=>btn.onclick=()=>openChatGPTReview(btn.dataset.chatgptTitle));
   }
   function renderRecentListeningReview(history) {
@@ -520,14 +522,34 @@
     const reviewItems=items.length?items.map(item=>{
       const wrong=item.wrongQuestions||[];
       const rows=wrong.map(q=>{const detail=item.questionDetails?.[q]||{},review=item.reviews?.[q]||{};return '<div class="recent-review-row"><b>Q'+esc(q)+' · '+esc(review.primary||'待填写错因')+'</b><span>你的答案：'+esc(detail.userAnswer||'—')+'　正确答案：'+esc(detail.correctAnswer||'—')+'</span><small>'+esc(review.synonym||review.evidence||detail.analysis||'展开后可继续补充复盘')+'</small></div>'}).join('');
-      return '<details class="recent-review-entry"><summary><span><b>'+esc(item.part)+' · '+esc(item.title)+'</b><small>'+esc(new Date(item.date||Date.now()).toLocaleString())+' · '+(item.reviewStatus==='completed'?'已复盘':'待复盘')+'</small></span><strong>'+esc(item.correct)+'/'+esc(item.total)+' · '+(item.total?Math.round(item.correct/item.total*100):0)+'%</strong></summary><div class="recent-review-body"><div class="recent-review-actions"><button data-recent-review="'+esc(item.id||'')+'">'+(item.reviewStatus==='completed'?'查看 / 修改复盘':'继续完成复盘')+'</button><button data-recent-original="'+esc(item.title)+'">打开原题</button></div>'+(rows||'<p>本篇全部正确，没有错题。</p>')+'</div></details>';
+      return '<details class="recent-review-entry"><summary><span><b>'+esc(item.part)+' · '+esc(item.title)+'</b><small>'+esc(new Date(item.date||Date.now()).toLocaleString())+' · '+(item.reviewStatus==='completed'?'已复盘':'待复盘')+'</small></span><strong>'+esc(item.correct)+'/'+esc(item.total)+' · '+(item.total?Math.round(item.correct/item.total*100):0)+'%</strong></summary><div class="recent-review-body"><div class="recent-review-actions"><button data-recent-review="'+esc(item.id||'')+'">'+(item.reviewStatus==='completed'?'查看 / 修改复盘':'继续完成复盘')+'</button><button data-saved-result="'+esc(item.id||'')+'">查看原做题结果</button><button data-recent-original="'+esc(item.title)+'">打开原题 / 重新做</button><button class="danger" data-delete-attempt="'+esc(item.id||'')+'">删除本条记录</button></div><div class="saved-result-host" hidden></div>'+(rows||'<p>本篇全部正确，没有错题。</p>')+'</div></details>';
     }).join(''):'<p class="empty-analysis">交卷后会自动保存在这里，刷新页面也不会消失。</p>';
     host.classList.toggle('is-collapsed',collapsed);
     host.innerHTML='<header><div><small>SUBMISSION HISTORY</small><h3>最近提交与错题复盘</h3></div><div class="recent-review-header-actions"><b>'+items.length+' 条</b><button type="button" class="recent-review-toggle" aria-expanded="'+(!collapsed)+'"><span>'+(collapsed?'展开':'收起')+'</span><i aria-hidden="true">⌃</i></button></div></header><div class="recent-review-list" '+(collapsed?'hidden':'')+'>'+reviewItems+'</div>';
     const toggle=host.querySelector('.recent-review-toggle'),list=host.querySelector('.recent-review-list');
     toggle.onclick=()=>{const next=!host.classList.contains('is-collapsed');host.classList.toggle('is-collapsed',next);list.hidden=next;toggle.setAttribute('aria-expanded',String(!next));toggle.querySelector('span').textContent=next?'展开':'收起';try{localStorage.setItem(collapseKey,String(next))}catch(_){}};
     host.querySelectorAll('[data-recent-review]').forEach(btn=>btn.onclick=()=>{activate('practice');setTimeout(()=>openAttemptEditor(btn.dataset.recentReview),60)});
+    host.querySelectorAll('[data-saved-result]').forEach(btn=>btn.onclick=e=>{e.stopPropagation();toggleSavedResult(btn,btn.dataset.savedResult)});
+    host.querySelectorAll('[data-delete-attempt]').forEach(btn=>btn.onclick=e=>{e.stopPropagation();deleteAttempt(btn.dataset.deleteAttempt)});
     host.querySelectorAll('[data-recent-original]').forEach(btn=>btn.onclick=async()=>{const record=(await dbAll()).find(x=>titleKey(x.title)===titleKey(btn.dataset.recentOriginal));if(!record)return alert('原题当前不在本机题库，请先恢复或重新导入题库。');activate('practice');await launchTest(record.html,record.audio,record.title,record.part,record.assets||[])});
+  }
+  function savedResultMarkup(attempt) {
+    const wrong=attempt.wrongQuestions||[],rate=attempt.total?Math.round(attempt.correct/attempt.total*100):0;
+    const rows=wrong.map(q=>{const detail=attempt.questionDetails?.[q]||{},review=attempt.reviews?.[q]||{};return '<article class="saved-result-row"><header><b>第 '+esc(q)+' 题</b><span>'+esc(review.primary||'错题')+'</span></header><div><p><small>你的答案</small><strong>'+esc(detail.userAnswer||'—')+'</strong></p><p><small>正确答案</small><strong>'+esc(detail.correctAnswer||'—')+'</strong></p></div>'+(review.evidence||detail.transcript?'<p class="saved-result-evidence">原文定位：'+esc(review.evidence||detail.transcript)+'</p>':'')+(review.synonym?'<p class="saved-result-evidence">同义替换：'+esc(review.synonym)+'</p>':'')+'</article>'}).join('');
+    return '<section class="saved-result-viewer"><header><div><small>READ-ONLY RESULT · 仅查看，不会新增记录</small><h4>'+esc(attempt.part)+' · '+esc(attempt.title)+'</h4><p>'+esc(new Date(attempt.date||Date.now()).toLocaleString())+'</p></div><strong>'+esc(attempt.correct)+'/'+esc(attempt.total)+' · '+rate+'%</strong></header><div class="saved-result-summary"><span>正确 <b>'+esc(attempt.correct)+'</b></span><span>错误 <b>'+wrong.length+'</b></span><span>状态 <b>'+(attempt.reviewStatus==='completed'?'已复盘':'待复盘')+'</b></span></div>'+(rows||'<p class="saved-result-perfect">本次全部正确，没有错题。</p>')+'</section>';
+  }
+  function toggleSavedResult(button,id) {
+    const attempt=loadHistory().find(x=>x.id===id);if(!attempt)return alert('这条做题记录已经不存在。');
+    const scope=button.closest('.recent-review-body,.attempt-wrong-list,.private-attempt')||button.parentElement;
+    const host=scope.querySelector('.saved-result-host');if(!host)return;
+    const opening=host.hidden;host.hidden=!opening;button.textContent=opening?'收起原做题结果':'查看原做题结果';
+    if(opening){host.innerHTML=savedResultMarkup(attempt);host.scrollIntoView({behavior:'smooth',block:'nearest'})}
+  }
+  function deleteAttempt(id) {
+    const all=loadHistory(),attempt=all.find(x=>x.id===id);if(!attempt)return alert('这条做题记录已经不存在。');
+    if(!confirm('确认删除这条做题记录吗？\n\n'+attempt.part+' · '+attempt.title+'\n'+new Date(attempt.date||Date.now()).toLocaleString()+' · '+attempt.correct+'/'+attempt.total+'\n\n只删除本次成绩和复盘，不会删除原题。'))return;
+    if(editingAttemptId===id){editingAttemptId=null;pendingResult=null;$('#causePanel')?.classList.add('hidden')}
+    saveHistory(all.filter(x=>x.id!==id));renderPrivateBank();renderAnalysis();
   }
   function openAttemptEditor(id) {
     const attempt=loadHistory().find(x=>x.id===id);if(!attempt)return;
@@ -791,10 +813,12 @@
     $('#attemptHistory').innerHTML = '<div class="attempt-history-filters"><button class="'+(analysisFilter==='all'?'active':'')+'" data-attempt-filter="all">全部记录（'+items.length+'）</button><button class="'+(analysisFilter==='pending'?'active':'')+'" data-attempt-filter="pending">待复盘（'+pendingCount+'）</button><button class="'+(analysisFilter==='completed'?'active':'')+'" data-attempt-filter="completed">已复盘（'+completedCount+'）</button></div>'+(visibleItems.length ? visibleItems.slice(0,100).map(x => {
       const reviews=x.reviews||{};
       const details=Object.entries(reviews).map(([q,r]) => '<div class="attempt-wrong"><b>第 '+esc(q)+'题 · '+esc(r.primary||'未标记')+'</b><span>'+esc(r.synonym||r.evidence||r.reminder||'暂无补充分析')+'</span></div>').join('');
-      return '<details class="attempt-details" data-attempt-part="'+esc(x.part)+'" data-attempt-id="'+esc(x.id||'')+'"><summary><span><b>'+esc(x.part)+'</b> · '+esc(x.title)+'<small>'+esc(new Date(x.date||Date.now()).toLocaleDateString())+' · '+(x.reviewStatus==='completed'?'已复盘':'待复盘')+'</small></span><b>'+x.correct+'/'+x.total+' · '+(x.total?Math.round(x.correct/x.total*100):0)+'%</b></summary><div class="attempt-wrong-list"><div class="attempt-actions"><button data-attempt-review="'+esc(x.id||'')+'">'+(x.reviewStatus==='completed'?'查看 / 重新编辑复盘':'继续错题复盘')+'</button><button data-attempt-original="'+esc(x.title)+'">打开原文 / 重新做</button><button data-attempt-intensive="'+esc(x.title)+'">进入精听</button></div>'+(details||'<p class="empty-analysis">本次还没有逐题复盘，点击“继续错题复盘”即可补充。</p>')+'</div></details>';
+      return '<details class="attempt-details" data-attempt-part="'+esc(x.part)+'" data-attempt-id="'+esc(x.id||'')+'"><summary><span><b>'+esc(x.part)+'</b> · '+esc(x.title)+'<small>'+esc(new Date(x.date||Date.now()).toLocaleDateString())+' · '+(x.reviewStatus==='completed'?'已复盘':'待复盘')+'</small></span><b>'+x.correct+'/'+x.total+' · '+(x.total?Math.round(x.correct/x.total*100):0)+'%</b></summary><div class="attempt-wrong-list"><div class="attempt-actions"><button data-attempt-review="'+esc(x.id||'')+'">'+(x.reviewStatus==='completed'?'查看 / 重新编辑复盘':'继续错题复盘')+'</button><button data-saved-result="'+esc(x.id||'')+'">查看原做题结果</button><button data-attempt-original="'+esc(x.title)+'">打开原文 / 重新做</button><button data-attempt-intensive="'+esc(x.title)+'">进入精听</button><button class="danger" data-delete-attempt="'+esc(x.id||'')+'">删除本条记录</button></div><div class="saved-result-host" hidden></div>'+(details||'<p class="empty-analysis">本次还没有逐题复盘，点击“继续错题复盘”即可补充。</p>')+'</div></details>';
     }).join('') : '<p class="empty-analysis">这个分类暂无记录。</p>');
     document.querySelectorAll('[data-attempt-filter]').forEach(btn=>btn.onclick=()=>{analysisFilter=btn.dataset.attemptFilter;try{localStorage.setItem(analysisFilterKey,analysisFilter)}catch(_){}renderAnalysis()});
     document.querySelectorAll('[data-attempt-review]').forEach(btn=>btn.onclick=e=>{e.stopPropagation();activate('practice');setTimeout(()=>openAttemptEditor(btn.dataset.attemptReview),60)});
+    document.querySelectorAll('#attemptHistory [data-saved-result]').forEach(btn=>btn.onclick=e=>{e.stopPropagation();toggleSavedResult(btn,btn.dataset.savedResult)});
+    document.querySelectorAll('#attemptHistory [data-delete-attempt]').forEach(btn=>btn.onclick=e=>{e.stopPropagation();deleteAttempt(btn.dataset.deleteAttempt)});
     document.querySelectorAll('[data-analysis-part]').forEach(card=>card.onclick=()=>{
       const part=card.dataset.analysisPart,rows=[...document.querySelectorAll('.attempt-details')];
       rows.forEach(x=>x.classList.remove('part-focus'));
