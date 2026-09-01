@@ -506,11 +506,17 @@
   function renderRecentListeningReview(history) {
     const host=$('#recentListeningReview');if(!host)return;
     const items=[...(history||[])].sort((a,b)=>new Date(b.date||0)-new Date(a.date||0)).slice(0,12);
-    host.innerHTML='<header><div><small>SUBMISSION HISTORY</small><h3>最近提交与错题复盘</h3></div><b>'+items.length+' 条</b></header>'+(items.length?items.map(item=>{
+    const collapseKey='ielts-recent-review-collapsed-v1';
+    let collapsed=true;try{collapsed=localStorage.getItem(collapseKey)!=='false'}catch(_){}
+    const reviewItems=items.length?items.map(item=>{
       const wrong=item.wrongQuestions||[];
       const rows=wrong.map(q=>{const detail=item.questionDetails?.[q]||{},review=item.reviews?.[q]||{};return '<div class="recent-review-row"><b>Q'+esc(q)+' · '+esc(review.primary||'待填写错因')+'</b><span>你的答案：'+esc(detail.userAnswer||'—')+'　正确答案：'+esc(detail.correctAnswer||'—')+'</span><small>'+esc(review.synonym||review.evidence||detail.analysis||'展开后可继续补充复盘')+'</small></div>'}).join('');
       return '<details class="recent-review-entry"><summary><span><b>'+esc(item.part)+' · '+esc(item.title)+'</b><small>'+esc(new Date(item.date||Date.now()).toLocaleString())+' · '+(item.reviewStatus==='completed'?'已复盘':'待复盘')+'</small></span><strong>'+esc(item.correct)+'/'+esc(item.total)+' · '+(item.total?Math.round(item.correct/item.total*100):0)+'%</strong></summary><div class="recent-review-body"><div class="recent-review-actions"><button data-recent-review="'+esc(item.id||'')+'">'+(item.reviewStatus==='completed'?'查看 / 修改复盘':'继续完成复盘')+'</button><button data-recent-original="'+esc(item.title)+'">打开原题</button></div>'+(rows||'<p>本篇全部正确，没有错题。</p>')+'</div></details>';
-    }).join(''):'<p class="empty-analysis">交卷后会自动保存在这里，刷新页面也不会消失。</p>');
+    }).join(''):'<p class="empty-analysis">交卷后会自动保存在这里，刷新页面也不会消失。</p>';
+    host.classList.toggle('is-collapsed',collapsed);
+    host.innerHTML='<header><div><small>SUBMISSION HISTORY</small><h3>最近提交与错题复盘</h3></div><div class="recent-review-header-actions"><b>'+items.length+' 条</b><button type="button" class="recent-review-toggle" aria-expanded="'+(!collapsed)+'"><span>'+(collapsed?'展开':'收起')+'</span><i aria-hidden="true">⌃</i></button></div></header><div class="recent-review-list" '+(collapsed?'hidden':'')+'>'+reviewItems+'</div>';
+    const toggle=host.querySelector('.recent-review-toggle'),list=host.querySelector('.recent-review-list');
+    toggle.onclick=()=>{const next=!host.classList.contains('is-collapsed');host.classList.toggle('is-collapsed',next);list.hidden=next;toggle.setAttribute('aria-expanded',String(!next));toggle.querySelector('span').textContent=next?'展开':'收起';try{localStorage.setItem(collapseKey,String(next))}catch(_){}};
     host.querySelectorAll('[data-recent-review]').forEach(btn=>btn.onclick=()=>{activate('practice');setTimeout(()=>openAttemptEditor(btn.dataset.recentReview),60)});
     host.querySelectorAll('[data-recent-original]').forEach(btn=>btn.onclick=async()=>{const record=(await dbAll()).find(x=>titleKey(x.title)===titleKey(btn.dataset.recentOriginal));if(!record)return alert('原题当前不在本机题库，请先恢复或重新导入题库。');activate('practice');await launchTest(record.html,record.audio,record.title,record.part,record.assets||[])});
   }
