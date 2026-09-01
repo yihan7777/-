@@ -7,8 +7,9 @@
 
   const customKey = 'ielts-listening-custom-v1';
   const stateKey = 'ielts-listening-state-v1';
+  const dateFilterKey = 'ielts-listening-date-filter-v1';
   const fallbackStore = {};
-  let cards = [], state = {}, queue = [], current = null, revealed = false;
+  let cards = [], state = {}, queue = [], current = null, revealed = false, dateFilter = 'all';
   const norm = s => String(s || '').toLowerCase().replace(/[^a-z]/g, '');
   const getStore = (name, fallback) => {
     try { return JSON.parse(localStorage.getItem(name) || JSON.stringify(fallback)); }
@@ -30,10 +31,35 @@
     const u = new SpeechSynthesisUtterance(text); u.lang = 'en-GB'; u.rate = rate;
     speechSynthesis.speak(u);
   }
+  function dateStamp(value) {
+    const date=new Date(value);if(Number.isNaN(date.getTime()))return '';
+    return [date.getFullYear(),String(date.getMonth()+1).padStart(2,'0'),String(date.getDate()).padStart(2,'0')].join('-');
+  }
+  function cardDate(card) {
+    if(card?.addedAt||card?.createdAt)return dateStamp(card.addedAt||card.createdAt);
+    const match=String(card?.id||'').match(/^LC-(\d{12,})-/);return match?dateStamp(Number(match[1])):'';
+  }
+  function dateLabel(stamp) {
+    const today=dateStamp(Date.now()),yesterday=dateStamp(Date.now()-86400000);
+    if(stamp===today)return '今天';if(stamp===yesterday)return '昨天';
+    const date=new Date(stamp+'T00:00:00');return (date.getMonth()+1)+'月'+date.getDate()+'日';
+  }
+  function matchesDate(card) { const stamp=cardDate(card);return dateFilter==='all'||(dateFilter==='history'?!stamp:stamp===dateFilter); }
+  function renderDateFilters() {
+    const host=$('#listeningDateFilters');if(!host)return;
+    const active=cards.filter(card=>!state[card.id]?.archived),counts=new Map();let history=0;
+    active.forEach(card=>{const stamp=cardDate(card);stamp?counts.set(stamp,(counts.get(stamp)||0)+1):history++});
+    const dated=[...counts.entries()].sort((a,b)=>b[0].localeCompare(a[0]));
+    const buttons=[['all','全部',active.length],...dated.map(([stamp,count])=>[stamp,dateLabel(stamp),count])];
+    if(history)buttons.push(['history','历史卡片',history]);
+    host.innerHTML=buttons.map(([value,label,count])=>'<button type="button" class="'+(dateFilter===value?'active':'')+'" data-listening-date="'+value+'"><span>'+label+'</span><small>'+count+'</small></button>').join('');
+    host.querySelectorAll('[data-listening-date]').forEach(btn=>btn.onclick=()=>{dateFilter=btn.dataset.listeningDate;setStore(dateFilterKey,dateFilter);build();setStatus('已切换到“'+btn.querySelector('span').textContent+'”，共 '+cards.filter(card=>!state[card.id]?.archived&&matchesDate(card)).length+' 张卡。')});
+  }
   function build() {
-    queue = cards.filter(c => !state[c.id]?.archived && (state[c.id]?.due || 0) <= Date.now());
-    if (!queue.length) queue = cards.filter(c => !state[c.id]?.archived).sort((a,b) => (state[a.id]?.due || 0) - (state[b.id]?.due || 0)).slice(0, 5);
-    updateArchived(); show();
+    const pool=cards.filter(c => !state[c.id]?.archived && matchesDate(c));
+    queue = pool.filter(c => (state[c.id]?.due || 0) <= Date.now());
+    if (!queue.length) queue = pool.sort((a,b) => (state[a.id]?.due || 0) - (state[b.id]?.due || 0)).slice(0, 5);
+    updateArchived();renderDateFilters();show();
   }
   function updateArchived() { $('#listeningArchivedCount').textContent = cards.filter(c => state[c.id]?.archived).length; }
   function show() {
@@ -77,12 +103,12 @@
       parseInput(raw).forEach(item => {
         const idKey = norm(item.word); if (!idKey) return;
         if (existing.has(idKey)) { skipped++; return; }
-        const card = {id:`LC-${Date.now()}-${added.length}`, ...item};
+        const card = {id:`LC-${Date.now()}-${added.length}`, addedAt:Date.now(), ...item};
         custom.push(card); cards.push(card); added.push(card); existing.add(idKey);
       });
       if (!added.length) { setStatus(skipped ? '这些词已经在听力卡组中。' : '没有识别到可添加的英文内容。', false); return; }
       setStore(customKey, custom); $('#listeningImport').value = '';
-      queue = [...added]; show();
+      dateFilter=dateStamp(Date.now());setStore(dateFilterKey,dateFilter);queue = [...added];renderDateFilters();show();
       setStatus(`✓ 已自动整理并加入 ${added.length} 张卡${skipped ? `，跳过 ${skipped} 个重复词` : ''}。点击“播放单词”开始。`);
     } catch (error) { setStatus(`添加失败：${error.message}`, false); }
   }
@@ -104,7 +130,7 @@
   $('#archiveListening').addEventListener('click', () => {
     if (!current) return;
     state[current.id] = {...(state[current.id] || {}), archived:true, archivedAt:Date.now()};
-    setStore(stateKey,state); updateArchived(); setStatus(`当前词已移出听力学习，可随时恢复。`); show();
+    setStore(stateKey,state); updateArchived();renderDateFilters();setStatus(`当前词已移出听力学习，可随时恢复。`); show();
   });
   $('#restoreListening').addEventListener('click', () => {
     const ids=cards.filter(c => state[c.id]?.archived).map(c => c.id);
@@ -114,11 +140,11 @@
   });
   window.addEventListener('ielts-listening-cards-added',event=>{
     const added=event.detail?.cards||[];if(!added.length)return;
-    const known=new Set(cards.map(x=>x.id));added.forEach(card=>{if(!known.has(card.id))cards.push(card)});
-    queue=[...added,...queue];updateArchived();show();setStatus(`✓ 真题复盘已加入 ${added.length} 张听力反应卡。`);
+    const known=new Set(cards.map(x=>x.id));added.forEach(card=>{if(!known.has(card.id))cards.push({...card,addedAt:card.addedAt||Date.now()})});
+    dateFilter=dateStamp(Date.now());setStore(dateFilterKey,dateFilter);queue=[...added,...queue];updateArchived();renderDateFilters();show();setStatus(`✓ 真题复盘已加入 ${added.length} 张听力反应卡。`);
   });
 
-  state = getStore(stateKey, {}); const custom = getStore(customKey, []);
+  state = getStore(stateKey, {}); dateFilter=getStore(dateFilterKey,'all')||'all'; const custom = getStore(customKey, []);
   fetch('data/listening-defaults.json?v=6', {cache:'no-store'}).then(r => r.ok ? r.json() : []).catch(() => []).then(defaults => {
     cards = [...defaults, ...custom]; build(); setStatus(`听力卡模块已就绪，共 ${cards.length} 张卡。`);
   });
