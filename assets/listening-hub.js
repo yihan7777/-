@@ -759,7 +759,13 @@
     const today=dayStamp(), due=[];
     items.forEach(item => (item.reviewPlan||[]).forEach((plan,index) => { if(!plan.done && plan.due<=today) due.push({item,plan,index}); }));
     $('#dueReviewCount').textContent = due.length;
+    $('#dueReviewPanelCount').textContent = due.length + ' 项';
     $('#dueReviewList').innerHTML = due.length ? due.map(x => '<div class="due-review-item"><i>' + esc(x.plan.label) + '</i><span><b>' + esc(x.item.part) + '</b> · ' + esc(x.item.title) + '</span><button data-review-open="' + esc(x.item.title) + '">重新做</button><button data-review-done="' + esc(x.item.id||'') + '" data-plan-index="' + x.index + '">已复习</button></div>').join('') : '<p class="empty-analysis">今天没有到期任务。完成新错题后会自动生成 D+1、D+3、D+7。</p>';
+    const duePanel=$('#dueReviewPanel'),dueList=$('#dueReviewList'),dueToggle=$('#dueReviewToggle'),dueCollapseKey='ielts-due-review-collapsed-v1';
+    let dueCollapsed=true;try{dueCollapsed=localStorage.getItem(dueCollapseKey)!=='false'}catch(_){}
+    const syncDuePanel=collapsed=>{duePanel.classList.toggle('is-collapsed',collapsed);dueList.hidden=collapsed;dueToggle.setAttribute('aria-expanded',String(!collapsed));dueToggle.querySelector('span').textContent=collapsed?'展开':'收起'};
+    syncDuePanel(dueCollapsed);
+    dueToggle.onclick=()=>{const next=!duePanel.classList.contains('is-collapsed');syncDuePanel(next);try{localStorage.setItem(dueCollapseKey,String(next))}catch(_){}};
     document.querySelectorAll('[data-review-done]').forEach(btn => btn.onclick = () => {
       const all=loadHistory(), item=all.find(x=>x.id===btn.dataset.reviewDone);
       if(item?.reviewPlan?.[Number(btn.dataset.planIndex)]) item.reviewPlan[Number(btn.dataset.planIndex)].done=true;
