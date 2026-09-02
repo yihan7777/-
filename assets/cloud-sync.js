@@ -8,9 +8,9 @@
   const DB_NAME = 'ielts-private-listening-bank-v1';
   const STORE_NAME = 'tests';
   const BUCKET = 'ielts-private-files';
-  const SYNC_VERSION = '7.2';
+  const SYNC_VERSION = '7.3';
 
-  const state = { session: loadJson(SESSION_KEY), busy: false, cooldownUntil: 0, cooldownTimer: null, localCount: null, cloudCount: null };
+  const state = { session: loadJson(SESSION_KEY), busy: false, learningRecoveryRunning: false, cooldownUntil: 0, cooldownTimer: null, localCount: null, cloudCount: null };
 
   function loadJson(key) {
     try { return JSON.parse(localStorage.getItem(key) || 'null'); } catch (_) { return null; }
@@ -517,7 +517,12 @@
       const data = await api('/auth/v1/token?grant_type=password', { method: 'POST', headers: authHeaders('', { 'Content-Type': 'application/json' }), body: JSON.stringify({ email, password }) });
       saveSession(normalizeSession(data));
       setStatus('登录成功。正在检查并恢复云端听力…');
-      setTimeout(() => autoRecoverEmptyListening().catch(() => {}), 250);
+      setTimeout(async () => {
+        try {
+          const restored = await autoRecoverMissingLearningData();
+          if (!restored) await autoRecoverEmptyListening();
+        } catch (_) {}
+      }, 700);
     });
   }
   function credentials() {
@@ -552,14 +557,83 @@
     } catch (_) {}
   }
 
-  function showRecoveryBanner(show, cloudCount = state.cloudCount) {
+  function showRecoveryBanner(show, cloudCount = state.cloudCount, customMessage = '') {
     const banner = document.getElementById('listeningRecoveryBanner');
     if (!banner) return;
     banner.hidden = !show;
     const text = banner.querySelector('span');
-    if (text) text.textContent = state.session?.access_token
+    if (text) text.textContent = customMessage || (state.session?.access_token
       ? `检测到本机听力为空。点击立即从云端恢复${Number(cloudCount)>0?` ${cloudCount} 篇`:''}。`
-      : '检测到本机听力为空。请登录原来的同步账号立即恢复。';
+      : '检测到本机听力为空。请登录原来的同步账号立即恢复。');
+  }
+  function parseStored(value, fallback) {
+    try { return value == null ? fallback : JSON.parse(value); } catch (_) { return fallback; }
+  }
+  function arraySize(value) {
+    const parsed = parseStored(value, []);
+    return Array.isArray(parsed) ? parsed.length : 0;
+  }
+  function dictationSize(value) {
+    const parsed = parseStored(value, null);
+    return Array.isArray(parsed?.articles) ? parsed.articles.length : 0;
+  }
+  function mergeDictationBanks(remoteValue, localValue) {
+    const remote = parseStored(remoteValue, null), local = parseStored(localValue, null);
+    if (!remote?.articles?.length) return localValue || remoteValue;
+    if (!local?.articles?.length) return remoteValue;
+    const articles = new Map(remote.articles.map(article => [String(article.id || article.title), article]));
+    local.articles.forEach(article => {
+      const key = String(article.id || article.title), previous = articles.get(key);
+      if (!previous) { articles.set(key, article); return; }
+      const answers = new Map((previous.answers || []).map(answer => [String(answer.id || answer.answer), answer]));
+      (article.answers || []).forEach(answer => answers.set(String(answer.id || answer.answer), answer));
+      articles.set(key, { ...previous, ...article, answers: [...answers.values()] });
+    });
+    return JSON.stringify({ ...remote, ...local, articles: [...articles.values()] });
+  }
+  async function autoRecoverMissingLearningData() {
+    if (state.learningRecoveryRunning) return false;
+    const localWordCount = arraySize(localStorage.getItem('ielts-listening-custom-v1'));
+    const localDictationCount = dictationSize(localStorage.getItem('ielts-answer-dictation-bank-v1'));
+    const localHistoryCount = arraySize(localStorage.getItem('ielts-listening-test-history-v1'));
+    if (!state.session?.access_token) {
+      if (!localWordCount || !localDictationCount) showRecoveryBanner(true, state.cloudCount, '检测到单词反应卡或答案词听写未加载。请登录原同步账号恢复。');
+      return false;
+    }
+    state.learningRecoveryRunning = true;
+    try {
+      const session = await ensureSession(false), uid = session.user?.id;
+      const rows = await api(`/rest/v1/user_sync_state?user_id=eq.${encodeURIComponent(uid)}&select=payload&limit=1`, { headers: authHeaders(session.access_token) });
+      const remote = rows?.[0]?.payload?.localStorage || {};
+      const remoteWordCount = arraySize(remote['ielts-listening-custom-v1']);
+      const remoteDictationCount = dictationSize(remote['ielts-answer-dictation-bank-v1']);
+      const remoteHistoryCount = arraySize(remote['ielts-listening-test-history-v1']);
+      const restoreWords = remoteWordCount > localWordCount;
+      const restoreDictation = remoteDictationCount > localDictationCount;
+      const restoreHistory = remoteHistoryCount > localHistoryCount;
+      if (!restoreWords && !restoreDictation && !restoreHistory) return false;
+      const names = [];
+      if (restoreWords) {
+        localStorage.setItem('ielts-listening-custom-v1', mergeStorageValue(remote['ielts-listening-custom-v1'], localStorage.getItem('ielts-listening-custom-v1')));
+        if (remote['ielts-listening-state-v1']) localStorage.setItem('ielts-listening-state-v1', mergeStorageValue(remote['ielts-listening-state-v1'], localStorage.getItem('ielts-listening-state-v1')));
+        names.push(`单词反应卡 ${remoteWordCount} 张`);
+      }
+      if (restoreDictation) {
+        localStorage.setItem('ielts-answer-dictation-bank-v1', mergeDictationBanks(remote['ielts-answer-dictation-bank-v1'], localStorage.getItem('ielts-answer-dictation-bank-v1')));
+        if (remote['ielts-answer-dictation-state-v1']) localStorage.setItem('ielts-answer-dictation-state-v1', mergeStorageValue(remote['ielts-answer-dictation-state-v1'], localStorage.getItem('ielts-answer-dictation-state-v1')));
+        if (remote['ielts-answer-dictation-article-v1'] && !localStorage.getItem('ielts-answer-dictation-article-v1')) localStorage.setItem('ielts-answer-dictation-article-v1', remote['ielts-answer-dictation-article-v1']);
+        names.push(`答案词听写 ${remoteDictationCount} 篇`);
+      }
+      if (restoreHistory) {
+        localStorage.setItem('ielts-listening-test-history-v1', mergeStorageValue(remote['ielts-listening-test-history-v1'], localStorage.getItem('ielts-listening-test-history-v1')));
+        names.push(`做题记录 ${remoteHistoryCount} 条`);
+      }
+      const message = `已从云端恢复：${names.join('、')}。不会新增做题记录，正在刷新…`;
+      showRecoveryBanner(true, state.cloudCount, message);
+      setStatus(message);
+      setTimeout(() => location.reload(), 900);
+      return true;
+    } finally { state.learningRecoveryRunning = false; }
   }
   async function autoRecoverEmptyListening() {
     const localRows = await dbAll();
@@ -609,7 +683,7 @@
       renderAccount();
       await refreshCountDisplay();
       const active = state.session;
-      const autoKey = 'ielts-cloud-auto-merge-v7.2';
+      const autoKey = 'ielts-cloud-auto-merge-v7.3';
       if (active?.access_token && !sessionStorage.getItem(autoKey)) {
         sessionStorage.setItem(autoKey, 'running');
         setStatus('正在自动合并电脑、手机与云端数据，请保持页面打开…');
@@ -628,11 +702,17 @@
       modal.hidden = false;
       renderAccount();
       if (!state.session?.access_token) { setStatus('请先登录原来的同步账号；登录后会立即自动恢复听力。'); return; }
-      await autoRecoverEmptyListening();
+      const restored = await autoRecoverMissingLearningData();
+      if (!restored) await autoRecoverEmptyListening();
     };
     document.getElementById('cloudLogout').onclick = () => { saveSession(null); setStatus('已退出账号。'); };
     renderAccount();
-    setTimeout(() => autoRecoverEmptyListening().catch(() => {}), 600);
+    setTimeout(async () => {
+      try {
+        const restored = await autoRecoverMissingLearningData();
+        if (!restored) await autoRecoverEmptyListening();
+      } catch (_) {}
+    }, 600);
     window.IELTSCloudSync = {
       recoverListening: async () => {
         if (!state.session?.access_token) {
