@@ -8,7 +8,7 @@
   const DB_NAME = 'ielts-private-listening-bank-v1';
   const STORE_NAME = 'tests';
   const BUCKET = 'ielts-private-files';
-  const SYNC_VERSION = '7.1';
+  const SYNC_VERSION = '7.2';
 
   const state = { session: loadJson(SESSION_KEY), busy: false, cooldownUntil: 0, cooldownTimer: null, localCount: null, cloudCount: null };
 
@@ -118,15 +118,10 @@
     const byStable=new Map();
     (Array.isArray(list)?list:[]).forEach(item=>{
       if(!item||(requireHtmlPath&&!item.htmlPath))return;
-      const key=stableTestKey(item),previous=byStable.get(key);
+      const key=requireHtmlPath?String(item.htmlPath||item.id):stableTestKey(item),previous=byStable.get(key);
       byStable.set(key,preferNewest(previous,item));
     });
-    const final=new Map();
-    [...byStable.values()].forEach(item=>{
-      const key=isPlaceholderTitle(item.title)?'placeholder|'+stableTestKey(item):'title|'+canonicalTestKey(item);
-      final.set(key,preferNewest(final.get(key),item));
-    });
-    return [...final.values()];
+    return [...byStable.values()];
   }
   function dedupeManifest(list) {
     return dedupeSyncItems(list,true);
@@ -260,8 +255,8 @@
   async function uploadListening(token, uid, progress, existingManifest = [], onCheckpoint = null) {
     const tests = dedupeLocalTests(await dbAll());
     const cleanRemote=dedupeManifest(existingManifest);
-    const remoteMap = new Map(cleanRemote.filter(item=>!isPlaceholderTitle(item.title)).map(item => [canonicalTestKey(item), item]));
     const remoteById = new Map(cleanRemote.map(item => [String(item.id||''), item]));
+    const remoteByPath = new Map(cleanRemote.map(item => [String(item.htmlPath||''), item]));
     const manifest = [];
     let changed = 0;
     for (let i = 0; i < tests.length; i += 1) {
@@ -272,8 +267,7 @@
         test = {...test,title:healedTitle,part:recovered.part || test.part};
         await dbPut(test);
       }
-      const key = canonicalTestKey(test);
-      const previous = remoteById.get(String(test.id||'')) || remoteMap.get(key);
+      const previous = remoteById.get(String(test.id||'')) || remoteByPath.get(String(test.cloudPath||''));
       const namedPrevious = applyComputerTitle(previous,test);
       const assets = localAssetEntries(test);
       const needsUpload = !namedPrevious ||
@@ -282,7 +276,7 @@
         (assets.length && (namedPrevious.assets || []).length < assets.length);
       if (!needsUpload) {
         manifest.push(namedPrevious);
-        remoteById.set(String(test.id||''),namedPrevious);remoteMap.set(key,namedPrevious);
+        remoteById.set(String(test.id||''),namedPrevious);remoteByPath.set(String(namedPrevious.htmlPath||''),namedPrevious);
         progress(`正在核对听力 ${i + 1}/${tests.length}：${test.title || test.id}（名称已按电脑统一）`);
         continue;
       }
@@ -313,7 +307,7 @@
       };
       manifest.push(item);
       remoteById.set(String(test.id||''),item);
-      remoteMap.set(key, item);
+      remoteByPath.set(String(item.htmlPath||''),item);
       changed += 1;
       if (onCheckpoint && changed % 8 === 0) {
         await onCheckpoint(dedupeManifest([...existingManifest, ...manifest]));
@@ -337,18 +331,18 @@
   async function downloadListening(token, manifest, progress, uid, snapshotId) {
     const list = Array.isArray(manifest) ? manifest : [];
     const existing = await dbAll();
-    const existingByKey = new Map(existing.map(record => [canonicalTestKey(record), record]));
     const existingById = new Map(existing.map(record => [String(record.id||''), record]));
+    const existingByPath = new Map(existing.filter(record=>record.cloudPath).map(record => [String(record.cloudPath), record]));
     const checkpointKey = `ielts-cloud-download-progress-${uid}`;
     const checkpoint = loadJson(checkpointKey);
     const startIndex = checkpoint?.snapshotId === snapshotId ? Math.min(Number(checkpoint.index) || 0, list.length) : 0;
     for (let i = startIndex; i < list.length; i += 1) {
       const item = list[i];
-      const local = existingById.get(String(item.id||'')) || existingByKey.get(canonicalTestKey(item));
+      const local = existingById.get(String(item.id||'')) || existingByPath.get(String(item.htmlPath||''));
       const needsNameRepair=local&&isPlaceholderTitle(local.title)&&!isPlaceholderTitle(item.title);
       if (local && needsNameRepair && Number(local.updatedAt || 0) >= Number(item.updatedAt || 0) && local.html) {
         const renamed={...local,title:item.title,part:item.part||local.part};await dbPut(renamed);
-        existingById.set(String(renamed.id||''),renamed);existingByKey.set(canonicalTestKey(renamed),renamed);
+        existingById.set(String(renamed.id||''),renamed);existingByPath.set(String(item.htmlPath||''),renamed);
         progress(`已按电脑命名：${item.title}`);
         localStorage.setItem(checkpointKey, JSON.stringify({ snapshotId, index: i + 1 }));
         continue;
@@ -379,7 +373,7 @@
       };
       await dbPut(record);
       existingById.set(String(record.id||''),record);
-      existingByKey.set(canonicalTestKey(record), record);
+      existingByPath.set(String(item.htmlPath||''), record);
       localStorage.setItem(checkpointKey, JSON.stringify({ snapshotId, index: i + 1 }));
       await new Promise(resolve => setTimeout(resolve, 60));
     }
@@ -390,6 +384,8 @@
       const session = await ensureSession(true);
       const uid = session.user?.id;
       if (!uid) throw new Error('无法识别账号，请重新登录');
+      const localRowsBeforeUpload = await dbAll();
+      if (!localRowsBeforeUpload.length) throw new Error('检测到本机听力为 0，已禁止空题库上传。请先点击“从云端恢复听力”。');
       setStatus('正在整理本机学习记录…');
       const existingRows = await api(`/rest/v1/user_sync_state?user_id=eq.${encodeURIComponent(uid)}&select=payload&limit=1`, { headers: authHeaders(session.access_token) });
       const remotePayload = existingRows?.[0]?.payload || {};
@@ -421,10 +417,10 @@
       Object.entries(mergedStorage).forEach(([key, value]) => localStorage.setItem(key, value));
       const cleanManifest = dedupeManifest(row.payload.listeningManifest);
       const local = await dbAll();
-      const localMap = new Map(local.map(item => [canonicalTestKey(item), item]));
       const localById = new Map(local.map(item => [String(item.id||''), item]));
+      const localByPath = new Map(local.filter(item=>item.cloudPath).map(item => [String(item.cloudPath), item]));
       const needed = cleanManifest.filter(item => {
-        const current = localById.get(String(item.id||'')) || localMap.get(canonicalTestKey(item));
+        const current = localById.get(String(item.id||'')) || localByPath.get(String(item.htmlPath||''));
         return !current || Number(item.updatedAt || 0) > Number(current.updatedAt || 0) || (isPlaceholderTitle(current.title)&&!isPlaceholderTitle(item.title));
       });
       await downloadListening(session.access_token, needed, setStatus, uid, `${row.updated_at}|${needed.length}`);
@@ -445,10 +441,10 @@
       Object.entries(mergedStorage).forEach(([key, value]) => localStorage.setItem(key, value));
 
       const localBefore = await dbAll();
-      const localMap = new Map(localBefore.map(item => [canonicalTestKey(item), item]));
       const localById = new Map(localBefore.map(item => [String(item.id||''), item]));
+      const localByPath = new Map(localBefore.filter(item=>item.cloudPath).map(item => [String(item.cloudPath), item]));
       const missing = remoteManifest.filter(item => {
-        const local = localById.get(String(item.id||'')) || localMap.get(canonicalTestKey(item));
+        const local = localById.get(String(item.id||'')) || localByPath.get(String(item.htmlPath||''));
         return !local || Number(item.updatedAt || 0) > Number(local.updatedAt || 0) || (isPlaceholderTitle(local.title)&&!isPlaceholderTitle(item.title));
       });
       if (missing.length) {
@@ -520,7 +516,8 @@
       const { email, password } = credentials();
       const data = await api('/auth/v1/token?grant_type=password', { method: 'POST', headers: authHeaders('', { 'Content-Type': 'application/json' }), body: JSON.stringify({ email, password }) });
       saveSession(normalizeSession(data));
-      setStatus('登录成功。电脑和手机请使用同一个账号。');
+      setStatus('登录成功。正在检查并恢复云端听力…');
+      setTimeout(() => autoRecoverEmptyListening().catch(() => {}), 250);
     });
   }
   function credentials() {
@@ -550,8 +547,36 @@
       const trigger = document.getElementById('cloudSyncTrigger');
       if (trigger) trigger.textContent = `☁ 本机${localCount} / 云端${cloudCount}`;
       if (cloudCount > localCount) setStatus(`云端比本机多 ${cloudCount - localCount} 篇。请点击“↓ 下载云端到本机”，并保持页面打开直到自动刷新。`);
+      showRecoveryBanner(localCount === 0, cloudCount);
       renderAccount();
     } catch (_) {}
+  }
+
+  function showRecoveryBanner(show, cloudCount = state.cloudCount) {
+    const banner = document.getElementById('listeningRecoveryBanner');
+    if (!banner) return;
+    banner.hidden = !show;
+    const text = banner.querySelector('span');
+    if (text) text.textContent = state.session?.access_token
+      ? `检测到本机听力为空。点击立即从云端恢复${Number(cloudCount)>0?` ${cloudCount} 篇`:''}。`
+      : '检测到本机听力为空。请登录原来的同步账号立即恢复。';
+  }
+  async function autoRecoverEmptyListening() {
+    const localRows = await dbAll();
+    if (localRows.length) { showRecoveryBanner(false); return false; }
+    showRecoveryBanner(true);
+    if (!state.session?.access_token || state.busy) return false;
+    const session = await ensureSession(false), uid = session.user?.id;
+    const rows = await api(`/rest/v1/user_sync_state?user_id=eq.${encodeURIComponent(uid)}&select=payload&limit=1`, { headers: authHeaders(session.access_token) });
+    const cloudCount = dedupeManifest(rows?.[0]?.payload?.listeningManifest).length;
+    state.localCount = 0; state.cloudCount = cloudCount;
+    showRecoveryBanner(true, cloudCount);
+    if (!cloudCount) { setStatus('云端没有可恢复的听力文件。', true); return false; }
+    const modal = document.getElementById('cloudSyncModal');
+    if (modal) modal.hidden = false;
+    setStatus(`检测到本机为空，正在从云端安全恢复 ${cloudCount} 篇；不会新增做题记录，请保持页面打开…`);
+    await downloadAll();
+    return true;
   }
 
   function injectUi() {
@@ -562,17 +587,19 @@
       .cloud-sync-card{width:min(560px,100%);max-height:90vh;overflow:auto;background:#f7fcf9;border-radius:24px;padding:24px;color:#173b30;box-shadow:0 20px 70px #0005}.cloud-sync-card h2{margin:0 0 8px}.cloud-sync-card p{line-height:1.6}
       .cloud-sync-close{float:right;border:0;background:transparent;font-size:25px}.cloud-sync-fields{display:grid;gap:10px}.cloud-sync-fields input{font:inherit;padding:13px;border:1px solid #b9d8cc;border-radius:12px}.cloud-sync-actions{display:flex;flex-wrap:wrap;gap:9px;margin:14px 0}.cloud-sync-actions button{border:1px solid #17634d;border-radius:999px;background:#fff;color:#17634d;padding:10px 15px;font-weight:750}.cloud-sync-actions .primary{background:#17634d;color:#fff}.cloud-sync-actions button:disabled{opacity:.45}.cloud-sync-fields[hidden],.cloud-sync-actions[hidden]{display:none!important}
       .cloud-sync-account{padding:11px 13px;background:#e4f4ed;border-radius:12px}.cloud-sync-status{min-height:48px;padding:10px 12px;border-left:4px solid #43a27e;background:#fff}.cloud-sync-status.error{border-color:#df654f;color:#9d2f20}.cloud-sync-note{font-size:13px;color:#527166}
+      .listening-recovery-banner{position:fixed;left:50%;top:18px;transform:translateX(-50%);z-index:9997;width:min(720px,calc(100% - 28px));display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 16px;border:2px solid #c88713;border-radius:16px;background:#fff0b8;color:#5a3a00;box-shadow:0 10px 30px #4d330033;font-weight:800}.listening-recovery-banner[hidden]{display:none}.listening-recovery-banner button{flex:none;border:1px solid #8b5b00;border-radius:999px;background:#d99a22;color:#2f2100;padding:10px 15px;font-weight:900;cursor:pointer}@media(max-width:600px){.listening-recovery-banner{align-items:stretch;flex-direction:column}.listening-recovery-banner button{width:100%}}
     `;
     document.head.appendChild(style);
     document.body.insertAdjacentHTML('beforeend', `
       <button class="cloud-sync-trigger" id="cloudSyncTrigger">☁ 云同步</button>
+      <div class="listening-recovery-banner" id="listeningRecoveryBanner" hidden><span>检测到本机听力为空。</span><button id="listeningRecoveryNow">立即恢复听力</button></div>
       <div class="cloud-sync-modal" id="cloudSyncModal" hidden><section class="cloud-sync-card" role="dialog" aria-modal="true" aria-label="跨设备云同步">
         <button class="cloud-sync-close" id="cloudSyncClose" aria-label="关闭">×</button>
         <h2>电脑和手机数据互通</h2><p>两台设备登录同一个账号。打开云头像后会自动双向合并；也可以使用下面的手动按钮。</p>
         <div class="cloud-sync-account" id="cloudAccount"></div>
         <div class="cloud-sync-fields" id="cloudFields"><input id="cloudEmail" type="email" autocomplete="email" placeholder="邮箱"><input id="cloudPassword" type="password" autocomplete="current-password" placeholder="密码（至少6位）"></div>
         <div class="cloud-sync-actions" id="cloudGuestActions"><button id="cloudSignup">注册</button><button class="primary" id="cloudLogin">登录</button></div>
-        <div class="cloud-sync-actions" id="cloudUserActions"><button class="primary" id="cloudSmartSync">↕ 智能双向同步</button><button id="cloudUpload">↑ 仅上传</button><button id="cloudDownload">↓ 仅下载</button><button id="cloudLogout">退出账号</button></div>
+        <div class="cloud-sync-actions" id="cloudUserActions"><button class="primary" id="cloudSmartSync">↕ 智能双向同步</button><button id="cloudUpload">↑ 仅上传</button><button id="cloudDownload">↓ 从云端恢复听力</button><button id="cloudLogout">退出账号</button></div>
         <p class="cloud-sync-status" id="cloudStatus">准备同步。听力音频较大时，请保持页面打开。</p>
         <p class="cloud-sync-note">同步版本 v${SYNC_VERSION}。会同步：做题记录、错题复盘、词汇与记忆卡片、作文/口语记录，以及私人听力 HTML 和音频。账号之间的数据互相隔离。</p>
       </section></div>`);
@@ -582,7 +609,7 @@
       renderAccount();
       await refreshCountDisplay();
       const active = state.session;
-      const autoKey = 'ielts-cloud-auto-merge-v7.1';
+      const autoKey = 'ielts-cloud-auto-merge-v7.2';
       if (active?.access_token && !sessionStorage.getItem(autoKey)) {
         sessionStorage.setItem(autoKey, 'running');
         setStatus('正在自动合并电脑、手机与云端数据，请保持页面打开…');
@@ -597,8 +624,15 @@
     document.getElementById('cloudSmartSync').onclick = syncBoth;
     document.getElementById('cloudUpload').onclick = uploadAll;
     document.getElementById('cloudDownload').onclick = downloadAll;
+    document.getElementById('listeningRecoveryNow').onclick = async () => {
+      modal.hidden = false;
+      renderAccount();
+      if (!state.session?.access_token) { setStatus('请先登录原来的同步账号；登录后会立即自动恢复听力。'); return; }
+      await autoRecoverEmptyListening();
+    };
     document.getElementById('cloudLogout').onclick = () => { saveSession(null); setStatus('已退出账号。'); };
     renderAccount();
+    setTimeout(() => autoRecoverEmptyListening().catch(() => {}), 600);
     window.IELTSCloudSync = {
       recoverListening: async () => {
         if (!state.session?.access_token) {
@@ -629,7 +663,7 @@
     const upload = document.getElementById('cloudUpload');
     const download = document.getElementById('cloudDownload');
     const shouldDownload = logged && state.cloudCount > state.localCount;
-    if (upload && shouldDownload) upload.disabled = true;
+    if (upload && (shouldDownload || state.localCount === 0)) upload.disabled = true;
     if (download) download.classList.toggle('primary', shouldDownload);
     const last = localStorage.getItem(LAST_SYNC_KEY);
     const trigger = document.getElementById('cloudSyncTrigger');
