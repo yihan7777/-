@@ -1,6 +1,3 @@
-Warning: truncated output (original token count: 12136)
-Total output lines: 472
-
 <!doctype html>
 <html lang="zh-CN">
 <head>
@@ -223,7 +220,101 @@ Total output lines: 472
           <p class="deck-label">添加今天没反应出的词</p>
           <textarea id="listeningImport" placeholder="直接粘贴多个词：可用换行、逗号、顿号或分号分隔\n例如：metabolism, reforestation, accommodate"></textarea>
           <button class="button primary" id="addListeningWords">加入反应卡</button>
-          <small>系统会自动拆分、…2136 tokens truncated…arPrivateBank" type="button">清除本机题库</button></div></div>
+          <small>系统会自动拆分、清理编号并去重。也支持：word | 中文 | English example。</small>
+          <p id="listeningStatus" aria-live="polite">听力卡模块正在加载…</p>
+          <div class="listening-date-library"><b>按加入日期练习</b><div class="listening-date-filters" id="listeningDateFilters" aria-label="按日期筛选听力反应卡"></div></div>
+          <button class="restore-cards" id="restoreListening">恢复已移出听力词（<span id="listeningArchivedCount">0</span>）</button>
+          <div class="listening-count"><strong id="listeningDue">—</strong><span>张待复习</span></div>
+        </aside>
+        <div class="audio-stage">
+          <div class="audio-card" id="audioCard">
+            <span class="card-tag">AUDIO ONLY</span>
+            <div class="sound-actions">
+              <button id="playWord"><span>▶</span><b>播放单词</b></button>
+              <button id="playExample"><span>▶</span><b>播放例句</b></button>
+            </div>
+            <label class="heard-answer"><span>你听到的拼写</span><input id="heardAnswer" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="输入后再翻面"></label>
+            <button class="reveal-audio" id="revealAudio">翻面查看答案</button>
+            <div class="audio-answer hidden" id="audioAnswer"><strong id="listenWord"></strong><b id="listenMeaning"></b><p id="listenExample"></p><small id="listenResult"></small></div>
+          </div>
+          <button class="archive-card standalone" id="archiveListening">✓ 已熟练，移出听力学习</button>
+          <div class="rating audio-rating" id="audioRating">
+            <button data-audio-grade="again"><b>没反应</b><small>马上重复</small></button>
+            <button data-audio-grade="hard"><b>反应较慢</b><small>10 分钟后</small></button>
+            <button data-audio-grade="good"><b>反应出来</b><small>明天</small></button>
+            <button data-audio-grade="easy"><b>非常熟悉</b><small>4 天后</small></button>
+          </div>
+        </div>
+      </div>
+      <details class="module-activity" data-card-overview="listening">
+        <summary><b>卡片活动概览</b><small data-overview-count>点击展开查看在线学习与剔除学习</small></summary>
+        <div class="overview-tabs"><button class="active" data-overview-tab="active">在线学习</button><button data-overview-tab="archived">剔除学习</button></div>
+        <div class="overview-strip" data-overview-strip></div>
+      </details>
+    </section>
+
+    <section class="section tool-section" id="dictation" data-page-section="listening-hub" data-listening-view="dictation" hidden>
+      <div class="section-head">
+        <div><p class="kicker">ANSWER WORD DICTATION</p><h2>听力答案词听写</h2></div>
+        <p class="aside">按文章题目建立题库。只听发音再拼写；系统自动累计错词与错误次数，也可以只练错词或剔除熟词。</p>
+      </div>
+      <div class="dictation-layout">
+        <aside class="dictation-library">
+          <p class="deck-label">① 导入私人题库</p>
+          <label class="dictation-file"><input type="file" id="dictationFile" accept="application/json,.json"><span>选择题库文件</span></label>
+          <small>只需首次导入，题库会保存在这台设备中，不会上传到公开网页。</small>
+          <p id="dictationStatus" class="module-status">尚未导入题库。</p>
+          <label class="dictation-select"><span>② 选择文章</span><select id="dictationArticle" disabled><option>请先导入题库</option></select></label>
+          <div class="dictation-modes">
+            <button class="active" data-dictation-mode="articleAll">本篇全部</button>
+            <button data-dictation-mode="articleWrong">本篇错词</button>
+            <button data-dictation-mode="allWrong">全部错词</button>
+          </div>
+          <label class="wrong-threshold"><span>按累计错误次数听写</span><select id="dictationWrongThreshold"><option value="1">错 1 次以上</option><option value="2">错 2 次以上</option><option value="3">错 3 次以上</option><option value="5">错 5 次以上</option></select></label>
+          <button class="restore-cards" id="restoreDictation">恢复已剔除熟词（<span id="dictationArchivedCount">0</span>）</button>
+          <div class="dictation-bank-stats"><span><b id="dictationArticleCount">0</b> 篇文章</span><span><b id="dictationWrongTotal">0</b> 个错词</span></div>
+        </aside>
+        <div class="dictation-stage">
+          <div class="dictation-card" id="dictationCard">
+            <div class="dictation-topline"><span id="dictationTitle">请先导入题库</span><small id="dictationCounter">—</small></div>
+            <button class="dictation-play" id="playDictation" disabled><span>▶</span><b>播放答案词</b></button>
+            <label class="dictation-answer"><span>输入你听到的答案</span><input id="dictationInput" autocomplete="off" autocapitalize="off" spellcheck="false" disabled placeholder="Type what you hear"></label>
+            <button class="button primary" id="checkDictation" disabled>检查拼写</button>
+            <div class="dictation-result hidden" id="dictationResult"><strong id="dictationCorrectAnswer"></strong><p id="dictationFeedback"></p><small id="dictationMistakes"></small></div>
+          </div>
+          <div class="dictation-actions"><button id="archiveDictation" disabled>✓ 熟词剔除</button><button id="nextDictation" disabled>下一个 →</button></div>
+        </div>
+      </div>
+      <details class="mnemonic-panel" id="dictationMnemonic" hidden>
+        <summary><div><b>主题记忆图（可选）</b><small id="mnemonicSubtitle">用场景位置记住答案词</small></div><span>点击查看</span></summary>
+        <div class="mnemonic-summary"><b>中文梗概</b><p id="mnemonicChineseSummary"></p></div>
+        <p class="mnemonic-tip">图片不会提前自动展开。手机上可以左右滑动画面，观察每个答案词所在的位置。</p>
+        <div class="mnemonic-scroller">
+          <div class="mnemonic-canvas" id="mnemonicCanvas"></div>
+        </div>
+      </details>
+      <details class="module-activity" data-card-overview="dictation">
+        <summary><b>卡片活动概览</b><small data-overview-count>点击展开查看在线学习与剔除学习</small></summary>
+        <div class="overview-tabs"><button class="active" data-overview-tab="active">在线学习</button><button data-overview-tab="archived">剔除学习</button></div>
+        <div class="overview-strip" data-overview-strip></div>
+      </details>
+    </section>
+
+    <section class="section tool-section listening-practice" id="listeningPractice" data-page-section="listening-hub" data-listening-view="practice" hidden>
+      <div class="section-head"><div><p class="kicker">REAL TEST PRACTICE</p><h2>听力真题做题平台</h2></div><p class="aside">题目和音频只在当前设备打开，不上传公开网站。交卷后自动统计，并让你给每道错题标记原因。</p></div>
+      <details class="listening-import-panel" id="listeningImportPanel">
+        <summary><span>导入 / 更新私人题库</span><small>平时可收起，不影响做题</small></summary>
+        <div class="practice-import">
+          <label class="folder-import"><span>推荐：一次导入整个私人题库文件夹</span><input id="practiceFolder" type="file" webkitdirectory directory multiple></label>
+          <label><span>① 选择题目网页（.html）</span><input id="practiceHtmlFile" type="file" accept=".html,text/html"></label>
+          <label><span>② 选择同篇音频（audio.mp3）</span><input id="practiceAudioFile" type="file" accept=".mp3,audio/mpeg,audio/*"></label>
+          <label><span>③ 所属部分</span><select id="practicePart"><option>P1</option><option>P2</option><option>P3</option><option>P4</option></select></label>
+          <button class="button primary" id="openListeningTest">打开真题</button>
+          <p id="practiceImportStatus">请从解压后的同一篇文件夹中选择 HTML 和 audio.mp3。</p>
+        </div>
+      </details>
+      <div class="private-test-bank">
+        <div class="private-bank-head"><div><b>我的私人真题库</b><small id="privateBankCount">尚未导入</small></div><div class="private-bank-recovery"><button id="restorePrivateBank" type="button">☁ 从云端恢复听力</button><button id="clearPrivateBank" type="button">清除本机题库</button></div></div>
         <div class="private-part-tabs" id="privatePartTabs"></div>
         <div class="private-bank-filters" id="privateBankFilters"></div>
         <div class="paper-builder" id="paperBuilder"></div>
@@ -373,7 +464,7 @@ Total output lines: 472
   <script src="assets/training.js?v=7" defer></script>
   <script src="assets/writing-mock.js?v=10" defer></script>
   <script src="assets/speaking-center.js?v=2" defer></script>
-  <script src="assets/cloud-sync.js?v=7.3" defer></script>
+  <script src="assets/cloud-sync.js?v=7.4" defer></script>
   <script src="assets/review-memory.js?v=10" defer></script>
   <script src="assets/reading-bank.js?v=5" defer></script>
   <script src="assets/app-shell.js?v=6" defer></script>
