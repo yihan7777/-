@@ -8,7 +8,7 @@
   const DB_NAME = 'ielts-private-listening-bank-v1';
   const STORE_NAME = 'tests';
   const BUCKET = 'ielts-private-files';
-  const SYNC_VERSION = '7.0';
+  const SYNC_VERSION = '7.1';
 
   const state = { session: loadJson(SESSION_KEY), busy: false, cooldownUntil: 0, cooldownTimer: null, localCount: null, cloudCount: null };
 
@@ -101,21 +101,42 @@
   function canonicalTestKey(item) {
     return String(item?.part || 'P1').toUpperCase() + '|' + normalizeTitle(item?.title || item?.id);
   }
+  function isPlaceholderTitle(value) {
+    const title=String(value||'').replace(/\s+/g,' ').trim();
+    return !title||/^(?:云端听力|未命名(?:题目)?|未知题目|untitled|listening)(?:\s*\d+)?$/i.test(title);
+  }
+  function stableTestKey(item) {
+    return String(item?.id||item?.htmlPath||canonicalTestKey(item));
+  }
+  function preferNewest(previous,item) {
+    if(!previous)return item;
+    if(isPlaceholderTitle(previous.title)&&!isPlaceholderTitle(item.title))return item;
+    if(!isPlaceholderTitle(previous.title)&&isPlaceholderTitle(item.title))return previous;
+    return Number(item.updatedAt||0)>=Number(previous.updatedAt||0)?item:previous;
+  }
+  function dedupeSyncItems(list, requireHtmlPath = false) {
+    const byStable=new Map();
+    (Array.isArray(list)?list:[]).forEach(item=>{
+      if(!item||(requireHtmlPath&&!item.htmlPath))return;
+      const key=stableTestKey(item),previous=byStable.get(key);
+      byStable.set(key,preferNewest(previous,item));
+    });
+    const final=new Map();
+    [...byStable.values()].forEach(item=>{
+      const key=isPlaceholderTitle(item.title)?'placeholder|'+stableTestKey(item):'title|'+canonicalTestKey(item);
+      final.set(key,preferNewest(final.get(key),item));
+    });
+    return [...final.values()];
+  }
   function dedupeManifest(list) {
-    const byFile = new Map();
-    (Array.isArray(list) ? list : []).forEach(item => {
-      if (!item?.htmlPath) return;
-      const identity = item.htmlPath || item.id || canonicalTestKey(item);
-      const previous = byFile.get(identity);
-      if (!previous || Number(item.updatedAt || 0) >= Number(previous.updatedAt || 0)) byFile.set(identity, item);
-    });
-    const byTitle = new Map();
-    [...byFile.values()].forEach(item => {
-      const key = canonicalTestKey(item);
-      const previous = byTitle.get(key);
-      if (!previous || Number(item.updatedAt || 0) >= Number(previous.updatedAt || 0)) byTitle.set(key, item);
-    });
-    return [...byTitle.values()];
+    return dedupeSyncItems(list,true);
+  }
+  function dedupeLocalTests(list) {
+    return dedupeSyncItems(list,false);
+  }
+  function applyComputerTitle(remote,local) {
+    if(!remote||isPlaceholderTitle(local?.title))return remote;
+    return {...remote,title:local.title,part:local.part||remote.part};
   }
   function arrayItemKey(item, index) {
     if (item == null || typeof item !== 'object') return typeof item + ':' + JSON.stringify(item);
@@ -153,7 +174,7 @@
     try { decoded = decodeURIComponent(folder.replace(/_/g, '%')); } catch (_) {}
     const part = String(item.part || decoded.match(/\/(P[1-4])\//i)?.[1] || 'P1').toUpperCase();
     const decodedTitle = decoded.match(/(?:^|\/)(\d+\.\s*P[1-4][^/]+)/i)?.[1] || decoded.split('/').filter(Boolean).at(-2);
-    const title = item.title || decodedTitle || '云端听力';
+    const title = (!isPlaceholderTitle(item.title)&&item.title) || decodedTitle || item.title || '云端听力';
     return { id: item.id || decoded || crypto.randomUUID(), part, title };
   }
   function extension(name, type) {
@@ -237,8 +258,10 @@
     });
   }
   async function uploadListening(token, uid, progress, existingManifest = [], onCheckpoint = null) {
-    const tests = await dbAll();
-    const remoteMap = new Map(dedupeManifest(existingManifest).map(item => [canonicalTestKey(item), item]));
+    const tests = dedupeLocalTests(await dbAll());
+    const cleanRemote=dedupeManifest(existingManifest);
+    const remoteMap = new Map(cleanRemote.filter(item=>!isPlaceholderTitle(item.title)).map(item => [canonicalTestKey(item), item]));
+    const remoteById = new Map(cleanRemote.map(item => [String(item.id||''), item]));
     const manifest = [];
     let changed = 0;
     for (let i = 0; i < tests.length; i += 1) {
@@ -250,24 +273,26 @@
         await dbPut(test);
       }
       const key = canonicalTestKey(test);
-      const previous = remoteMap.get(key);
+      const previous = remoteById.get(String(test.id||'')) || remoteMap.get(key);
+      const namedPrevious = applyComputerTitle(previous,test);
       const assets = localAssetEntries(test);
-      const needsUpload = !previous ||
-        Number(test.updatedAt || 0) > Number(previous.updatedAt || 0) ||
-        (test.audio instanceof Blob && !previous.audioPath) ||
-        (assets.length && (previous.assets || []).length < assets.length);
+      const needsUpload = !namedPrevious ||
+        Number(test.updatedAt || 0) > Number(namedPrevious.updatedAt || 0) ||
+        (test.audio instanceof Blob && !namedPrevious.audioPath) ||
+        (assets.length && (namedPrevious.assets || []).length < assets.length);
       if (!needsUpload) {
-        manifest.push(previous);
-        progress(`正在核对听力 ${i + 1}/${tests.length}：${test.title || test.id}（云端已有）`);
+        manifest.push(namedPrevious);
+        remoteById.set(String(test.id||''),namedPrevious);remoteMap.set(key,namedPrevious);
+        progress(`正在核对听力 ${i + 1}/${tests.length}：${test.title || test.id}（名称已按电脑统一）`);
         continue;
       }
       progress(`正在上传听力 ${i + 1}/${tests.length}：${test.title || test.id}`);
       const folder = `${uid}/${safePath(test.id)}`;
       const htmlPath = `${folder}/question.html`;
       await uploadObject(token, htmlPath, new Blob([test.html || ''], { type: 'text/html' }), 'text/html');
-      let audioPath = previous?.audioPath || null;
-      let audioType = previous?.audioType || '';
-      let audioName = previous?.audioName || '';
+      let audioPath = namedPrevious?.audioPath || null;
+      let audioType = namedPrevious?.audioType || '';
+      let audioName = namedPrevious?.audioName || '';
       if (test.audio instanceof Blob) {
         audioPath = `${folder}/audio.${extension(test.audio.name, test.audio.type)}`;
         audioType = test.audio.type || 'audio/mpeg';
@@ -284,9 +309,10 @@
       const item = {
         id: test.id, part: test.part, title: test.title, frequency: test.frequency || 0,
         updatedAt: test.updatedAt || Date.now(), htmlPath, audioPath, audioType, audioName,
-        assets: assetManifest.length ? assetManifest : (previous?.assets || [])
+        assets: assetManifest.length ? assetManifest : (namedPrevious?.assets || [])
       };
       manifest.push(item);
+      remoteById.set(String(test.id||''),item);
       remoteMap.set(key, item);
       changed += 1;
       if (onCheckpoint && changed % 8 === 0) {
@@ -312,13 +338,22 @@
     const list = Array.isArray(manifest) ? manifest : [];
     const existing = await dbAll();
     const existingByKey = new Map(existing.map(record => [canonicalTestKey(record), record]));
+    const existingById = new Map(existing.map(record => [String(record.id||''), record]));
     const checkpointKey = `ielts-cloud-download-progress-${uid}`;
     const checkpoint = loadJson(checkpointKey);
     const startIndex = checkpoint?.snapshotId === snapshotId ? Math.min(Number(checkpoint.index) || 0, list.length) : 0;
     for (let i = startIndex; i < list.length; i += 1) {
       const item = list[i];
-      const local = existingByKey.get(canonicalTestKey(item));
-      if (local && Number(local.updatedAt || 0) >= Number(item.updatedAt || 0) && local.html) {
+      const local = existingById.get(String(item.id||'')) || existingByKey.get(canonicalTestKey(item));
+      const needsNameRepair=local&&isPlaceholderTitle(local.title)&&!isPlaceholderTitle(item.title);
+      if (local && needsNameRepair && Number(local.updatedAt || 0) >= Number(item.updatedAt || 0) && local.html) {
+        const renamed={...local,title:item.title,part:item.part||local.part};await dbPut(renamed);
+        existingById.set(String(renamed.id||''),renamed);existingByKey.set(canonicalTestKey(renamed),renamed);
+        progress(`已按电脑命名：${item.title}`);
+        localStorage.setItem(checkpointKey, JSON.stringify({ snapshotId, index: i + 1 }));
+        continue;
+      }
+      if (local && !needsNameRepair && Number(local.updatedAt || 0) >= Number(item.updatedAt || 0) && local.html) {
         localStorage.setItem(checkpointKey, JSON.stringify({ snapshotId, index: i + 1 }));
         continue;
       }
@@ -343,6 +378,7 @@
         html, audio, assets: assets.length ? assets : (local?.assets || []), cloudPath: item.htmlPath
       };
       await dbPut(record);
+      existingById.set(String(record.id||''),record);
       existingByKey.set(canonicalTestKey(record), record);
       localStorage.setItem(checkpointKey, JSON.stringify({ snapshotId, index: i + 1 }));
       await new Promise(resolve => setTimeout(resolve, 60));
@@ -365,11 +401,11 @@
       });
       const listeningManifest = dedupeManifest([...existingManifest, ...localManifest]);
       await persistCloudState(session, uid, mergedStorage, listeningManifest);
-      const localCount = (await dbAll()).length;
+      const localRows = await dbAll(),localCount = dedupeLocalTests(localRows).length;
       if (listeningManifest.length < localCount) throw new Error(`云端校验未通过：本机 ${localCount} 篇，云端仅 ${listeningManifest.length} 篇；本机数据未被覆盖，请再次点智能同步继续`);
       localStorage.setItem(LAST_SYNC_KEY, new Date().toISOString());
       state.localCount = localCount; state.cloudCount = listeningManifest.length;
-      setStatus(`上传完成并校验：本机 ${localCount} 篇，云端 ${listeningManifest.length} 篇。`);
+      setStatus(`上传完成并校验：本机 ${localCount} 篇不重复题目，云端 ${listeningManifest.length} 篇；名称已按电脑统一。`);
       renderAccount();
     });
   }
@@ -386,9 +422,10 @@
       const cleanManifest = dedupeManifest(row.payload.listeningManifest);
       const local = await dbAll();
       const localMap = new Map(local.map(item => [canonicalTestKey(item), item]));
+      const localById = new Map(local.map(item => [String(item.id||''), item]));
       const needed = cleanManifest.filter(item => {
-        const current = localMap.get(canonicalTestKey(item));
-        return !current || Number(item.updatedAt || 0) > Number(current.updatedAt || 0);
+        const current = localById.get(String(item.id||'')) || localMap.get(canonicalTestKey(item));
+        return !current || Number(item.updatedAt || 0) > Number(current.updatedAt || 0) || (isPlaceholderTitle(current.title)&&!isPlaceholderTitle(item.title));
       });
       await downloadListening(session.access_token, needed, setStatus, uid, `${row.updated_at}|${needed.length}`);
       localStorage.setItem(LAST_SYNC_KEY, new Date().toISOString());
@@ -409,9 +446,10 @@
 
       const localBefore = await dbAll();
       const localMap = new Map(localBefore.map(item => [canonicalTestKey(item), item]));
+      const localById = new Map(localBefore.map(item => [String(item.id||''), item]));
       const missing = remoteManifest.filter(item => {
-        const local = localMap.get(canonicalTestKey(item));
-        return !local || Number(item.updatedAt || 0) > Number(local.updatedAt || 0);
+        const local = localById.get(String(item.id||'')) || localMap.get(canonicalTestKey(item));
+        return !local || Number(item.updatedAt || 0) > Number(local.updatedAt || 0) || (isPlaceholderTitle(local.title)&&!isPlaceholderTitle(item.title));
       });
       if (missing.length) {
         setStatus(`云端有 ${missing.length} 篇本机缺少，先安全补到本机…`);
@@ -430,12 +468,13 @@
       const verifyRows = await api(`/rest/v1/user_sync_state?user_id=eq.${encodeURIComponent(uid)}&select=payload&limit=1`, { headers: authHeaders((await ensureSession(false)).access_token) });
       const verifiedManifest = dedupeManifest(verifyRows?.[0]?.payload?.listeningManifest);
       const finalLocal = await dbAll();
-      state.localCount = finalLocal.length; state.cloudCount = verifiedManifest.length;
-      if (verifiedManifest.length < finalLocal.length) {
-        throw new Error(`同步未完整：本机 ${finalLocal.length} 篇，云端 ${verifiedManifest.length} 篇。本机内容已保留，请再次点击“智能双向同步”从断点继续`);
+      const finalLocalCount=dedupeLocalTests(finalLocal).length;
+      state.localCount = finalLocalCount; state.cloudCount = verifiedManifest.length;
+      if (verifiedManifest.length < finalLocalCount) {
+        throw new Error(`同步未完整：本机 ${finalLocalCount} 篇不重复题目，云端 ${verifiedManifest.length} 篇。本机内容已保留，请再次点击“智能双向同步”从断点继续`);
       }
       localStorage.setItem(LAST_SYNC_KEY, new Date().toISOString());
-      setStatus(`同步完成并通过校验：本机 ${finalLocal.length} 篇，云端 ${verifiedManifest.length} 篇；做题与复盘记录已合并。正在刷新…`);
+      setStatus(`同步完成：本机 ${finalLocalCount} 篇不重复题目，云端 ${verifiedManifest.length} 篇；手机缺失名称已按电脑修正。正在刷新…`);
       setTimeout(() => location.reload(), 1400);
     });
   }
@@ -500,14 +539,14 @@
   async function refreshCountDisplay() {
     if (!state.session?.access_token || state.busy) return;
     try {
-      const localCount = (await dbAll()).length;
+      const localRows=await dbAll(),localCount = dedupeLocalTests(localRows).length,rawLocalCount=localRows.length;
       const session = await ensureSession(false);
       const rows = await api(`/rest/v1/user_sync_state?user_id=eq.${encodeURIComponent(session.user.id)}&select=payload&limit=1`, { headers: authHeaders(session.access_token) });
       const cloudCount = dedupeManifest(rows?.[0]?.payload?.listeningManifest).length;
       state.localCount = localCount;
       state.cloudCount = cloudCount;
       const account = document.getElementById('cloudAccount');
-      if (account) account.textContent = `已登录：${session.user?.email || '同步账号'} · 本机 ${localCount} 篇 / 云端 ${cloudCount} 篇`;
+      if (account) account.textContent = `已登录：${session.user?.email || '同步账号'} · 本机 ${localCount} 篇不重复题目${rawLocalCount>localCount?`（共 ${rawLocalCount} 条文件）`:''} / 云端 ${cloudCount} 篇`;
       const trigger = document.getElementById('cloudSyncTrigger');
       if (trigger) trigger.textContent = `☁ 本机${localCount} / 云端${cloudCount}`;
       if (cloudCount > localCount) setStatus(`云端比本机多 ${cloudCount - localCount} 篇。请点击“↓ 下载云端到本机”，并保持页面打开直到自动刷新。`);
@@ -543,7 +582,7 @@
       renderAccount();
       await refreshCountDisplay();
       const active = state.session;
-      const autoKey = 'ielts-cloud-auto-merge-v7.0';
+      const autoKey = 'ielts-cloud-auto-merge-v7.1';
       if (active?.access_token && !sessionStorage.getItem(autoKey)) {
         sessionStorage.setItem(autoKey, 'running');
         setStatus('正在自动合并电脑、手机与云端数据，请保持页面打开…');
