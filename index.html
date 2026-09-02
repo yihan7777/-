@@ -1,4 +1,4 @@
-Warning: truncated output (original token count: 12069)
+Warning: truncated output (original token count: 12136)
 Total output lines: 472
 
 <!doctype html>
@@ -223,8 +223,7 @@ Total output lines: 472
           <p class="deck-label">添加今天没反应出的词</p>
           <textarea id="listeningImport" placeholder="直接粘贴多个词：可用换行、逗号、顿号或分号分隔\n例如：metabolism, reforestation, accommodate"></textarea>
           <button class="button primary" id="addListeningWords">加入反应卡</button>
-          <small>系统会自动拆分、…2069 tokens truncated…t-bank">
-        <div class="private-bank-head"><div><b>我的私人真题库</b><small id="privateBankCount">尚未导入</small></div><div class="private-bank-recovery"><button id="restorePrivateBank" type="button">☁ 从云端恢复听力</button><button id="clearPrivateBank" type="button">清除本机题库</button></div></div>
+          <small>系统会自动拆分、…2136 tokens truncated…arPrivateBank" type="button">清除本机题库</button></div></div>
         <div class="private-part-tabs" id="privatePartTabs"></div>
         <div class="private-bank-filters" id="privateBankFilters"></div>
         <div class="paper-builder" id="paperBuilder"></div>
@@ -269,16 +268,16 @@ Total output lines: 472
       <div class="reading-layout">
         <aside class="reading-import">
           <div class="reading-source-picker">
-            <p class="deck-label">九月文章卡组</p>
-            <label>频率
-              <select id="readingLevelFilter">
-                <option value="高频">高频</option>
-                <option value="中频">中频</option>
-                <option value="低频">低频</option>
-                <option value="全部">全部</option>
-              </select>
+            <p class="deck-label">选择独立卡组</p>
+            <div class="reading-deck-tabs" id="readingDeckTabs" aria-label="阅读卡组切换">
+              <button type="button" data-reading-deck="september">九月文章卡</button>
+              <button type="button" data-reading-deck="color">彩色词汇卡</button>
+              <button type="button" data-reading-deck="personal">我的卡片</button>
+            </div>
+            <label id="readingGroupWrap"><span id="readingGroupLabel">频率</span>
+              <select id="readingLevelFilter"></select>
             </label>
-            <label>选择文章
+            <label id="readingArticleWrap"><span id="readingArticleLabel">选择文章</span>
               <select id="readingArticleFilter"></select>
             </label>
             <button type="button" id="readingWeakOnly" aria-pressed="false">只练不熟的词</button>
@@ -364,7 +363,7 @@ Total output lines: 472
 
   <footer><span>IELTS SPEAKING 2026</span><p>GitHub 每日生成 Context → ChatGPT Live → 反馈同步 → 下一轮复习</p></footer>
   <script src="assets/app.js?v=7" defer></script>
-  <script src="assets/reading.js?v=7" defer></script>
+  <script src="assets/reading.js?v=8" defer></script>
   <script src="assets/listening.js?v=8" defer></script>
   <script src="assets/dictation.js?v=2" defer></script>
   <script src="assets/mnemonic.js?v=3" defer></script>

@@ -8,11 +8,13 @@
   const customKey = 'ielts-reading-custom-v1';
   const stateKey = 'ielts-reading-state-v1';
   const sourceKey = 'ielts-reading-source-v1';
-  const levelKey = 'ielts-reading-level-v1';
+  const deckKey = 'ielts-reading-deck-v1';
+  const groupKey = 'ielts-reading-groups-v1';
   const weakKey = 'ielts-reading-weak-only-v1';
   const memoryFallback = {};
   let cards = [], articles = [], state = {}, queue = [], current = null;
-  let reviewed = 0, initial = 0, activeArticle = '', activeLevel = '高频';
+  let reviewed = 0, initial = 0, activeArticle = '', activeDeck = 'september', activeLevel = '高频';
+  let groupPreferences = { september: '高频', color: '全部', personal: '全部' };
   let weakOnly = false, sessionRepeats = {};
 
   const key = value => String(value || '').toLowerCase().replace(/[^a-z0-9]/g, '');
@@ -40,7 +42,7 @@
   const saveState = () => setStore(stateKey, state);
   const articleCards = () => {
     let list;
-    if (activeArticle === 'personal') list = cards.filter(card => !card.articleId);
+    if (activeDeck === 'personal') list = cards.filter(card => !card.articleId);
     else if (activeArticle) list = cards.filter(card => card.articleId === activeArticle);
     else list = cards;
     if (weakOnly) list = list.filter(card => {
@@ -54,13 +56,13 @@
     return (progress.againCount || 0) * 6 + (progress.hardCount || 0) * 3 - (progress.reps || 0);
   };
   const articleFor = id => articles.find(article => article.id === id);
-  async function loadSeptemberCards() {
-    const manifestResponse = await fetch('data/reading-september/index.json?v=1', { cache: 'no-store' });
+  async function loadCompressedDeck(path) {
+    const manifestResponse = await fetch(`data/${path}/index.json?v=1`, { cache: 'no-store' });
     if (!manifestResponse.ok) return { articles: [], cards: [] };
     const manifest = await manifestResponse.json();
     if (!Array.isArray(manifest.parts) || !manifest.parts.length || !('DecompressionStream' in window)) return { articles: [], cards: [] };
     const chunks = await Promise.all(manifest.parts.map(part =>
-      fetch(`data/reading-september/${part}?v=1`, { cache: 'no-store' }).then(response => response.ok ? response.text() : '')
+      fetch(`data/${path}/${part}?v=1`, { cache: 'no-store' }).then(response => response.ok ? response.text() : '')
     ));
     const binary = Uint8Array.from(atob(chunks.join('')), character => character.charCodeAt(0));
     const stream = new Blob([binary]).stream().pipeThrough(new DecompressionStream('gzip'));
@@ -75,8 +77,9 @@
     const pool = articleCards();
     const learned = pool.filter(card => (state[card.id]?.reps || 0) > 0).length;
     const weak = pool.filter(card => ['again', 'hard'].includes(state[card.id]?.lastGrade)).length;
+    const deckName = info?.deck === 'color' ? '彩色词汇' : '九月文章';
     $('#readingArticleMeta').textContent = info
-      ? `${info.level} · ${info.part} · 每篇 ${info.count} 个词 · 已认识 ${learned} · 待加强 ${weak}`
+      ? `${deckName} · ${info.level} · ${info.part} · 本组 ${info.count} 个词 · 已认识 ${learned} · 待加强 ${weak}`
       : `共 ${pool.length} 张个人阅读卡`;
   }
   function show() {
@@ -115,16 +118,38 @@
     initial = queue.length; reviewed = 0; sessionRepeats = {};
     updateArchived(); updateArticleMeta(); show();
   }
+  function fillGroupOptions() {
+    const select = $('#readingLevelFilter');
+    const wrap = $('#readingGroupWrap');
+    const values = activeDeck === 'september'
+      ? ['高频', '中频', '低频', '全部']
+      : activeDeck === 'color'
+        ? ['全部', ...new Set(articles.filter(article => article.deck === 'color').map(article => article.level))]
+        : ['全部'];
+    wrap.hidden = activeDeck === 'personal';
+    $('#readingGroupLabel').textContent = activeDeck === 'color' ? '主题' : '频率';
+    select.replaceChildren();
+    values.forEach(value => {
+      const option = document.createElement('option'); option.value = value; option.textContent = value; select.append(option);
+    });
+    activeLevel = values.includes(groupPreferences[activeDeck]) ? groupPreferences[activeDeck] : values[0];
+    select.value = activeLevel;
+  }
   function fillArticleOptions() {
     const select = $('#readingArticleFilter');
-    const filtered = articles.filter(article => activeLevel === '全部' || article.level === activeLevel);
+    const filtered = articles.filter(article => article.deck === activeDeck && (activeLevel === '全部' || article.level === activeLevel));
+    document.querySelectorAll('[data-reading-deck]').forEach(tab => tab.classList.toggle('active', tab.dataset.readingDeck === activeDeck));
     select.replaceChildren();
-    const personal = document.createElement('option');
-    personal.value = 'personal'; personal.textContent = '我的手动阅读卡'; select.append(personal);
+    $('#readingArticleWrap').hidden = activeDeck === 'personal';
+    $('#readingArticleLabel').textContent = activeDeck === 'color' ? '选择 List' : '选择文章';
+    if (activeDeck === 'personal') {
+      const personal = document.createElement('option'); personal.value = 'personal'; personal.textContent = '我的手动阅读卡'; select.append(personal);
+      activeArticle = 'personal'; select.value = activeArticle; setStore(sourceKey, activeArticle); return;
+    }
     filtered.forEach(article => {
       const option = document.createElement('option');
       option.value = article.id;
-      option.textContent = `${article.part} · ${article.title.replace(/^P[1-3]\s*-\s*/i, '')}`;
+      option.textContent = activeDeck === 'color' ? article.title : `${article.part} · ${article.title.replace(/^P[1-3]\s*-\s*/i, '')}`;
       select.append(option);
     });
     if (![...select.options].some(option => option.value === activeArticle)) {
@@ -157,7 +182,7 @@
       if (!added.length) { status(skipped ? '这些单词已经在卡片库中，没有重复添加。' : '没有识别到英文单词。', false); return; }
       setStore(customKey, custom);
       $('#readingImport').value = '';
-      activeArticle = 'personal'; setStore(sourceKey, activeArticle); fillArticleOptions();
+      activeDeck = 'personal'; activeArticle = 'personal'; setStore(deckKey, activeDeck); setStore(sourceKey, activeArticle); fillGroupOptions(); fillArticleOptions();
       queue = [...added]; initial = added.length; reviewed = 0; sessionRepeats = {}; show();
       status(`✓ 已加入 ${added.length} 张，新卡已显示在右侧${skipped ? `；跳过 ${skipped} 张重复卡` : ''}。`);
     } catch (error) {
@@ -203,7 +228,13 @@
     saveState(); reviewed += 1; updateArticleMeta(); show();
   });
   $('#readingLevelFilter').addEventListener('change', event => {
-    activeLevel = event.target.value; setStore(levelKey, activeLevel); fillArticleOptions(); build();
+    activeLevel = event.target.value; groupPreferences[activeDeck] = activeLevel; setStore(groupKey, groupPreferences); fillArticleOptions(); build();
+  });
+  $('#readingDeckTabs').addEventListener('click', event => {
+    const tab = event.target.closest('[data-reading-deck]');
+    if (!tab) return;
+    activeDeck = tab.dataset.readingDeck; setStore(deckKey, activeDeck);
+    fillGroupOptions(); fillArticleOptions(); build();
   });
   $('#readingArticleFilter').addEventListener('change', event => {
     activeArticle = event.target.value; setStore(sourceKey, activeArticle); build();
@@ -235,19 +266,26 @@
 
   state = getStore(stateKey, {});
   activeArticle = getStore(sourceKey, '');
-  activeLevel = getStore(levelKey, '高频');
+  activeDeck = getStore(deckKey, activeArticle.startsWith('CV-') ? 'color' : (activeArticle === 'personal' ? 'personal' : 'september'));
+  if (!['september', 'color', 'personal'].includes(activeDeck)) activeDeck = 'september';
+  groupPreferences = { ...groupPreferences, ...getStore(groupKey, {}) };
+  activeLevel = groupPreferences[activeDeck];
   weakOnly = Boolean(getStore(weakKey, false));
-  $('#readingLevelFilter').value = activeLevel;
   $('#readingWeakOnly').classList.toggle('active', weakOnly);
   $('#readingWeakOnly').setAttribute('aria-pressed', String(weakOnly));
   const custom = getStore(customKey, []);
   Promise.all([
     fetch('data/reading-defaults.json?v=6', { cache: 'no-store' }).then(response => response.ok ? response.json() : []).catch(() => []),
-    loadSeptemberCards().catch(() => ({ articles: [], cards: [] }))
-  ]).then(([defaults, september]) => {
-    articles = Array.isArray(september.articles) ? september.articles : [];
-    cards = [...defaults, ...(Array.isArray(september.cards) ? september.cards : []), ...custom];
-    fillArticleOptions(); build();
-    status(`九月 279 篇已扫描：每篇 10 个，共 ${september.cards?.length || 0} 张测试卡。忘了或模糊的词会自动重复出现。`);
+    loadCompressedDeck('reading-september').catch(() => ({ articles: [], cards: [] })),
+    loadCompressedDeck('reading-color-vocab').catch(() => ({ articles: [], cards: [] }))
+  ]).then(([defaults, september, color]) => {
+    const septemberArticles = (Array.isArray(september.articles) ? september.articles : []).map(article => ({ ...article, deck: 'september' }));
+    const septemberCards = (Array.isArray(september.cards) ? september.cards : []).map(card => ({ ...card, deck: 'september' }));
+    const colorArticles = Array.isArray(color.articles) ? color.articles : [];
+    const colorCards = Array.isArray(color.cards) ? color.cards : [];
+    articles = [...septemberArticles, ...colorArticles];
+    cards = [...defaults, ...septemberCards, ...colorCards, ...custom];
+    fillGroupOptions(); fillArticleOptions(); build();
+    status(`卡组已分开：九月文章 ${septemberCards.length} 张；彩色词汇 ${colorCards.length} 张。忘了或模糊的词都会自动重复出现。`);
   });
 })();
