@@ -11,11 +11,12 @@
   const deckKey = 'ielts-reading-deck-v1';
   const groupKey = 'ielts-reading-groups-v1';
   const weakKey = 'ielts-reading-weak-only-v1';
+  const dailyKey = 'ielts-reading-daily-activity-v1';
   const memoryFallback = {};
   let cards = [], articles = [], state = {}, queue = [], current = null;
   let reviewed = 0, initial = 0, activeArticle = '', activeDeck = 'september', activeLevel = '高频';
   let groupPreferences = { september: '高频', color: '全部', personal: '全部' };
-  let weakOnly = false, sessionRepeats = {};
+  let weakOnly = false, sessionRepeats = {}, quizMode = false, quizResults = new Map();
 
   const key = value => String(value || '').toLowerCase().replace(/[^a-z0-9]/g, '');
   const getStore = (name, fallback) => {
@@ -82,6 +83,55 @@
       ? `${deckName} · ${info.level} · ${info.part} · 本组 ${info.count} 个词 · 已认识 ${learned} · 待加强 ${weak}`
       : `共 ${pool.length} 张个人阅读卡`;
   }
+  function todayStamp() {
+    const date = new Date();
+    return [date.getFullYear(), String(date.getMonth() + 1).padStart(2, '0'), String(date.getDate()).padStart(2, '0')].join('-');
+  }
+  function sectionInfo(card) {
+    const info = articleFor(card?.articleId);
+    if (!info) return { id: 'personal', label: '我的卡片' };
+    const deckName = info.deck === 'color' ? '彩色词汇' : '九月文章';
+    return { id: `${info.deck}|${info.id}`, label: [deckName, info.level, info.title].filter(Boolean).join(' · ') };
+  }
+  function renderTodayActivity() {
+    const host = $('#readingTodaySections'), total = $('#readingTodayTotal');
+    if (!host || !total) return;
+    const day = getStore(dailyKey, {})[todayStamp()] || { sections: {} };
+    const sections = Object.values(day.sections || {}).sort((a, b) => (b.lastAt || 0) - (a.lastAt || 0));
+    const unique = new Set(sections.flatMap(item => item.cardIds || [])).size;
+    total.textContent = `${unique}张 · ${sections.length}个板块`;
+    host.replaceChildren();
+    if (!sections.length) {
+      const empty = document.createElement('small'); empty.textContent = '完成卡片后会自动记录在这里。'; host.append(empty); return;
+    }
+    sections.forEach(item => {
+      const row = document.createElement('div'); row.className = 'reading-today-item';
+      const label = document.createElement('b'); label.textContent = item.label;
+      const count = document.createElement('span'); count.textContent = `${(item.cardIds || []).length}张 · ${item.attempts || 0}次`;
+      row.append(label, count); host.append(row);
+    });
+  }
+  function recordToday(card, grade) {
+    if (!card) return;
+    const log = getStore(dailyKey, {}), stamp = todayStamp(), info = sectionInfo(card);
+    const day = log[stamp] || { sections: {} };
+    const item = day.sections[info.id] || { label: info.label, cardIds: [], attempts: 0, grades: {} };
+    item.cardIds = Array.isArray(item.cardIds) ? item.cardIds : [];
+    item.grades = item.grades || {};
+    if (!item.cardIds.includes(card.id)) item.cardIds.push(card.id);
+    item.attempts += 1; item.grades[grade] = (item.grades[grade] || 0) + 1; item.lastAt = Date.now();
+    day.sections[info.id] = item; day.updatedAt = Date.now(); log[stamp] = day;
+    Object.keys(log).sort().slice(0, -31).forEach(key => delete log[key]);
+    setStore(dailyKey, log); renderTodayActivity();
+  }
+  function startRandomCheck() {
+    const pool = articleCards();
+    if (!pool.length) { status('当前板块没有可抽查的卡片。', false); return; }
+    queue = [...pool].sort(() => Math.random() - .5).slice(0, Math.min(10, pool.length));
+    initial = queue.length; reviewed = 0; sessionRepeats = {}; quizMode = true; quizResults = new Map();
+    status(`已从当前板块随机抽取 ${initial} 张。先判断是否认识，再翻面选择“忘了 / 模糊 / 认识 / 熟练”。`);
+    show();
+  }
   function show() {
     current = queue.shift();
     $('#readingCard').classList.remove('flipped');
@@ -96,6 +146,12 @@
       $('#readingDue').textContent = '0';
       $('#readingCounter').textContent = `本轮完成 ${reviewed} 次测试`;
       updateArticleMeta();
+      if (quizMode) {
+        const grades = [...quizResults.values()];
+        const known = grades.filter(grade => grade === 'good' || grade === 'easy').length;
+        const unknown = grades.filter(grade => grade === 'again' || grade === 'hard').length;
+        status(`抽查完成：认识 ${known} 张，不熟 ${unknown} 张。不熟的卡片已提高后续出现频率。`);
+      }
       return;
     }
     const progress = state[current.id] || {};
@@ -105,7 +161,7 @@
     $('#readingNote').textContent = current.note || '来自阅读生词积累';
     $('#readingTag').textContent = current.articleId ? `${current.level || '九月'} · ${current.part || ''}` : (current.front.includes(' ') ? 'EXPRESSION' : 'WORD');
     $('#readingDue').textContent = queue.length + 1;
-    $('#readingCounter').textContent = `本轮 ${reviewed + 1} / ${Math.max(initial, reviewed + queue.length + 1)} · 忘记 ${progress.againCount || 0} 次`;
+    $('#readingCounter').textContent = `${quizMode ? '随机抽查' : '本轮'} ${reviewed + 1} / ${Math.max(initial, reviewed + queue.length + 1)} · 忘记 ${progress.againCount || 0} 次`;
   }
   function build(force = false) {
     const now = Date.now();
@@ -115,7 +171,7 @@
     if (!queue.length && pool.length && !weakOnly) {
       queue = [...pool].sort((a, b) => (state[a.id]?.due || 0) - (state[b.id]?.due || 0)).slice(0, activeArticle ? 10 : 20);
     }
-    initial = queue.length; reviewed = 0; sessionRepeats = {};
+    initial = queue.length; reviewed = 0; sessionRepeats = {}; quizMode = false; quizResults = new Map();
     updateArchived(); updateArticleMeta(); show();
   }
   function fillGroupOptions() {
@@ -225,6 +281,8 @@
     if (grade === 'good') { interval = interval ? Math.max(1, interval * 2) : 1; delay = interval * 86400000; old.reps += 1; }
     if (grade === 'easy') { interval = interval ? Math.max(4, interval * 2.5) : 4; delay = interval * 86400000; old.reps += 1; }
     state[current.id] = { ...old, due: Date.now() + delay, interval, lastGrade: grade, lastSeen: Date.now() };
+    recordToday(current, grade);
+    if (quizMode) quizResults.set(current.id, grade);
     saveState(); reviewed += 1; updateArticleMeta(); show();
   });
   $('#readingLevelFilter').addEventListener('change', event => {
@@ -246,6 +304,7 @@
     build(true);
   });
   $('#resetReadingSession').addEventListener('click', () => build(true));
+  $('#readingRandomCheck').addEventListener('click', startRandomCheck);
   $('#archiveReading').addEventListener('click', () => {
     if (!current) return;
     state[current.id] = { ...(state[current.id] || {}), archived: true, archivedAt: Date.now() };
@@ -273,6 +332,7 @@
   weakOnly = Boolean(getStore(weakKey, false));
   $('#readingWeakOnly').classList.toggle('active', weakOnly);
   $('#readingWeakOnly').setAttribute('aria-pressed', String(weakOnly));
+  renderTodayActivity();
   const custom = getStore(customKey, []);
   Promise.all([
     fetch('data/reading-defaults.json?v=6', { cache: 'no-store' }).then(response => response.ok ? response.json() : []).catch(() => []),

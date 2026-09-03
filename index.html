@@ -17,7 +17,7 @@
   <link rel="stylesheet" href="assets/writing-mock.css?v=5">
   <link rel="stylesheet" href="assets/speaking-center.css?v=1">
   <link rel="stylesheet" href="assets/review-memory.css?v=3">
-  <link rel="stylesheet" href="assets/reading-september.css?v=1">
+  <link rel="stylesheet" href="assets/reading-september.css?v=2">
   <link rel="stylesheet" href="assets/app-shell.css?v=16">
 </head>
 <body>
@@ -372,7 +372,12 @@
               <select id="readingArticleFilter"></select>
             </label>
             <button type="button" id="readingWeakOnly" aria-pressed="false">只练不熟的词</button>
+            <button type="button" id="readingRandomCheck">🎯 随机抽查当前卡片（10张）</button>
             <small id="readingArticleMeta">正在整理文章卡组…</small>
+            <section class="reading-today-summary" aria-labelledby="readingTodayTitle">
+              <header><b id="readingTodayTitle">今天学习的板块</b><span id="readingTodayTotal">0张</span></header>
+              <div id="readingTodaySections"><small>完成卡片后会自动记录在这里。</small></div>
+            </section>
           </div>
           <p class="deck-label">添加阅读生词或表达</p>
           <textarea id="readingImport" placeholder="最简单：每行只写一个英文单词\n完整格式：expression | 中文 | 原文例句 | 使用提示"></textarea>
@@ -454,7 +459,7 @@
 
   <footer><span>IELTS SPEAKING 2026</span><p>GitHub 每日生成 Context → ChatGPT Live → 反馈同步 → 下一轮复习</p></footer>
   <script src="assets/app.js?v=7" defer></script>
-  <script src="assets/reading.js?v=8" defer></script>
+  <script src="assets/reading.js?v=9" defer></script>
   <script src="assets/listening.js?v=8" defer></script>
   <script src="assets/dictation.js?v=2" defer></script>
   <script src="assets/mnemonic.js?v=3" defer></script>
