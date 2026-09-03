@@ -9,6 +9,18 @@
 .reading-source-picker button{width:100%;min-height:42px;border:1px solid #d8b453;border-radius:12px;background:#fff2bf;color:#624515;font-weight:900}
 .reading-source-picker button.active{background:linear-gradient(135deg,#f2c84b,#dfaa26);border-color:#bb8516;color:#442f0d;box-shadow:0 7px 18px rgba(177,123,19,.22)}
 .reading-source-picker small{display:block;line-height:1.55;color:#7b6847}
+#readingRandomCheck{min-height:56px;font-size:14px;background:linear-gradient(135deg,#ffe7a0,#f5c65b);border-color:#d6a63a;box-shadow:0 8px 18px rgba(151,105,23,.12)}
+.reading-today-summary{display:grid;gap:10px;padding:14px;border:1px solid #e3c36c;border-radius:16px;background:rgba(255,255,255,.64)}
+.reading-today-summary header{display:flex;align-items:center;justify-content:space-between;gap:10px;color:#604515}
+.reading-today-summary header span{flex:none;padding:5px 9px;border-radius:999px;background:#ffe6a0;color:#6a4b16;font-size:11px;font-weight:900}
+#readingTodaySections{display:grid;gap:7px}
+.reading-today-item{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;padding:9px 10px;border:1px solid #ead8a9;border-radius:12px;background:#fffaf0;color:#624a23}
+.reading-today-item b{font-size:12px;line-height:1.45}
+.reading-today-item span{flex:none;font-size:11px;color:#8b6a2f;white-space:nowrap}
+#readingCard.reading-card{min-height:clamp(390px,40vw,520px)!important}
+#readingRating.reading-rating button{min-height:112px!important;padding:20px 12px!important;border-radius:20px!important}
+#readingRating.reading-rating button b{font-size:20px!important;line-height:1.25}
+#readingRating.reading-rating button small{display:block;margin-top:8px;font-size:12px;line-height:1.35}
 #readingExample{max-height:190px;overflow:auto;padding-right:4px;line-height:1.62;text-align:left}
 #readingNote{display:block;margin-top:10px;color:#80672e}
 #lookupReadingWord:disabled{opacity:.45;cursor:not-allowed}
@@ -23,5 +35,9 @@
   .reading-card-tools{display:grid!important;grid-template-columns:1fr 1fr;gap:8px}
   .reading-card-tools .archive-card,.reading-card-tools span{grid-column:1/-1}
   #readingExample{max-height:160px;font-size:14px}
-  .reading-rating button small{font-size:10px;line-height:1.25}
+  #readingCard.reading-card{min-height:330px!important}
+  #readingRating.reading-rating button{min-height:90px!important;padding:15px 8px!important}
+  #readingRating.reading-rating button b{font-size:18px!important}
+  #readingRating.reading-rating button small{font-size:11px;line-height:1.25}
+  .reading-today-item{flex-direction:column;gap:4px}
 }
