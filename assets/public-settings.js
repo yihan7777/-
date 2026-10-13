@@ -288,6 +288,20 @@
       section.dataset.publicFoldReady = 'true';
       section.open = false;
     });
+    $$('.reading-manage-fold').forEach(section => {
+      section.classList.remove('is-user-open');
+      section.open = false;
+    });
+  }
+
+  function bindReadingFolds() {
+    $$('.reading-manage-fold').forEach(section => {
+      if (section.dataset.manageFoldBound) return;
+      section.dataset.manageFoldBound = 'true';
+      section.addEventListener('toggle', () => {
+        section.classList.toggle('is-user-open', section.open);
+      });
+    });
   }
 
   function currentPage() {
@@ -314,6 +328,7 @@
   function init() {
     buildSettingsPanel();
     bindEvents();
+    bindReadingFolds();
     closeReadingFolds();
     applySettings();
     [120, 500, 1200, 2600].forEach(delay => window.setTimeout(() => {
