@@ -264,6 +264,15 @@
       applySettings();
     });
     root.addEventListener('click', event => {
+      const option = event.target.closest('.public-module-list label,.public-focus-tags label,.public-inline-check');
+      if (option && event.target.tagName !== 'INPUT') {
+        const input = option.querySelector('input[type="checkbox"]');
+        if (!input || input.disabled) return;
+        event.preventDefault();
+        input.checked = !input.checked;
+        input.dispatchEvent(new Event('change', { bubbles: true }));
+        return;
+      }
       const button = event.target.closest('[data-public-theme]');
       if (!button) return;
       settings.theme = button.dataset.publicTheme;
@@ -272,11 +281,23 @@
     });
   }
 
+  function closeReadingFolds() {
+    $$('.reading-fold,.reading-review-fold').forEach(section => {
+      if (section.dataset.publicFoldReady) return;
+      section.dataset.publicFoldReady = 'true';
+      section.open = false;
+    });
+  }
+
   function init() {
     buildSettingsPanel();
     bindEvents();
+    closeReadingFolds();
     applySettings();
-    [120, 500, 1200, 2600].forEach(delay => window.setTimeout(applySettings, delay));
+    [120, 500, 1200, 2600].forEach(delay => window.setTimeout(() => {
+      closeReadingFolds();
+      applySettings();
+    }, delay));
     window.addEventListener('load', () => window.setTimeout(applySettings, 0));
     window.addEventListener('ielts-review-data-changed', () => window.setTimeout(applySettings, 0));
   }
