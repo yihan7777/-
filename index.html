@@ -19,7 +19,7 @@
   <link rel="stylesheet" href="assets/review-memory.css?v=3">
   <link rel="stylesheet" href="assets/reading-september.css?v=5">
   <link rel="stylesheet" href="assets/app-shell.css?v=16">
-  <link rel="stylesheet" href="assets/public-settings.css?v=6">
+  <link rel="stylesheet" href="assets/public-settings.css?v=7">
 </head>
 <body>
   <header class="hero">
@@ -440,6 +440,29 @@
     <section class="section timeline-wrap" data-page-section="plan" hidden>
       <div class="section-head"><div><p class="kicker">EBBINGHAUS PLAN</p><h2>个人备考路线图</h2></div><div class="legend"><i></i>首轮 <i></i>复习 <i></i>模考</div></div>
       <div class="timeline" id="timeline"></div>
+      <div class="daily-reflection" id="dailyReflection">
+        <div class="reflection-head">
+          <div><p class="kicker">DAILY CHECK-IN</p><h3>今日心情与反思</h3></div>
+          <small id="reflectionDate">今天</small>
+        </div>
+        <div class="mood-picker" id="moodPicker" aria-label="每日心情评价">
+          <button type="button" data-mood="great">😊<span>状态好</span></button>
+          <button type="button" data-mood="calm">🙂<span>还不错</span></button>
+          <button type="button" data-mood="tired">😐<span>有点累</span></button>
+          <button type="button" data-mood="stressed">😣<span>压力大</span></button>
+        </div>
+        <label>今天完成了什么？
+          <textarea id="reflectionDone" placeholder="例如：阅读卡片10张、听力P2复盘、作文一篇开头"></textarea>
+        </label>
+        <label>今天卡在哪里？
+          <textarea id="reflectionStuck" placeholder="例如：同义替换反应慢、长难句读不顺、写作观点展开不够"></textarea>
+        </label>
+        <label>明天最重要的一件事
+          <textarea id="reflectionNext" placeholder="写一个很小但能完成的任务"></textarea>
+        </label>
+        <button type="button" class="primary" id="saveReflection">保存今日反思</button>
+        <p id="reflectionStatus" aria-live="polite"></p>
+      </div>
     </section>
 
     <section class="section speaking-bank" id="library" data-page-section="speaking" data-speaking-view="bank" hidden>
@@ -485,6 +508,6 @@
   <script src="assets/review-memory.js?v=11" defer></script>
   <script src="assets/reading-bank.js?v=5" defer></script>
   <script src="assets/app-shell.js?v=6" defer></script>
-  <script src="assets/public-settings.js?v=7" defer></script>
+  <script src="assets/public-settings.js?v=8" defer></script>
 </body>
 </html>
