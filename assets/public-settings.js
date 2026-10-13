@@ -191,45 +191,41 @@
     const panel = document.createElement('details');
     panel.className = 'public-settings';
     panel.id = 'publicSettings';
-    panel.open = !settings.examDate;
     panel.setAttribute('data-page-section', 'home');
     panel.innerHTML = `
       <summary>
-        <div><b>公开版个性化设置</b><small>每个使用者都可以设置自己的考试时间、目标分、主题色和显示板块。</small></div>
-        <span>设置我的备考面板</span>
+        <div><b>个性化设置</b><small>考试日期、目标分、主题色、显示板块</small></div>
+        <span>点击展开</span>
       </summary>
       <div class="public-settings-grid">
-        <section class="public-settings-card">
-          <h3>基础信息</h3>
-          <label>网站名称<input name="siteName" maxlength="18"></label>
-          <label>考试日期<input name="examDate" type="date"></label>
-          <label>目标总分<input name="targetOverall" inputmode="decimal" placeholder="7.0"></label>
+        <section class="public-settings-card public-settings-main">
+          <h3>我的备考</h3>
+          <div class="public-field-grid">
+            <label>网站名称<input name="siteName" maxlength="18"></label>
+            <label>考试日期<input name="examDate" type="date"></label>
+            <label>目标总分<input name="targetOverall" inputmode="decimal" placeholder="7.0"></label>
+          </div>
+          <div class="public-score-grid">
+            <label>听力<input name="targetListening" inputmode="decimal"></label>
+            <label>阅读<input name="targetReading" inputmode="decimal"></label>
+            <label>写作<input name="targetWriting" inputmode="decimal"></label>
+            <label>口语<input name="targetSpeaking" inputmode="decimal"></label>
+          </div>
         </section>
-        <section class="public-settings-card">
-          <h3>单项目标</h3>
-          <label>听力<input name="targetListening" inputmode="decimal"></label>
-          <label>阅读<input name="targetReading" inputmode="decimal"></label>
-          <label>写作<input name="targetWriting" inputmode="decimal"></label>
-          <label>口语<input name="targetSpeaking" inputmode="decimal"></label>
-        </section>
-        <section class="public-settings-card">
-          <h3>主题与简洁度</h3>
+        <section class="public-settings-card public-settings-options">
+          <h3>显示方式</h3>
           <div class="public-choice-row">
             <button type="button" data-public-theme="honey">暖黄</button>
             <button type="button" data-public-theme="matcha">抹茶绿</button>
             <button type="button" data-public-theme="ocean">海盐蓝</button>
           </div>
-          <label><input name="compact" type="checkbox"> 简洁模式：隐藏部分说明和展开内容</label>
+          <label class="public-inline-check"><input name="compact" type="checkbox"> 简洁模式</label>
           <div class="public-plan" id="publicPlan"></div>
-        </section>
-        <section class="public-settings-card">
-          <h3>显示哪些板块</h3>
+          <h3>显示板块</h3>
           <div class="public-module-list">
             ${MODULES.map(([id, label]) => `<label><input type="checkbox" data-public-module="${id}"> ${label}</label>`).join('')}
           </div>
-        </section>
-        <section class="public-settings-card" style="grid-column:1/-1">
-          <h3>我的薄弱板块</h3>
+          <h3>薄弱板块</h3>
           <div class="public-focus-tags">
             ${MODULES.filter(([id]) => id !== 'plan').map(([id, label]) => `<label><input type="checkbox" data-public-focus="${id}"> ${label}</label>`).join('')}
           </div>
