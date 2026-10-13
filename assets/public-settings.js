@@ -77,6 +77,7 @@
     });
 
     $$('.brand,.app-topbar-title strong,.app-drawer-profile b,footer span').forEach(node => { node.textContent = name; });
+    $$('.app-topbar-title small').forEach(node => { node.textContent = 'IELTS ASSISTANT'; });
     const note = $('.hero-note');
     if (note) note.textContent = 'IELTS STUDY ASSISTANT';
 
@@ -89,6 +90,10 @@
     if (newCount) newCount.textContent = visibleFocus().map(moduleName).join(' / ') || '自由安排';
     const reviewCount = $('#reviewCount');
     if (reviewCount) reviewCount.textContent = `目标 ${settings.targetOverall || '7.0'}`;
+    const minutes = $('#minutes');
+    if (minutes) minutes.textContent = settings.compact ? '简洁' : '可调整';
+    const todayDate = $('#todayDate');
+    if (todayDate) todayDate.textContent = formatToday();
 
     const lead = $('.hero .lead');
     if (lead) {
@@ -99,7 +104,42 @@
     }
 
     renderPublicPlan(days);
+    renderHomeTasks(days);
     syncForm();
+  }
+
+  function formatToday() {
+    const date = new Date();
+    return `${date.getMonth() + 1}月${date.getDate()}日`;
+  }
+
+  function fillList(selector, rows) {
+    const host = $(selector);
+    if (!host) return;
+    host.innerHTML = `<ul>${rows.map(row => `<li>${row}</li>`).join('')}</ul>`;
+  }
+
+  function renderHomeTasks(days) {
+    const cards = $$('.task-card');
+    if (cards[0]) {
+      cards[0].querySelector('h3').textContent = '今日重点';
+      fillList('#part1Tasks', visibleFocus().map(id => `优先练 ${moduleName(id)}`));
+    }
+    if (cards[1]) {
+      cards[1].querySelector('h3').textContent = '真题训练';
+      fillList('#newTasks', [
+        days != null && days <= 14 ? '考前按整套题计时训练' : '按薄弱项选择一组练习',
+        `目标总分 ${settings.targetOverall || '7.0'}`
+      ]);
+    }
+    if (cards[2]) {
+      cards[2].querySelector('h3').textContent = '错题复盘';
+      fillList('#reviewTasks', ['查看做题记录', '整理错因和下次提醒', '把不熟表达加入卡片']);
+    }
+    const mockTask = $('#mockTask');
+    if (cards[3]) cards[3].querySelector('h3').textContent = '记忆卡抽查';
+    if (mockTask) mockTask.textContent = '从听力、阅读、口语或作文卡片中随机抽查，没熟的卡片会提高后续出现频率。';
+    $$('.today .actions').forEach(node => { node.hidden = true; });
   }
 
   function renderPublicPlan(days) {
@@ -240,6 +280,9 @@
     buildSettingsPanel();
     bindEvents();
     applySettings();
+    [120, 500, 1200, 2600].forEach(delay => window.setTimeout(applySettings, delay));
+    window.addEventListener('load', () => window.setTimeout(applySettings, 0));
+    window.addEventListener('ielts-review-data-changed', () => window.setTimeout(applySettings, 0));
   }
 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
