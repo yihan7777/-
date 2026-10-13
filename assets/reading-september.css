@@ -12,11 +12,13 @@
 #readingRandomCheck{min-height:56px;font-size:14px;background:linear-gradient(135deg,#ffe7a0,#f5c65b);border-color:#d6a63a;box-shadow:0 8px 18px rgba(151,105,23,.12)}
 .reading-fold,.reading-review-fold{border:1px solid rgba(218,183,91,.55);border-radius:16px;background:rgba(255,255,255,.72);overflow:hidden}
 .reading-fold:not([open])>:not(summary),.reading-review-fold:not([open])>:not(summary){display:none!important}
+.reading-manage-fold[open]:not(.is-user-open)>:not(summary){display:none!important}
 .reading-fold{margin:0 0 10px}
 .reading-fold summary,.reading-review-fold summary{display:flex;align-items:center;justify-content:space-between;gap:10px;min-height:48px;padding:12px 14px;color:#604515;font-weight:900;cursor:pointer;list-style:none}
 .reading-fold summary::-webkit-details-marker,.reading-review-fold summary::-webkit-details-marker{display:none}
 .reading-fold summary span,.reading-review-fold summary span{flex:none;padding:5px 9px;border-radius:999px;background:#ffe6a0;color:#6a4b16;font-size:11px;font-weight:900}
 .reading-fold[open] summary,.reading-review-fold[open] summary{border-bottom:1px solid rgba(218,183,91,.45);background:#fff8df}
+.reading-manage-fold[open]:not(.is-user-open) summary{border-bottom:0;background:rgba(255,255,255,.72)}
 .reading-fold>p,.reading-fold>textarea,.reading-fold>button,.reading-fold>small,.reading-fold>.reading-tools,.reading-fold>.restore-cards,.reading-fold>#readingStatus{margin-left:12px!important;margin-right:12px!important}
 .reading-fold>p:first-of-type{margin-top:12px!important}
 .reading-fold>.restore-cards{margin-bottom:12px!important}
@@ -56,6 +58,10 @@
   .reading-source-picker small{font-size:12px;line-height:1.45}
   .reading-source-picker label{gap:5px;margin:0}
   .reading-source-picker button{min-height:46px}
+  .reading-manage-fold{margin-top:8px!important}
+  .reading-manage-fold summary{min-height:54px;font-size:15px}
+  .reading-manage-fold[open].is-user-open{padding-bottom:12px}
+  .reading-manage-fold textarea{min-height:142px!important}
   #readingWeakOnly,#readingRandomCheck{min-height:48px;font-size:13px}
   .reading-card-tools{display:grid!important;grid-template-columns:1fr 1fr;gap:8px}
   .reading-card-tools .archive-card,.reading-card-tools span{grid-column:1/-1}
