@@ -17,9 +17,9 @@
   <link rel="stylesheet" href="assets/writing-mock.css?v=5">
   <link rel="stylesheet" href="assets/speaking-center.css?v=1">
   <link rel="stylesheet" href="assets/review-memory.css?v=3">
-  <link rel="stylesheet" href="assets/reading-september.css?v=2">
+  <link rel="stylesheet" href="assets/reading-september.css?v=3">
   <link rel="stylesheet" href="assets/app-shell.css?v=16">
-  <link rel="stylesheet" href="assets/public-settings.css?v=2">
+  <link rel="stylesheet" href="assets/public-settings.css?v=3">
 </head>
 <body>
   <header class="hero">
@@ -375,18 +375,23 @@
             <button type="button" id="readingWeakOnly" aria-pressed="false">只练不熟的词</button>
             <button type="button" id="readingRandomCheck">🎯 随机抽查当前卡片（10张）</button>
             <small id="readingArticleMeta">正在整理文章卡组…</small>
-            <section class="reading-today-summary" aria-labelledby="readingTodayTitle">
-              <header><b id="readingTodayTitle">今天学习的板块</b><span id="readingTodayTotal">0张</span></header>
-              <div id="readingTodaySections"><small>完成卡片后会自动记录在这里。</small></div>
-            </section>
+            <details class="reading-fold">
+              <summary><b id="readingTodayTitle">今天学习的板块</b><span id="readingTodayTotal">0张</span></summary>
+              <section class="reading-today-summary" aria-labelledby="readingTodayTitle">
+                <div id="readingTodaySections"><small>完成卡片后会自动记录在这里。</small></div>
+              </section>
+            </details>
           </div>
-          <p class="deck-label">添加阅读生词或表达</p>
-          <textarea id="readingImport" placeholder="最简单：每行只写一个英文单词\n完整格式：expression | 中文 | 原文例句 | 使用提示"></textarea>
-          <button class="button primary" id="addReadingCards">加入阅读卡</button>
-          <small>只写英文也能添加；中文和例句会显示“待补充”。新添加的卡会立刻出现在右侧。</small>
-          <p id="readingStatus" aria-live="polite">阅读卡模块正在加载…</p>
-          <div class="reading-tools"><button id="exportReading">复制全部卡片</button><button id="resetReadingSession">重新学习今日卡片</button></div>
-          <button class="restore-cards" id="restoreReading">恢复已移出阅读词（<span id="readingArchivedCount">0</span>）</button>
+          <details class="reading-fold">
+            <summary><b>添加和管理卡片</b><span>展开</span></summary>
+            <p class="deck-label">添加阅读生词或表达</p>
+            <textarea id="readingImport" placeholder="最简单：每行只写一个英文单词\n完整格式：expression | 中文 | 原文例句 | 使用提示"></textarea>
+            <button class="button primary" id="addReadingCards">加入阅读卡</button>
+            <small>只写英文也能添加；中文和例句会显示“待补充”。新添加的卡会立刻出现在右侧。</small>
+            <p id="readingStatus" aria-live="polite">阅读卡模块正在加载…</p>
+            <div class="reading-tools"><button id="exportReading">复制全部卡片</button><button id="resetReadingSession">重新学习今日卡片</button></div>
+            <button class="restore-cards" id="restoreReading">恢复已移出阅读词（<span id="readingArchivedCount">0</span>）</button>
+          </details>
           <div class="reading-count"><strong id="readingDue">—</strong><span>张待复习</span></div>
         </aside>
         <div class="reading-stage">
@@ -419,11 +424,17 @@
     <section class="section tool-section review-suite" id="readingReviewSuite" data-page-section="reading" hidden>
       <div class="section-head"><div><p class="kicker">READING REVIEW</p><h2>阅读真题入口、正确率与背题库</h2></div><p class="aside">练习记录、正确率和背题卡会保存并同步；本机 C 盘题库只能在原电脑打开。</p></div>
       <div class="suite-panel soft reading-package-panel"><div><p class="kicker">PRIVATE READING BANK</p><h3>阅读真题题库</h3><p>整套阅读做题网页已直接部署到本站，不需要上传 ZIP、连接文件夹或在浏览器里安装。</p></div><div class="reading-package-status" id="readingPackageStatus"><b>在线阅读题库已就绪</b><small>电脑和手机都可直接进入</small></div><div class="reading-link-actions"><button class="primary" id="openReadingPackage">直接进入阅读真题</button></div><p class="local-link-warning">题目、解析和配图均在线加载；原包中的大型 PDF 资料不影响网页做题。</p><details><summary>使用其他线上题库地址</summary><label>题库地址<input id="readingBankLink" type="text"></label><div class="reading-link-actions"><button id="openReadingLink">打开地址</button><button id="saveReadingLink">保存地址</button></div></details></div>
-      <div class="suite-grid">
-        <aside class="suite-panel"><h3>记录一次阅读练习</h3><label>题目 / 文章标题<input id="readingAttemptTitle" placeholder="例如：Cambridge 18 Test 1 Passage 2"></label><label>题型或主题<select id="readingAttemptType"><option>判断题</option><option>填空题</option><option>匹配题</option><option>选择题</option><option>标题匹配</option><option>混合题</option></select></label><div class="form-row"><label>正确题数<input id="readingCorrect" type="number" min="0"></label><label>总题数<input id="readingTotal" type="number" min="1"></label></div><label>生词、同义替换与错因<textarea id="readingAttemptNotes" placeholder="原文定位、同义替换、为什么错"></textarea></label><button class="primary" id="saveReadingAttempt">保存练习记录</button></aside>
-        <section class="suite-panel"><div class="summary-cards" id="readingSummary"></div><h3>做过的题目</h3><div class="card-list" id="readingHistory"></div></section>
-      </div>
-      <div class="suite-grid" style="margin-top:20px"><aside class="suite-panel soft"><h3>新增背题卡</h3><label>分类<input id="readingBacklogCategory" placeholder="例如：判断题 / 环境主题"></label><label>题干或关键问题<textarea id="readingBacklogFront"></textarea></label><label>答案、定位句和同义替换<textarea id="readingBacklogBack"></textarea></label><button class="primary" id="addReadingBacklog">加入背题库</button></aside><section class="suite-panel"><div class="study-card" id="readingBacklogCard"></div><div class="study-tools"><span id="readingBacklogCount">0 张</span><button id="readingBacklogNext">下一张 →</button></div><h3>背题清单</h3><div class="card-list" id="readingBacklogList"></div></section></div>
+      <details class="reading-review-fold">
+        <summary><b>阅读练习记录与正确率</b><span>展开记录</span></summary>
+        <div class="suite-grid">
+          <aside class="suite-panel"><h3>记录一次阅读练习</h3><label>题目 / 文章标题<input id="readingAttemptTitle" placeholder="例如：Cambridge 18 Test 1 Passage 2"></label><label>题型或主题<select id="readingAttemptType"><option>判断题</option><option>填空题</option><option>匹配题</option><option>选择题</option><option>标题匹配</option><option>混合题</option></select></label><div class="form-row"><label>正确题数<input id="readingCorrect" type="number" min="0"></label><label>总题数<input id="readingTotal" type="number" min="1"></label></div><label>生词、同义替换与错因<textarea id="readingAttemptNotes" placeholder="原文定位、同义替换、为什么错"></textarea></label><button class="primary" id="saveReadingAttempt">保存练习记录</button></aside>
+          <section class="suite-panel"><div class="summary-cards" id="readingSummary"></div><h3>做过的题目</h3><div class="card-list" id="readingHistory"></div></section>
+        </div>
+      </details>
+      <details class="reading-review-fold">
+        <summary><b>背题库</b><span>展开背题卡</span></summary>
+        <div class="suite-grid"><aside class="suite-panel soft"><h3>新增背题卡</h3><label>分类<input id="readingBacklogCategory" placeholder="例如：判断题 / 环境主题"></label><label>题干或关键问题<textarea id="readingBacklogFront"></textarea></label><label>答案、定位句和同义替换<textarea id="readingBacklogBack"></textarea></label><button class="primary" id="addReadingBacklog">加入背题库</button></aside><section class="suite-panel"><div class="study-card" id="readingBacklogCard"></div><div class="study-tools"><span id="readingBacklogCount">0 张</span><button id="readingBacklogNext">下一张 →</button></div><h3>背题清单</h3><div class="card-list" id="readingBacklogList"></div></section></div>
+      </details>
     </section>
 
     <section class="section timeline-wrap" data-page-section="plan" hidden>
