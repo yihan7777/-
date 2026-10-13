@@ -298,6 +298,7 @@
 
   function syncPageVisibility() {
     const page = currentPage();
+    document.body.dataset.activePage = page;
     $$('[data-page]').forEach(button => {
       button.classList.toggle('active', button.dataset.page === page);
     });
