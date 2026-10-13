@@ -146,6 +146,14 @@ body[data-hide-reading="true"] [data-page-section="reading"],
 body[data-hide-plan="true"] [data-page="plan"],
 body[data-hide-plan="true"] [data-page-section="plan"]{display:none!important}
 
+body[data-active-page="home"] [data-page-section]:not([data-page-section="home"]),
+body[data-active-page="speaking"] [data-page-section]:not([data-page-section="speaking"]),
+body[data-active-page="vocabulary"] [data-page-section]:not([data-page-section="vocabulary"]),
+body[data-active-page="writing"] [data-page-section]:not([data-page-section="writing"]),
+body[data-active-page="listening-hub"] [data-page-section]:not([data-page-section="listening-hub"]),
+body[data-active-page="reading"] [data-page-section]:not([data-page-section="reading"]),
+body[data-active-page="plan"] [data-page-section]:not([data-page-section="plan"]){display:none!important}
+
 @media(max-width:900px){
   .public-settings-grid{grid-template-columns:1fr}
   .public-field-grid{grid-template-columns:1fr 1fr}
