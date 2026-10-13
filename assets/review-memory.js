@@ -73,7 +73,7 @@
         seed.map(x=>x.category).filter(Boolean).forEach(x=>{if(!custom.includes(x)&&!presets.includes(x)){custom.push(x);changed=true}});
         if(changed)write(categoryKey,custom);
         localStorage.setItem(seedKey,'done');render();
-        if(added)setTimeout(()=>alert('已从《口语.md》整理并导入 '+added+' 张口语记忆卡。'),300);
+        if(added)setTimeout(()=>{const n=document.createElement('div');n.className='public-toast';n.textContent='已从《口语.md》整理并导入 '+added+' 张口语记忆卡。';document.body.append(n);setTimeout(()=>n.remove(),3600)},300);
       }catch(err){console.warn('Speaking memory seed import failed',err)}
     }
     let filter='全部',partView='全部',studyIndex=0;
