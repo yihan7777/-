@@ -23,6 +23,7 @@
     hiddenModules: [],
     focus: ['listening-hub', 'writing']
   };
+  const REFLECTION_KEY = 'ielts-daily-reflection-v1';
 
   const $ = selector => document.querySelector(selector);
   const $$ = selector => [...document.querySelectorAll(selector)];
@@ -104,6 +105,8 @@
     }
 
     renderPublicPlan(days);
+    renderPlanPage(days);
+    renderReflection();
     renderHomeTasks(days);
     syncForm();
     syncPageVisibility();
@@ -112,6 +115,24 @@
   function formatToday() {
     const date = new Date();
     return `${date.getMonth() + 1}月${date.getDate()}日`;
+  }
+
+  function dateKey(date = new Date()) {
+    return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+  }
+
+  function addDays(date, amount) {
+    const next = new Date(date);
+    next.setDate(next.getDate() + amount);
+    return next;
+  }
+
+  function weekday(date) {
+    return ['周日', '周一', '周二', '周三', '周四', '周五', '周六'][date.getDay()];
+  }
+
+  function escapeHtml(value) {
+    return String(value ?? '').replace(/[&<>"']/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[char]));
   }
 
   function fillList(selector, rows) {
@@ -159,6 +180,77 @@
       article.innerHTML = `<span>${label}</span><b>${value}</b>`;
       return article;
     }));
+  }
+
+  function planForDay(offset, days) {
+    if (days != null && days - offset <= 0) return { label: '考试 / 复盘', minutes: '轻量复盘', dots: ['mock'] };
+    if (days != null && days - offset <= 7) return { label: offset % 2 ? '错题复盘' : '整套模考', minutes: offset % 2 ? '45 min' : '120 min', dots: ['review', 'mock'] };
+    if (offset === 0) return { label: '今日重点', minutes: '60 min', dots: ['new', 'review'] };
+    if ([1, 3, 7].includes(offset)) return { label: '间隔复习', minutes: '40 min', dots: ['review'] };
+    if (offset % 6 === 5) return { label: '小模考', minutes: '90 min', dots: ['mock'] };
+    return { label: '首轮建库', minutes: '60 min', dots: ['new'] };
+  }
+
+  function renderPlanPage(days) {
+    const host = $('#timeline');
+    if (!host) return;
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const total = days == null ? 14 : Math.max(7, Math.min(28, days + 1));
+    host.innerHTML = Array.from({ length: total }, (_, offset) => {
+      const date = addDays(today, offset);
+      const item = planForDay(offset, days);
+      const dots = item.dots.map(dot => `<i class="dot ${dot}"></i>`).join('');
+      return `<article class="day ${offset === 0 ? 'today' : ''}">
+        <div class="date">${date.getMonth() + 1}月${date.getDate()}日<br>${weekday(date)}</div>
+        <div class="dots">${dots}</div>
+        <strong>${escapeHtml(item.label)}</strong>
+        <small>${escapeHtml(item.minutes)}</small>
+      </article>`;
+    }).join('');
+  }
+
+  function getReflections() {
+    try { return JSON.parse(localStorage.getItem(REFLECTION_KEY) || '{}'); }
+    catch (_) { return {}; }
+  }
+
+  function saveReflections(records) {
+    localStorage.setItem(REFLECTION_KEY, JSON.stringify(records));
+  }
+
+  function renderReflection() {
+    const root = $('#dailyReflection');
+    if (!root) return;
+    const key = dateKey();
+    const record = getReflections()[key] || {};
+    const date = $('#reflectionDate');
+    if (date) date.textContent = `${formatToday()} · ${weekday(new Date())}`;
+    $$('#moodPicker [data-mood]').forEach(button => {
+      button.classList.toggle('active', button.dataset.mood === record.mood);
+      button.setAttribute('aria-pressed', button.dataset.mood === record.mood ? 'true' : 'false');
+    });
+    const done = $('#reflectionDone');
+    const stuck = $('#reflectionStuck');
+    const next = $('#reflectionNext');
+    if (done && document.activeElement !== done) done.value = record.done || '';
+    if (stuck && document.activeElement !== stuck) stuck.value = record.stuck || '';
+    if (next && document.activeElement !== next) next.value = record.next || '';
+  }
+
+  function saveTodayReflection() {
+    const key = dateKey();
+    const records = getReflections();
+    records[key] = {
+      ...(records[key] || {}),
+      done: $('#reflectionDone')?.value.trim() || '',
+      stuck: $('#reflectionStuck')?.value.trim() || '',
+      next: $('#reflectionNext')?.value.trim() || '',
+      updatedAt: new Date().toISOString()
+    };
+    saveReflections(records);
+    const status = $('#reflectionStatus');
+    if (status) status.textContent = '已保存今日心情与反思。';
   }
 
   function syncForm() {
@@ -289,6 +381,8 @@
       section.open = false;
     });
     $$('.reading-manage-fold').forEach(section => {
+      if (section.dataset.publicManageFoldReady) return;
+      section.dataset.publicManageFoldReady = 'true';
       section.classList.remove('is-user-open');
       section.open = false;
     });
@@ -338,6 +432,15 @@
     window.addEventListener('load', () => window.setTimeout(applySettings, 0));
     window.addEventListener('hashchange', () => window.setTimeout(applySettings, 0));
     document.addEventListener('click', event => {
+      const mood = event.target.closest('#moodPicker [data-mood]');
+      if (mood) {
+        const key = dateKey();
+        const records = getReflections();
+        records[key] = { ...(records[key] || {}), mood: mood.dataset.mood, updatedAt: new Date().toISOString() };
+        saveReflections(records);
+        renderReflection();
+      }
+      if (event.target.closest('#saveReflection')) saveTodayReflection();
       if (event.target.closest('[data-page]')) window.setTimeout(applySettings, 60);
     });
     window.addEventListener('ielts-review-data-changed', () => window.setTimeout(applySettings, 0));
