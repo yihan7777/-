@@ -106,6 +106,7 @@
     renderPublicPlan(days);
     renderHomeTasks(days);
     syncForm();
+    syncPageVisibility();
   }
 
   function formatToday() {
@@ -289,6 +290,26 @@
     });
   }
 
+  function currentPage() {
+    const hash = location.hash.replace('#', '');
+    if (MODULES.some(([id]) => id === hash)) return hash;
+    return $('[data-page].active')?.dataset.page || 'home';
+  }
+
+  function syncPageVisibility() {
+    const page = currentPage();
+    $$('[data-page]').forEach(button => {
+      button.classList.toggle('active', button.dataset.page === page);
+    });
+    $$('[data-page-section]').forEach(section => {
+      if (section.dataset.pageSection !== page) {
+        section.hidden = true;
+      } else if (page === 'home' || page === 'reading' || page === 'plan') {
+        section.hidden = false;
+      }
+    });
+  }
+
   function init() {
     buildSettingsPanel();
     bindEvents();
@@ -299,6 +320,10 @@
       applySettings();
     }, delay));
     window.addEventListener('load', () => window.setTimeout(applySettings, 0));
+    window.addEventListener('hashchange', () => window.setTimeout(applySettings, 0));
+    document.addEventListener('click', event => {
+      if (event.target.closest('[data-page]')) window.setTimeout(applySettings, 60);
+    });
     window.addEventListener('ielts-review-data-changed', () => window.setTimeout(applySettings, 0));
   }
 
