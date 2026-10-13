@@ -11,6 +11,7 @@
 .reading-source-picker small{display:block;line-height:1.55;color:#7b6847}
 #readingRandomCheck{min-height:56px;font-size:14px;background:linear-gradient(135deg,#ffe7a0,#f5c65b);border-color:#d6a63a;box-shadow:0 8px 18px rgba(151,105,23,.12)}
 .reading-fold,.reading-review-fold{border:1px solid rgba(218,183,91,.55);border-radius:16px;background:rgba(255,255,255,.72);overflow:hidden}
+.reading-fold:not([open])>:not(summary),.reading-review-fold:not([open])>:not(summary){display:none!important}
 .reading-fold{margin:0 0 10px}
 .reading-fold summary,.reading-review-fold summary{display:flex;align-items:center;justify-content:space-between;gap:10px;min-height:48px;padding:12px 14px;color:#604515;font-weight:900;cursor:pointer;list-style:none}
 .reading-fold summary::-webkit-details-marker,.reading-review-fold summary::-webkit-details-marker{display:none}
@@ -41,6 +42,7 @@
 .reading-link-actions button{min-height:52px!important;border-radius:16px!important;font-size:15px!important}
 .reading-package-panel details{border:1px solid rgba(218,183,91,.45);border-radius:14px;background:#fffaf0;padding:0 12px 12px}
 .reading-package-panel details summary{padding:12px 0;font-weight:900;color:#6a4b16;cursor:pointer}
+.reading-package-panel .local-link-warning{display:none!important}
 .local-link-warning{display:none}
 .reading-rating.ready [data-reading-grade="again"]{border-color:#dca2a2;background:#fff1ef;color:#8b2f25}
 .reading-rating.ready [data-reading-grade="hard"]{border-color:#e4c36c;background:#fff5ce;color:#725016}
@@ -51,6 +53,7 @@
   .reading-source-picker select{font-size:14px}
   .reading-deck-tabs{grid-template-columns:repeat(3,minmax(0,1fr))}
   .reading-deck-tabs button{min-height:48px;font-size:12px;padding:8px 4px}
+  .reading-source-picker small{font-size:12px;line-height:1.45}
   .reading-source-picker label{gap:5px;margin:0}
   .reading-source-picker button{min-height:46px}
   #readingWeakOnly,#readingRandomCheck{min-height:48px;font-size:13px}
@@ -63,5 +66,7 @@
   #readingRating.reading-rating button small{font-size:11px;line-height:1.25}
   .reading-today-item{flex-direction:column;gap:4px}
   .reading-review-fold>.suite-grid{padding:10px}
+  .reading-review-fold summary{font-size:14px}
+  .reading-package-status small{display:none!important}
   .reading-package-status{padding:10px!important}
 }
