@@ -154,6 +154,32 @@ body[data-active-page="listening-hub"] [data-page-section]:not([data-page-sectio
 body[data-active-page="reading"] [data-page-section]:not([data-page-section="reading"]),
 body[data-active-page="plan"] [data-page-section]:not([data-page-section="plan"]){display:none!important}
 
+.daily-reflection{
+  margin-top:18px;padding:18px;border:1px solid var(--public-line);
+  border-radius:22px;background:rgba(255,253,247,.94);
+  box-shadow:0 14px 34px rgba(119,89,39,.10);
+}
+.reflection-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:12px}
+.reflection-head h3{margin:4px 0 0;color:var(--public-ink);font-size:24px}
+.reflection-head small{padding:7px 11px;border-radius:999px;background:var(--public-primary-soft);color:var(--public-ink);font-weight:900}
+.mood-picker{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:9px;margin:12px 0}
+.mood-picker button{
+  min-height:72px;border:1px solid var(--public-line);border-radius:18px;
+  background:linear-gradient(145deg,#fffdf7,var(--public-primary-soft));
+  color:var(--public-ink);font-weight:900;cursor:pointer;
+}
+.mood-picker button span{display:block;margin-top:5px;font-size:12px}
+.mood-picker button.active{border-color:var(--public-primary-strong);background:linear-gradient(135deg,var(--public-primary),var(--public-primary-soft));box-shadow:0 8px 18px color-mix(in srgb,var(--public-primary) 24%,transparent)}
+.daily-reflection label{display:grid;gap:7px;margin-top:12px;color:var(--public-muted);font-size:13px;font-weight:900}
+.daily-reflection textarea{
+  width:100%;min-height:72px;border:1px solid var(--public-line);border-radius:15px;
+  padding:11px 12px;background:#fff;color:var(--public-ink);font:inherit;resize:vertical;
+}
+.daily-reflection #saveReflection{width:100%;margin-top:13px;min-height:48px;border-radius:16px}
+#reflectionStatus{min-height:20px;margin:9px 0 0;color:var(--public-muted);font-size:12px;font-weight:800}
+.timeline .day strong{display:block;margin-top:8px;color:var(--public-ink);font-size:12px}
+.timeline .day small{display:block;margin-top:6px}
+
 @media(max-width:900px){
   .public-settings-grid{grid-template-columns:1fr}
   .public-field-grid{grid-template-columns:1fr 1fr}
@@ -168,4 +194,6 @@ body[data-active-page="plan"] [data-page-section]:not([data-page-section="plan"]
   .public-choice-row,.public-module-list{grid-template-columns:repeat(3,minmax(0,1fr))}
   .public-choice-row button,.public-module-list label,.public-focus-tags label{font-size:12px;padding:8px 7px}
   .public-module-list input,.public-focus-tags input,.public-inline-check input{width:26px!important;height:26px!important}
+  .mood-picker{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .reflection-head h3{font-size:21px}
 }
