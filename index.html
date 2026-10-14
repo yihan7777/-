@@ -17,7 +17,7 @@
   <link rel="stylesheet" href="assets/writing-mock.css?v=5">
   <link rel="stylesheet" href="assets/speaking-center.css?v=1">
   <link rel="stylesheet" href="assets/review-memory.css?v=3">
-  <link rel="stylesheet" href="assets/reading-september.css?v=7">
+  <link rel="stylesheet" href="assets/reading-september.css?v=8">
   <link rel="stylesheet" href="assets/app-shell.css?v=16">
   <link rel="stylesheet" href="assets/public-settings.css?v=7">
 </head>
@@ -361,20 +361,9 @@
         <aside class="reading-import">
           <div class="reading-source-picker">
             <section class="reading-quick-panel reading-entry-panel">
-              <div class="reading-panel-title">
-                <p class="deck-label">选择卡片类型</p>
-                <span>入口</span>
-              </div>
-              <div class="reading-deck-tabs" id="readingDeckTabs" aria-label="阅读卡组切换">
-                <div class="reading-entry-group">
-                  <small>阅读卡</small>
-                  <button type="button" data-reading-deck="september">机经文章</button>
-                </div>
-                <div class="reading-entry-group">
-                  <small>生词卡</small>
-                  <button type="button" data-reading-deck="color">真经词汇</button>
-                  <button type="button" data-reading-deck="personal">阅读生词</button>
-                </div>
+              <div class="reading-top-actions">
+                <button type="button" data-reading-deck="color">阅读生词</button>
+                <button type="button" id="readingQuickBank">阅读真题</button>
               </div>
             </section>
             <details class="reading-fold reading-filter-fold">
@@ -383,6 +372,11 @@
                 <div class="reading-panel-title">
                   <p class="deck-label">当前范围</p>
                   <span>练习</span>
+                </div>
+                <div class="reading-deck-tabs" id="readingDeckTabs" aria-label="阅读卡组切换">
+                  <button type="button" data-reading-deck="september">机经文章</button>
+                  <button type="button" data-reading-deck="color">真经词汇</button>
+                  <button type="button" data-reading-deck="personal">阅读生词</button>
                 </div>
                 <div class="reading-filter-grid">
                   <label id="readingGroupWrap"><span id="readingGroupLabel">频率</span>
@@ -518,7 +512,7 @@
 
   <footer><span>雅思考神小助手</span><p>每日训练 → 记录保存 → 错题复盘 → 下一轮复习</p></footer>
   <script src="assets/app.js?v=7" defer></script>
-  <script src="assets/reading.js?v=10" defer></script>
+  <script src="assets/reading.js?v=11" defer></script>
   <script src="assets/listening.js?v=8" defer></script>
   <script src="assets/dictation.js?v=2" defer></script>
   <script src="assets/mnemonic.js?v=3" defer></script>
