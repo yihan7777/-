@@ -135,6 +135,15 @@
     return String(value ?? '').replace(/[&<>"']/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[char]));
   }
 
+  function moodLabel(mood) {
+    return {
+      great: { icon: '😊', text: '状态好' },
+      calm: { icon: '🙂', text: '还不错' },
+      tired: { icon: '😐', text: '有点累' },
+      stressed: { icon: '😣', text: '压力大' }
+    }[mood] || null;
+  }
+
   function fillList(selector, rows) {
     const host = $(selector);
     if (!host) return;
@@ -197,15 +206,21 @@
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     const total = days == null ? 14 : Math.max(7, Math.min(28, days + 1));
+    const reflections = getReflections();
     host.innerHTML = Array.from({ length: total }, (_, offset) => {
       const date = addDays(today, offset);
       const item = planForDay(offset, days);
+      const record = reflections[dateKey(date)] || {};
+      const mood = moodLabel(record.mood);
+      const reflected = record.done || record.stuck || record.next;
       const dots = item.dots.map(dot => `<i class="dot ${dot}"></i>`).join('');
       return `<article class="day ${offset === 0 ? 'today' : ''}">
         <div class="date">${date.getMonth() + 1}月${date.getDate()}日<br>${weekday(date)}</div>
         <div class="dots">${dots}</div>
+        ${mood ? `<span class="plan-mood" title="${escapeHtml(mood.text)}">${mood.icon}</span>` : ''}
         <strong>${escapeHtml(item.label)}</strong>
         <small>${escapeHtml(item.minutes)}</small>
+        ${reflected ? '<em class="plan-reflected">已反思</em>' : ''}
       </article>`;
     }).join('');
   }
@@ -223,7 +238,8 @@
     const root = $('#dailyReflection');
     if (!root) return;
     const key = dateKey();
-    const record = getReflections()[key] || {};
+    const records = getReflections();
+    const record = records[key] || {};
     const date = $('#reflectionDate');
     if (date) date.textContent = `${formatToday()} · ${weekday(new Date())}`;
     $$('#moodPicker [data-mood]').forEach(button => {
@@ -236,6 +252,34 @@
     if (done && document.activeElement !== done) done.value = record.done || '';
     if (stuck && document.activeElement !== stuck) stuck.value = record.stuck || '';
     if (next && document.activeElement !== next) next.value = record.next || '';
+    renderReflectionVisual(records);
+  }
+
+  function shortDate(key) {
+    const [, month, day] = String(key).split('-');
+    return month && day ? `${Number(month)}月${Number(day)}日` : key;
+  }
+
+  function renderReflectionVisual(records = getReflections()) {
+    const host = $('#reflectionVisual');
+    if (!host) return;
+    const rows = Object.entries(records)
+      .filter(([, record]) => record && (record.mood || record.done || record.stuck || record.next))
+      .sort(([a], [b]) => b.localeCompare(a))
+      .slice(0, 7);
+    if (!rows.length) {
+      host.innerHTML = '<small>保存后会显示成卡片。</small>';
+      return;
+    }
+    host.innerHTML = rows.map(([key, record]) => {
+      const mood = moodLabel(record.mood);
+      return `<article class="reflection-card">
+        <div class="reflection-card-head"><b>${escapeHtml(shortDate(key))}</b><span>${mood ? `${mood.icon} ${escapeHtml(mood.text)}` : '未标记'}</span></div>
+        <p><strong>完成</strong>${escapeHtml(record.done || '还没填写')}</p>
+        <p><strong>卡点</strong>${escapeHtml(record.stuck || '还没填写')}</p>
+        <p><strong>明天</strong>${escapeHtml(record.next || '还没填写')}</p>
+      </article>`;
+    }).join('');
   }
 
   function saveTodayReflection() {
@@ -249,6 +293,8 @@
       updatedAt: new Date().toISOString()
     };
     saveReflections(records);
+    renderPlanPage(daysUntil(settings.examDate));
+    renderReflectionVisual(records);
     const status = $('#reflectionStatus');
     if (status) status.textContent = '已保存今日心情与反思。';
   }
@@ -438,6 +484,7 @@
         const records = getReflections();
         records[key] = { ...(records[key] || {}), mood: mood.dataset.mood, updatedAt: new Date().toISOString() };
         saveReflections(records);
+        renderPlanPage(daysUntil(settings.examDate));
         renderReflection();
       }
       if (event.target.closest('#saveReflection')) saveTodayReflection();
