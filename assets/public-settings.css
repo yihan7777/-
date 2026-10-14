@@ -38,6 +38,28 @@ body{
     linear-gradient(180deg,var(--public-panel) 0%,var(--public-bg) 56%,var(--public-panel) 100%)!important;
 }
 
+body::before{
+  content:"";
+  position:fixed;inset:0;z-index:-1;pointer-events:none;opacity:.62;
+  background:
+    radial-gradient(circle at 11% 14%,#d92d1f 0 3px,transparent 4px),
+    radial-gradient(circle at 14% 17%,#d92d1f 0 3px,transparent 4px),
+    radial-gradient(circle at 12.5% 15.5%,#d92d1f 0 2px,transparent 3px),
+    radial-gradient(circle at 86% 18%,#5f98df 0 6px,transparent 7px),
+    radial-gradient(circle at 91% 22%,#5f98df 0 3px,transparent 4px),
+    radial-gradient(circle at 8% 75%,#f0c62f 0 7px,transparent 8px),
+    radial-gradient(circle at 92% 78%,#d92d1f 0 3px,transparent 4px),
+    radial-gradient(circle at 95% 81%,#f0c62f 0 5px,transparent 6px);
+}
+
+body::after{
+  content:"It's ok";
+  position:fixed;right:22px;top:92px;z-index:1;pointer-events:none;
+  padding:7px 12px;border:2px solid #f0c62f;border-radius:999px 18px 999px 22px;
+  background:#fffdf7;color:#5f98df;font:900 14px/1.1 "Comic Sans MS","Marker Felt",cursive;
+  transform:rotate(7deg);box-shadow:0 8px 18px rgba(150,105,20,.10);
+}
+
 .brand,.hero-note,.app-topbar-title strong,.app-drawer-profile b{color:var(--public-ink)!important}
 .kicker,.eyebrow,.app-topbar-title small{color:var(--public-primary-strong)!important}
 .lead,.aside,.section-head p{color:var(--public-muted)!important}
@@ -65,6 +87,18 @@ body button.active,body button[aria-selected="true"],body button[data-selected="
   box-shadow:0 14px 34px rgba(119,89,39,.10)!important;
   color:var(--public-ink)!important;
 }
+
+.section,.tool-section,.suite-panel,.public-settings,.reading-card,.study-card,.flashcard{
+  position:relative;
+}
+.section::after,.tool-section::after{
+  content:"✦";
+  position:absolute;right:18px;top:16px;z-index:0;pointer-events:none;
+  color:#f0c62f;font-size:20px;line-height:1;opacity:.75;
+  text-shadow:10px 14px 0 #d92d1f,-16px 10px 0 #5f98df;
+}
+.section>*,
+.tool-section>*{position:relative;z-index:1}
 
 .public-settings summary{
   display:flex;align-items:center;justify-content:space-between;gap:12px;
