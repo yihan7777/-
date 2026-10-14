@@ -17,7 +17,7 @@
   <link rel="stylesheet" href="assets/writing-mock.css?v=5">
   <link rel="stylesheet" href="assets/speaking-center.css?v=1">
   <link rel="stylesheet" href="assets/review-memory.css?v=3">
-  <link rel="stylesheet" href="assets/reading-september.css?v=9">
+  <link rel="stylesheet" href="assets/reading-september.css?v=10">
   <link rel="stylesheet" href="assets/app-shell.css?v=16">
   <link rel="stylesheet" href="assets/public-settings.css?v=9">
 </head>
@@ -357,15 +357,13 @@
         <div><p class="kicker">READING VOCABULARY</p><h2>阅读生词与表达卡</h2></div>
         <p class="aside">把阅读中真正影响理解的生词、搭配和表达放进语境里复习，不背孤立词表。</p>
       </div>
+      <nav class="reading-page-tabs" aria-label="阅读页面切换">
+        <button type="button" class="active" data-reading-view="vocab">阅读生词</button>
+        <button type="button" data-reading-view="tests">阅读真题</button>
+      </nav>
       <div class="reading-layout">
         <aside class="reading-import">
           <div class="reading-source-picker">
-            <section class="reading-quick-panel reading-entry-panel">
-              <div class="reading-top-actions">
-                <button type="button" data-reading-deck="color">阅读生词</button>
-                <button type="button" id="readingQuickBank">阅读真题</button>
-              </div>
-            </section>
             <details class="reading-fold reading-filter-fold">
               <summary><b>筛选和抽查</b><span>可选</span></summary>
               <div class="reading-quick-panel">
@@ -512,7 +510,7 @@
 
   <footer><span>雅思考神小助手</span><p>每日训练 → 记录保存 → 错题复盘 → 下一轮复习</p></footer>
   <script src="assets/app.js?v=7" defer></script>
-  <script src="assets/reading.js?v=13" defer></script>
+  <script src="assets/reading.js?v=14" defer></script>
   <script src="assets/listening.js?v=8" defer></script>
   <script src="assets/dictation.js?v=2" defer></script>
   <script src="assets/mnemonic.js?v=3" defer></script>
