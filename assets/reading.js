@@ -78,7 +78,7 @@
     const pool = articleCards();
     const learned = pool.filter(card => (state[card.id]?.reps || 0) > 0).length;
     const weak = pool.filter(card => ['again', 'hard'].includes(state[card.id]?.lastGrade)).length;
-    const deckName = info?.deck === 'color' ? '彩色词汇' : '九月文章';
+    const deckName = info?.deck === 'color' ? '真经词汇' : '机经文章';
     $('#readingArticleMeta').textContent = info
       ? `${deckName} · ${info.level} · ${info.part} · 本组 ${info.count} 个词 · 已认识 ${learned} · 待加强 ${weak}`
       : `共 ${pool.length} 张个人阅读卡`;
@@ -89,8 +89,8 @@
   }
   function sectionInfo(card) {
     const info = articleFor(card?.articleId);
-    if (!info) return { id: 'personal', label: '我的卡片' };
-    const deckName = info.deck === 'color' ? '彩色词汇' : '九月文章';
+    if (!info) return { id: 'personal', label: '阅读生词' };
+    const deckName = info.deck === 'color' ? '真经词汇' : '机经文章';
     return { id: `${info.deck}|${info.id}`, label: [deckName, info.level, info.title].filter(Boolean).join(' · ') };
   }
   function renderTodayActivity() {
@@ -199,7 +199,7 @@
     $('#readingArticleWrap').hidden = activeDeck === 'personal';
     $('#readingArticleLabel').textContent = activeDeck === 'color' ? '选择 List' : '选择文章';
     if (activeDeck === 'personal') {
-      const personal = document.createElement('option'); personal.value = 'personal'; personal.textContent = '我的手动阅读卡'; select.append(personal);
+      const personal = document.createElement('option'); personal.value = 'personal'; personal.textContent = '阅读生词'; select.append(personal);
       activeArticle = 'personal'; select.value = activeArticle; setStore(sourceKey, activeArticle); return;
     }
     filtered.forEach(article => {
@@ -346,6 +346,6 @@
     articles = [...septemberArticles, ...colorArticles];
     cards = [...defaults, ...septemberCards, ...colorCards, ...custom];
     fillGroupOptions(); fillArticleOptions(); build();
-    status(`卡组已分开：九月文章 ${septemberCards.length} 张；彩色词汇 ${colorCards.length} 张。忘了或模糊的词都会自动重复出现。`);
+    status(`卡组已分开：机经文章 ${septemberCards.length} 张；真经词汇 ${colorCards.length} 张；阅读生词可手动添加。忘了或模糊的词都会自动重复出现。`);
   });
 })();
