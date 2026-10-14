@@ -17,7 +17,7 @@
   <link rel="stylesheet" href="assets/writing-mock.css?v=5">
   <link rel="stylesheet" href="assets/speaking-center.css?v=1">
   <link rel="stylesheet" href="assets/review-memory.css?v=3">
-  <link rel="stylesheet" href="assets/reading-september.css?v=5">
+  <link rel="stylesheet" href="assets/reading-september.css?v=6">
   <link rel="stylesheet" href="assets/app-shell.css?v=16">
   <link rel="stylesheet" href="assets/public-settings.css?v=7">
 </head>
@@ -360,20 +360,35 @@
       <div class="reading-layout">
         <aside class="reading-import">
           <div class="reading-source-picker">
-            <p class="deck-label">选择独立卡组</p>
-            <div class="reading-deck-tabs" id="readingDeckTabs" aria-label="阅读卡组切换">
-              <button type="button" data-reading-deck="september">九月文章卡</button>
-              <button type="button" data-reading-deck="color">彩色词汇卡</button>
-              <button type="button" data-reading-deck="personal">我的卡片</button>
-            </div>
-            <label id="readingGroupWrap"><span id="readingGroupLabel">频率</span>
-              <select id="readingLevelFilter"></select>
-            </label>
-            <label id="readingArticleWrap"><span id="readingArticleLabel">选择文章</span>
-              <select id="readingArticleFilter"></select>
-            </label>
-            <button type="button" id="readingWeakOnly" aria-pressed="false">只练不熟的词</button>
-            <button type="button" id="readingRandomCheck">🎯 随机抽查当前卡片（10张）</button>
+            <section class="reading-quick-panel">
+              <div class="reading-panel-title">
+                <p class="deck-label">快捷切换</p>
+                <span>卡组</span>
+              </div>
+              <div class="reading-deck-tabs" id="readingDeckTabs" aria-label="阅读卡组切换">
+                <button type="button" data-reading-deck="september">九月文章</button>
+                <button type="button" data-reading-deck="color">彩色词汇</button>
+                <button type="button" data-reading-deck="personal">我的卡</button>
+              </div>
+            </section>
+            <section class="reading-quick-panel">
+              <div class="reading-panel-title">
+                <p class="deck-label">范围和练习</p>
+                <span>筛选</span>
+              </div>
+              <div class="reading-filter-grid">
+                <label id="readingGroupWrap"><span id="readingGroupLabel">频率</span>
+                  <select id="readingLevelFilter"></select>
+                </label>
+                <label id="readingArticleWrap"><span id="readingArticleLabel">选择文章</span>
+                  <select id="readingArticleFilter"></select>
+                </label>
+              </div>
+              <div class="reading-action-row">
+                <button type="button" id="readingWeakOnly" aria-pressed="false">只练不熟</button>
+                <button type="button" id="readingRandomCheck">随机抽查10张</button>
+              </div>
+            </section>
             <small id="readingArticleMeta">正在整理文章卡组…</small>
             <details class="reading-fold">
               <summary><b id="readingTodayTitle">今天学习的板块</b><span id="readingTodayTotal">0张</span></summary>
