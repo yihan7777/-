@@ -294,6 +294,18 @@
     activeDeck = tab.dataset.readingDeck; setStore(deckKey, activeDeck);
     fillGroupOptions(); fillArticleOptions(); build();
   });
+  document.querySelector('.reading-top-actions')?.addEventListener('click', event => {
+    const deckButton = event.target.closest('[data-reading-deck]');
+    if (deckButton) {
+      activeDeck = deckButton.dataset.readingDeck; setStore(deckKey, activeDeck);
+      fillGroupOptions(); fillArticleOptions(); build();
+      document.querySelector('.reading-stage')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      return;
+    }
+    if (event.target.closest('#readingQuickBank')) {
+      document.querySelector('#openReadingPackage')?.click();
+    }
+  });
   $('#readingArticleFilter').addEventListener('change', event => {
     activeArticle = event.target.value; setStore(sourceKey, activeArticle); build();
   });
@@ -325,7 +337,7 @@
 
   state = getStore(stateKey, {});
   activeArticle = getStore(sourceKey, '');
-  activeDeck = getStore(deckKey, activeArticle.startsWith('CV-') ? 'color' : (activeArticle === 'personal' ? 'personal' : 'september'));
+  activeDeck = getStore(deckKey, activeArticle.startsWith('CV-') ? 'color' : (activeArticle === 'personal' ? 'personal' : 'color'));
   if (!['september', 'color', 'personal'].includes(activeDeck)) activeDeck = 'september';
   groupPreferences = { ...groupPreferences, ...getStore(groupKey, {}) };
   activeLevel = groupPreferences[activeDeck];
