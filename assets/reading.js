@@ -303,7 +303,7 @@
       return;
     }
     if (event.target.closest('#readingQuickBank')) {
-      document.querySelector('#openReadingPackage')?.click();
+      document.querySelector('#readingReviewSuite')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
   });
   $('#readingArticleFilter').addEventListener('change', event => {
