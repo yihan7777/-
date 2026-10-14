@@ -294,17 +294,26 @@
     activeDeck = tab.dataset.readingDeck; setStore(deckKey, activeDeck);
     fillGroupOptions(); fillArticleOptions(); build();
   });
-  document.querySelector('.reading-top-actions')?.addEventListener('click', event => {
-    const deckButton = event.target.closest('[data-reading-deck]');
-    if (deckButton) {
-      activeDeck = deckButton.dataset.readingDeck; setStore(deckKey, activeDeck);
+  function setReadingView(view) {
+    const next = view === 'tests' ? 'tests' : 'vocab';
+    document.body.dataset.readingView = next;
+    document.querySelectorAll('[data-reading-view]').forEach(tab => {
+      const active = tab.dataset.readingView === next;
+      tab.classList.toggle('active', active);
+      tab.setAttribute('aria-pressed', String(active));
+    });
+    const review = document.querySelector('#readingReviewSuite');
+    if (review) review.hidden = next !== 'tests';
+    if (next === 'vocab') {
+      activeDeck = activeDeck === 'september' ? 'color' : activeDeck;
+      setStore(deckKey, activeDeck);
       fillGroupOptions(); fillArticleOptions(); build();
-      document.querySelector('.reading-stage')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      return;
     }
-    if (event.target.closest('#readingQuickBank')) {
-      document.querySelector('#readingReviewSuite')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }
+  }
+  document.querySelector('.reading-page-tabs')?.addEventListener('click', event => {
+    const tab = event.target.closest('[data-reading-view]');
+    if (!tab) return;
+    setReadingView(tab.dataset.readingView);
   });
   $('#readingArticleFilter').addEventListener('change', event => {
     activeArticle = event.target.value; setStore(sourceKey, activeArticle); build();
@@ -357,7 +366,7 @@
     const colorCards = Array.isArray(color.cards) ? color.cards : [];
     articles = [...septemberArticles, ...colorArticles];
     cards = [...defaults, ...septemberCards, ...colorCards, ...custom];
-    fillGroupOptions(); fillArticleOptions(); build();
+    fillGroupOptions(); fillArticleOptions(); build(); setReadingView('vocab');
     status(`卡组已分开：机经文章 ${septemberCards.length} 张；真经词汇 ${colorCards.length} 张；阅读生词可手动添加。忘了或模糊的词都会自动重复出现。`);
   });
 })();
